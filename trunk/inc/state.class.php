@@ -184,7 +184,7 @@ class PluginTimelineticketState extends CommonDBTM {
       
       echo "<br/><table class='tab_cadre_fixe'>";
       echo "<tr>";
-      echo "<th colspan='2'>Timeline status</th>";
+      echo "<th colspan='2'>".$LANG['joblist'][0]."</th>";
       echo "</tr>";
       
       $end = date("Y-m-d H:i:s");
