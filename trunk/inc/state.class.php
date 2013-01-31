@@ -323,10 +323,12 @@ class PluginTimelineticketState extends CommonDBTM {
          echo "</td>";
          echo "</tr>";
       }
+     
       $ptAssignGroup = new PluginTimelineticketAssignGroup();
       $ptAssignGroup->showTimeline($ticket->getID());
       $ptAssignUser = new PluginTimelineticketAssignUser();
       $ptAssignUser->showTimeline($ticket->getID());
+      echo "</table>";
    }
    
 
