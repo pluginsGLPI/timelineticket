@@ -42,7 +42,6 @@ if (!defined('GLPI_ROOT')){
 }
 
 class PluginTimelineticketAssignUser extends CommonDBTM {
-
    
    /*
     * type = new or delete
@@ -130,10 +129,20 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
       $myPicture->setFontProperties(array("FontName"=>GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/fonts/pf_arma_five.ttf","FontSize"=>6));
       /* Define the indicator sections */
       $IndicatorSections = array();
+      $_usersfinished = array();
 
+      $end_date = '';
+      if ($ticket->fields['status'] != 'closed') {
+         $end_date = strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['date']);
+      } else {
+         $end_date = strtotime($ticket->fields['closedate']) - strtotime($ticket->fields['date']);
+      }      
+      
       $a_users = $this->find("`tickets_id`='".$ticket->getField('id')."'", "`date`");
       $a_user_end = array();
+      $a_users_list = array();
       foreach($a_users as $data) {
+         $a_users_list[$data['users_id']] = $data['users_id'];
          if (!isset($a_user_end[$data['users_id']])) {
             $a_user_end[$data['users_id']] = 0;
          }
@@ -142,10 +151,21 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
          }
          if (is_null($data['delay'])) {
             $data['delay'] = $totaltime - $data['begin'];
+            $_usersfinished[$data['users_id']] = false;
+         } else {
+            $_usersfinished[$data['users_id']] = true;
          }
          $IndicatorSections[$data['users_id']][] = array("Start"=>$data['begin'],"End"=>($data['begin'] + $data['delay']),"Caption"=>"","R"=>19,"G"=>157,"B"=>15);
          $a_user_end[$data['users_id']] = ($data['begin'] + $data['delay']);
       }
+      echo "<pre>";
+
+      foreach ($a_users_list as $users_id) {
+         if ($a_user_end[$users_id] != $end_date) {
+            $IndicatorSections[$users_id][] = array("Start"=>$a_user_end[$users_id],"End"=>($end_date ),"Caption"=>"","R"=>235,"G"=>235,"B"=>235);
+         }
+      }
+
       echo "<tr>";
       echo "<th colspan='2'>Assigned users</th>";
       echo "</tr>";
@@ -156,24 +176,115 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
          echo Dropdown::getDropdownName("glpi_users", $users_id);
          echo "</td>";
          echo "<td>";
-         if ($ticket->fields['status'] != 'closed') {
-            $IndicatorSettings = array("Values"=>array(100,201),"CaptionPosition"=>INDICATOR_CAPTION_BOTTOM, "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT, "CaptionR"=>0, "CaptionG"=>0,"CaptionB"=>0,"DrawLeftHead"=>FALSE, "ValueDisplay"=>false, "IndicatorSections"=>$array);
+         if ($ticket->fields['status'] != 'closed'
+                 && $_usersfinished[$users_id] === false) {
+
+            $IndicatorSettings = array("Values"=>array(100,201),
+                                       "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM, 
+                                       "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT, 
+                                       "CaptionR"=>0, 
+                                       "CaptionG"=>0,
+                                       "CaptionB"=>0,
+                                       "DrawLeftHead"=>false,
+                                       "DrawRightHead"=>true, 
+                                       "ValueDisplay"=>false,
+                                       "IndicatorSections"=>$array, 
+                                       "SectionsMargin" => 0);
             $Indicator->draw(2,2,805,25,$IndicatorSettings);
          } else {
-            $IndicatorSettings = array("Values"=>array(100,201),"CaptionPosition"=>INDICATOR_CAPTION_BOTTOM, "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT, "CaptionR"=>0, "CaptionG"=>0,"CaptionB"=>0,"DrawLeftHead"=>FALSE, "DrawRightHead"=>FALSE, "ValueDisplay"=>false, "IndicatorSections"=>$array);
+            $IndicatorSettings = array("Values"=>array(100,201),
+                                       "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM, 
+                                       "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT, 
+                                       "CaptionR"=>0, 
+                                       "CaptionG"=>0,
+                                       "CaptionB"=>0,
+                                       "DrawLeftHead"=>false, 
+                                       "DrawRightHead"=>false, 
+                                       "ValueDisplay"=>false, 
+                                       "IndicatorSections"=>$array, 
+                                       "SectionsMargin" => 0);
             $Indicator->draw(2,2,814,25,$IndicatorSettings);
          }
 
-         $filename = $uid=Session::getLoginUserID(false)."_testu".$users_id;
+         $filename = $uid=Session::getLoginUserID(false)."_testuser".$users_id;
          $myPicture->render(GLPI_ROOT."/files/_graphs/".$filename.".png");
+
 
          echo "<img src='".$CFG_GLPI['root_doc']."/front/graph.send.php?file=".$filename.".png'><br/>";
          echo "</td>";
          echo "</tr>";
       }
-      echo "</table>";
       
    }
+   
+   
+   
+   static function addUserTicket(Ticket_User $item) {
+      if ($item->fields['type'] == 2) {
+         $ptAssignUser = new PluginTimelineticketAssignUser();
+         $ticket = new Ticket();
+         $ticket->getFromDB($item->fields['tickets_id']);
+         $calendar = new Calendar();
+         $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+         $datedebut = $ticket->fields['date'];
+         if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
+            $delay = $calendar->getActiveTimeBetween ($datedebut, date('Y-m-d H:i:s'));
+         } else {
+            // cas 24/24 - 7/7
+            $delay = strtotime(date('Y-m-d H:i:s'))-strtotime($datedebut);
+         }
+                  
+         $input = array();
+         $input['tickets_id'] = $item->fields['tickets_id'];
+         $input['users_id'] = $item->fields['users_id'];
+         $input['date'] = date('Y-m-d H:i:s');
+         $input['begin'] = $delay;
+         $ptAssignUser->add($input);
+      }
+   }
+   
+   
+   static function deleteUserTicket(Ticket_User $item) {
+      global $DB;
+      
+      $ticket = new Ticket();
+      $ptAssignUser = new PluginTimelineticketAssignUser();
+      
+      $ticket->getFromDB($item->fields['tickets_id']);
+      
+      $calendar = new Calendar();
+      $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
 
+      $query = "SELECT MAX(`date`) AS datedebut, id
+                FROM `".$ptAssignUser->getTable()."`
+                WHERE `tickets_id` = '".$item->fields['tickets_id']."' 
+                  AND `users_id`='".$item->fields['users_id']."'
+                  AND `delay` IS NULL";
+
+      $result    = $DB->query($query);
+      $datedebut = '';
+      $input = array();
+      if ($result && $DB->numrows($result)) {
+         $datedebut = $DB->result($result, 0, 'datedebut');
+         $input['id'] = $DB->result($result, 0, 'id');
+      } else {
+         return;
+      }
+      
+      if (!$datedebut) {
+         $delay = 0;
+      // Utilisation calendrier
+      } else if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
+         $delay = $calendar->getActiveTimeBetween ($datedebut, date('Y-m-d H:i:s'));
+      } else {
+         // cas 24/24 - 7/7
+         $delay = strtotime(date('Y-m-d H:i:s'))-strtotime($datedebut);
+      }
+
+      $input['delay'] = $delay;
+      $ptAssignUser->update($input);      
+      
+   }
 }
+
 ?>
