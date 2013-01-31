@@ -86,7 +86,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
    
    
    function showTimeline($tickets_id) {
-      global $CFG_GLPI;
+      global $CFG_GLPI, $LANG;
       
       $palette = array(
             array('250', '151', '186'),
@@ -212,7 +212,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       }
 
       echo "<tr>";
-      echo "<th colspan='2'>Assigned groups</th>";
+      echo "<th colspan='2'>".$LANG['setup'][248]."</th>";
       echo "</tr>";
       
       foreach ($IndicatorSections as $groups_id=>$array) {

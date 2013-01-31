@@ -85,7 +85,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
    
    
    function showTimeline($tickets_id) {
-      global $CFG_GLPI;
+      global $CFG_GLPI, $LANG;
       
       $palette = array(
             array('164', '53', '86'),
@@ -206,7 +206,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
       }
 
       echo "<tr>";
-      echo "<th colspan='2'>Assigned users</th>";
+      echo "<th colspan='2'>".$LANG['setup'][239]."</th>";
       echo "</tr>";
       
       foreach ($IndicatorSections as $users_id=>$array) {
