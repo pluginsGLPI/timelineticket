@@ -207,7 +207,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
             $Indicator->draw(2,2,814,25,$IndicatorSettings);
          }
 
-         $filename = $uid=Session::getLoginUserID(false)."_test".$groups_id;
+         $filename = $uid=Session::getLoginUserID(false)."_testgroup".$groups_id;
          $myPicture->render(GLPI_ROOT."/files/_graphs/".$filename.".png");
 
 

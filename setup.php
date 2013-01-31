@@ -59,13 +59,15 @@ function plugin_init_timelineticket() {
                           array('addtabon' => array('Ticket')));
 
    $PLUGIN_HOOKS['item_purge']['timelineticket']     =  array(
-         'Ticket'=>'plugin_timelineticket_ticket_purge',
-         'Group_Ticket' => array('PluginTimelineticketAssignGroup', 'deleteGroupTicket')
+         'Ticket'       => 'plugin_timelineticket_ticket_purge',
+         'Group_Ticket' => array('PluginTimelineticketAssignGroup', 'deleteGroupTicket'),
+         'Ticket_User'  => array('PluginTimelineticketAssignUser', 'deleteUserTicket')
        );
 
    $PLUGIN_HOOKS['item_add']['timelineticket']       = array(
-          'Ticket'=>'plugin_timelineticket_ticket_add',
-          'Group_Ticket' => array('PluginTimelineticketAssignGroup', 'addGroupTicket')
+         'Ticket'=>'plugin_timelineticket_ticket_add',
+         'Group_Ticket' => array('PluginTimelineticketAssignGroup', 'addGroupTicket'),
+         'Ticket_User'  => array('PluginTimelineticketAssignUser', 'addUserTicket')
        );
    $PLUGIN_HOOKS['item_update']['timelineticket']    = array(
          'Ticket' => 'plugin_timelineticket_ticket_update'
