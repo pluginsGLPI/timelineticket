@@ -88,6 +88,30 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
    function showTimeline($tickets_id) {
       global $CFG_GLPI;
       
+      $palette = array(
+            array('250', '151', '186'),
+            array('255', '211', '112'),
+            array('183', '210', '118'),
+            array('117', '199', '187'),
+            array('188', '168', '208'),
+            array('186', '213', '118'),
+            array('124', '169', '0'),
+            array('168', '208', '49'),
+            array('239', '215', '113'),
+            array('235', '155', '0'),
+            array('235', '249', '255'),
+            array('193', '228', '250'),
+            array('164', '217', '250'),
+            array('88', '195', '240'),
+            array('0', '156', '231'),
+            array('198', '229', '111'),
+            array('234', '38', '115'),
+            array('245', '122', '160'),
+            array('255', '208', '220')
+         );
+
+
+      
       $ticket = new Ticket();
       $ticket->getFromDB($tickets_id);
       
@@ -142,13 +166,27 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       $a_groups = $this->find("`tickets_id`='".$ticket->getField('id')."'", "`date`");
       $a_group_end = array();
       $a_groups_list = array();
+      $a_group_palette = array();
       foreach($a_groups as $data) {
+         if (!isset($a_group_palette[$data['groups_id']])) {
+            $a_group_palette[$data['groups_id']] = array_shift($palette);
+         }
+         $color_R = $a_group_palette[$data['groups_id']][0];
+         $color_G = $a_group_palette[$data['groups_id']][1];
+         $color_B = $a_group_palette[$data['groups_id']][2];
+         
          $a_groups_list[$data['groups_id']] = $data['groups_id'];
          if (!isset($a_group_end[$data['groups_id']])) {
             $a_group_end[$data['groups_id']] = 0;
          }
          if ($data['begin'] != $a_group_end[$data['groups_id']]) {
-            $IndicatorSections[$data['groups_id']][] = array("Start"=>$a_group_end[$data['groups_id']],"End"=>$data['begin'],"Caption"=>"","R"=>235,"G"=>235,"B"=>235);
+            $IndicatorSections[$data['groups_id']][] = array(
+                  "Start"=>$a_group_end[$data['groups_id']],
+                  "End"=>$data['begin'],
+                  "Caption"=>"",
+                  "R"=>235,
+                  "G"=>235,
+                  "B"=>235);
          }
          if (is_null($data['delay'])) {
             $data['delay'] = $totaltime - $data['begin'];
@@ -156,7 +194,13 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
          } else {
             $_groupsfinished[$data['groups_id']] = true;
          }
-         $IndicatorSections[$data['groups_id']][] = array("Start"=>$data['begin'],"End"=>($data['begin'] + $data['delay']),"Caption"=>"","R"=>19,"G"=>157,"B"=>15);
+         $IndicatorSections[$data['groups_id']][] = array(
+                  "Start"=>$data['begin'],
+                  "End"=>($data['begin'] + $data['delay']),
+                  "Caption"=>"",
+                  "R"=>$color_R,
+                  "G"=>$color_G,
+                  "B"=>$color_B);
          $a_group_end[$data['groups_id']] = ($data['begin'] + $data['delay']);
       }
       echo "<pre>";
