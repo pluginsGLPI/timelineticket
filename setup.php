@@ -43,7 +43,7 @@ function plugin_version_timelineticket() {
 
    return array('name'           => $LANG['plugin_timelineticket'][1],
                 'minGlpiVersion' => '0.83.3',
-                'version'        => '0.83+1.0',
+                'version'        => '0.83+1.1',
                 'author'         => 'Nelly Mahu-Lasson && David Durieux');
 }
 
@@ -81,7 +81,6 @@ function plugin_init_timelineticket() {
 
 
 function plugin_timelineticket_check_prerequisites() {
-   global $LANG;
 
    // Checking of the GLPI version
    if (version_compare(GLPI_VERSION,'0.83.3','lt') || version_compare(GLPI_VERSION,'0.84','ge')) {
