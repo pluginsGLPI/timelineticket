@@ -246,7 +246,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
          }
 
          $filename = $uid=Session::getLoginUserID(false)."_testuser".$users_id;
-         $myPicture->render(GLPI_ROOT."/files/_graphs/".$filename.".png");
+         $myPicture->render(GLPI_GRAPH_DIR."/".$filename.".png");
 
 
          echo "<img src='".$CFG_GLPI['root_doc']."/front/graph.send.php?file=".$filename.".png'><br/>";
