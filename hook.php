@@ -199,15 +199,15 @@ function plugin_timelineticket_getAddSearchOptions($itemtype) {
    Plugin::loadLang('timelineticket');
 
    $sopt = array();
-   if ($itemtype == 'Ticket') {
-      $sopt[1000]['table']         = 'glpi_plugin_timelineticket_followups';
-      $sopt[1000]['field']         = 'solved_delay';
-      $sopt[1000]['linkfield']     = '';
-      $sopt[1000]['name']          = $LANG['plugin_timelineticket'][2];
-      $sopt[1000]['datatype']      = 'timestamp';
-      $sopt[1000]['forcegroupby']  = true;
-      $sopt[1000]['usehaving']     = true;
-   }
+//   if ($itemtype == 'Ticket') {
+//      $sopt[1000]['table']         = 'glpi_plugin_timelineticket_followups';
+//      $sopt[1000]['field']         = 'solved_delay';
+//      $sopt[1000]['linkfield']     = '';
+//      $sopt[1000]['name']          = $LANG['plugin_timelineticket'][2];
+//      $sopt[1000]['datatype']      = 'timestamp';
+//      $sopt[1000]['forcegroupby']  = true;
+//      $sopt[1000]['usehaving']     = true;
+//   }
    return $sopt;
 }
 
