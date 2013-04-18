@@ -300,6 +300,70 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       $ptAssignGroup->update($input);      
       
    }
+   
+   /*
+   * Function to reconstruct timeline for all tickets
+   */
+
+   function reconstrucTimeline() {
+      global $DB;
+
+      
+      $query = "TRUNCATE `" . $this->getTable() . "`";
+      $DB->query($query);
+
+      $query = "SELECT id 
+               FROM `glpi_tickets`";
+      $result = $DB->query($query);
+      
+      while ($data = $DB->fetch_array($result)) {
+         
+         $queryGroup = "SELECT * FROM `glpi_logs`";
+         $queryGroup .= " WHERE `itemtype_link` = 'Group'";
+         $queryGroup .= " AND `items_id` = " . $data['id'];
+         $queryGroup .= " AND `itemtype` = 'Ticket'";
+         $queryGroup .= " ORDER BY date_mod ASC";
+
+         $resultGroup = $DB->query($queryGroup);
+         
+         if($resultGroup) {
+            while ($dataGroup = $DB->fetch_array($resultGroup)) {
+               if($dataGroup['new_value'] != null) {
+                  $start = Toolbox::strpos($dataGroup['new_value'], "(");
+                  $end = Toolbox::strpos($dataGroup['new_value'], ")");
+                  $length = $end - $start;
+                  $groups_id = Toolbox::substr($dataGroup['new_value'], $start+1, $length-1);
+
+                  $group = new Group();
+                  if($group->getFromDB($groups_id)) {
+                     if($group->fields['is_requester'] == 0 
+                           && $group->fields['is_assign'] == 1) {
+                        
+                        $ticket = new Ticket();
+                        $ticket->getFromDB($data['id']);
+                        $this->createGroup($ticket, $dataGroup['date_mod'], $groups_id, 'new');       
+                     } 
+                  }
+               } else if ($dataGroup['old_value'] != null) {
+                  $start = Toolbox::strpos($dataGroup['old_value'], "(");
+                  $end = Toolbox::strpos($dataGroup['old_value'], ")");
+                  $length = $end - $start;
+                  $groups_id = Toolbox::substr($dataGroup['old_value'], $start+1, $length-1);
+
+                  $group = new Group();
+                  if($group->getFromDB($groups_id)) {
+                     if($group->fields['is_requester'] == 0 
+                           && $group->fields['is_assign'] == 1) {
+                        $ticket = new Ticket();
+                        $ticket->getFromDB($data['id']);
+                        $this->createGroup($ticket, $dataGroup['date_mod'], $groups_id, 'delete');      
+                     } 
+                  }
+               }
+            }
+         }
+      }
+   }
 }
 
 ?>

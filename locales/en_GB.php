@@ -55,4 +55,9 @@ $LANG['plugin_timelineticket'][15] = "Timeline";
 $LANG['plugin_timelineticket'][16] = "Technicians in charge of this ticket"; 
 $LANG['plugin_timelineticket'][17] = "Groups in charge of the ticket";
 
+$LANG['plugin_timelineticket']['config'][1] = "Reconstruct states timeline for old tickets";
+$LANG['plugin_timelineticket']['config'][2] = "Reconstruct groups timeline for old tickets";
+$LANG['plugin_timelineticket']['config'][3] = "(Can take many time if you have many tickets)";
+$LANG['plugin_timelineticket']['config'][4] = "Warning : it may be that the reconstruction of groups does not reflect reality because it concern only groups which have the Requester flag to No and Assigned flag to Yes";
+
 ?>

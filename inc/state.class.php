@@ -201,52 +201,59 @@ class PluginTimelineticketState extends CommonDBTM {
                //$caption = $status;
                $delaystatus[$statusSection] += round(( ($params['totaltime'] - $begin) * 100) / $params['totaltime'], 2);
             }
-            $IndicatorSections[$statusSection][] = array("Start"=>$begin,"End"=>($begin + ($params['totaltime'] - $begin)),"Caption"=>$caption,"R"=>$R,"G"=>$G,"B"=>$B);
+            $IndicatorSections[$statusSection][] = array("Start"=>$begin,
+                                                         "End"=>($begin + ($params['totaltime'] - $begin)),
+                                                         "Caption"=>$caption,
+                                                         "R"=>$R,
+                                                         "G"=>$G,
+                                                         "B"=>$B);
          }
       }
       
-      foreach ($a_states as $status) {
-         echo "<tr class='tab_bg_2'>";
-         echo "<td width='100'>";
-         echo Ticket::getStatus($status);
-         echo "<br/>(".$delaystatus[$status]."%)";
-         echo "</td>";
-         echo "<td>";
-         if ($ticket->fields['status'] != 'closed') {
-            $IndicatorSettings = array("Values"=>array(100,201),
-                                       "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM, 
-                                       "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT, 
-                                       "CaptionR"=>0, 
-                                       "CaptionG"=>0,
-                                       "CaptionB"=>0,
-                                       "DrawLeftHead"=>FALSE, 
-                                       "ValueDisplay"=>false, 
-                                       "IndicatorSections"=>$IndicatorSections[$status], 
-                                       "SectionsMargin" => 0);
-            $Indicator->draw(2,2,805,25,$IndicatorSettings);
-         } else {
-            $IndicatorSettings = array("Values"=>array(100,201),
-                                       "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM, 
-                                       "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT, 
-                                       "CaptionR"=>0, 
-                                       "CaptionG"=>0,
-                                       "CaptionB"=>0,
-                                       "DrawLeftHead"=>FALSE, 
-                                       "DrawRightHead"=>FALSE, 
-                                       "ValueDisplay"=>false, 
-                                       "IndicatorSections"=>$IndicatorSections[$status], 
-                                       "SectionsMargin" => 0);
-            $Indicator->draw(2,2,814,25,$IndicatorSettings);
+      if (count($a_status) > 1) {
+         foreach ($a_states as $status) {
+            echo "<tr class='tab_bg_2'>";
+            echo "<td width='100'>";
+            echo Ticket::getStatus($status);
+            echo "<br/>(".$delaystatus[$status]."%)";
+            echo "</td>";
+            echo "<td>";
+            
+            if ($ticket->fields['status'] != 'closed') {
+               $IndicatorSettings = array("Values"=>array(100,201),
+                                          "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM, 
+                                          "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT, 
+                                          "CaptionR"=>0, 
+                                          "CaptionG"=>0,
+                                          "CaptionB"=>0,
+                                          "DrawLeftHead"=>FALSE, 
+                                          "ValueDisplay"=>false, 
+                                          "IndicatorSections"=>$IndicatorSections[$status], 
+                                          "SectionsMargin" => 0);
+               $Indicator->draw(2,2,805,25,$IndicatorSettings);
+            } else {
+               $IndicatorSettings = array("Values"=>array(100,201),
+                                          "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM, 
+                                          "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT, 
+                                          "CaptionR"=>0, 
+                                          "CaptionG"=>0,
+                                          "CaptionB"=>0,
+                                          "DrawLeftHead"=>FALSE, 
+                                          "DrawRightHead"=>FALSE, 
+                                          "ValueDisplay"=>false, 
+                                          "IndicatorSections"=>$IndicatorSections[$status], 
+                                          "SectionsMargin" => 0);
+               $Indicator->draw(2,2,814,25,$IndicatorSettings);
+            }
+
+            $filename = $uid=Session::getLoginUserID(false)."_test".$status;
+            $myPicture->render(GLPI_GRAPH_DIR."/".$filename.".png");
+
+            echo "<img src='".$CFG_GLPI['root_doc']."/front/graph.send.php?file=".$filename.".png'><br/>";
+            echo "</td>";
+            echo "</tr>";
          }
-
-         $filename = $uid=Session::getLoginUserID(false)."_test".$status;
-         $myPicture->render(GLPI_GRAPH_DIR."/".$filename.".png");
-
-         echo "<img src='".$CFG_GLPI['root_doc']."/front/graph.send.php?file=".$filename.".png'><br/>";
-         echo "</td>";
-         echo "</tr>";
       }
-      
       // Display ticket have Due date
       if ($ticket->fields['due_date']) {
          

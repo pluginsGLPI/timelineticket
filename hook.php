@@ -108,50 +108,6 @@ function plugin_timelineticket_uninstall() {
    }
 }
 
-/*
-function plugin_timelineticket_get_headings($item) {
-   global $LANG;
-
-   switch (get_Class($item)) {
-      case 'Ticket' :
-         if ($item->getField('id')>0 && haveRight('config','r')) {
-            return array(1 => $LANG['plugin_timelineticket'][3]);
-         }
-   }
-   return false;
-}
-
-
-function plugin_timelineticket_headings_action($item) {
-
-   switch (get_Class($item)) {
-      case 'Ticket' :
-         if ($item->getField('id')>0 && haveRight('config','r')) {
-            return array(1 => array('PluginTimelineticketState','showForTicket'));
-         }
-         break;
-   }
-   return false;
-}
-
-
-function plugin_timelineticket_headings($item,$withtemplate=0){
-}
-
-
-function plugin_timelineticket_ticket_add(Ticket $item) {
-
-   // Instantiation of the object from the class PluginTimelineticketStates
-   $followups = new PluginTimelineticketState();
-
-   $followups->createFollowup($item, $item->input['date'], '', 'new');
-
-   if ($item->input['status'] != 'new') {
-      $followups->createFollowup($item, $item->input['date'], 'new', $item->input['status']);
-   }
-}
-*/
-
 function plugin_timelineticket_ticket_update(Ticket $item) {
    
    if (in_array('status',$item->updates)) {
@@ -196,7 +152,7 @@ function plugin_timelineticket_ticket_purge(Ticket $item) {
 function plugin_timelineticket_getAddSearchOptions($itemtype) {
    global $LANG;
 
-   Plugin::loadLang('timelineticket');
+   //Plugin::loadLang('timelineticket');
 
    $sopt = array();
 //   if ($itemtype == 'Ticket') {
@@ -238,4 +194,5 @@ function plugin_timelineticket_addLeftJoin($type,$ref_table,$new_table,$linkfiel
    }
    return "";
 }
+
 ?>

@@ -43,10 +43,6 @@ if (!defined('GLPI_ROOT')){
 
 class PluginTimelineticketConfig extends CommonDBTM {
 
-   
-   /*
-    * Function to reconstruct timeline for all tickets
-    */
    function showForm() {
       global $LANG;
       
@@ -56,29 +52,22 @@ class PluginTimelineticketConfig extends CommonDBTM {
       
       echo "<tr>";
       echo "<th>";
-      echo $LANG['plugin_timelineticket'][1];
+      echo $LANG['common'][12];
+      echo "&nbsp;".$LANG['plugin_timelineticket']['config'][3];
       echo "</th>";
       echo "</tr>";
       
       echo "<tr class='tab_bg_1'>";
       echo "<td align='center'>";
       
-      echo "<br/><input type='submit' name='reconstruct' class='submit' value=\"Reconstruct timeline for old tickets\" >";
-      echo "<br/>(Can take many time if you have many tickets)<br/><br/>";
+      echo "<br/><input type='submit' name='reconstructStates' class='submit' value=\"".$LANG['plugin_timelineticket']['config'][1]."\" >";
+      echo "<br/><br/><input type='submit' name='reconstructGroups' class='submit' value=\"".$LANG['plugin_timelineticket']['config'][2]."\" >";
+      echo "<br/><br/><div class='red'>".$LANG['plugin_timelineticket']['config'][4]."</div>";
       
       echo "</td>";
       echo "</table>";
       Html::closeForm();
-      
-   }
-   
-   
-   
-   function reconstructTimeline() {
-      
-      
-      
-   }
-
+   } 
 }
+
 ?>
