@@ -41,27 +41,27 @@ define('GLPI_ROOT', '../../..');
 
 include (GLPI_ROOT . "/inc/includes.php");
 
-Html::header($LANG['plugin_timelineticket'][1],$_SERVER["PHP_SELF"],"plugins","timelineticket","config");
+Html::header($LANG['plugin_timelineticket'][1], $_SERVER["PHP_SELF"], "plugins", "timelineticket", "config");
 
-if (Session::haveRight("configuration", "r") || Session::haveRight("profile", "w")) {
+if (Session::haveRight("config", "r") 
+      || Session::haveRight("profile", "w")) {
 
-
-$ptConfig = new PluginTimelineticketConfig();
-
-if (isset ($_POST["reconstruct"])) {
+   $ptConfig = new PluginTimelineticketConfig();
    ini_set("max_execution_time", "0");
-   $ptState = new PluginTimelineticketState();
-   $ptState->reconstructTimeline();
-   Html::back();
-}
+   if (isset($_POST["reconstructStates"])) {
+      $ptState = new PluginTimelineticketState();
+      $ptState->reconstructTimeline();
+      Html::back();
+   } else if (isset($_POST["reconstructGroups"])) {
+      $ptGroup = new PluginTimelineticketAssignGroup();
+      $ptGroup->reconstrucTimeline();
+      Html::back();
+   }
 
-$ptConfig->showForm();
+   $ptConfig->showForm();
 
-
-
-Html::footer();
-} else {
-   Session::checkRight("othertimeline", 'r');
+   Html::footer();
+   
 }
 
 ?>

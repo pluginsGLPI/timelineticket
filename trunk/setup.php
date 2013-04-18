@@ -73,7 +73,8 @@ function plugin_init_timelineticket() {
          'Ticket' => 'plugin_timelineticket_ticket_update'
        );
    
-   if (Session::haveRight("configuration", "r") || Session::haveRight("profile", "w")) {// Config page
+   if (Session::haveRight("config", "r") 
+         || Session::haveRight("profile", "w")) {// Config page
       $PLUGIN_HOOKS['config_page']['timelineticket'] = 'front/config.form.php';
    }
 }
