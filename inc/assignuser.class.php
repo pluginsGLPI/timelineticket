@@ -84,7 +84,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
    
    
    
-   function showTimeline($tickets_id) {
+   function showTimeline($ticket, $params = array()) {
       global $CFG_GLPI, $LANG;
       
       $palette = array(
@@ -105,39 +105,6 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
             array('114', '59', '82'),
             array('245', '229', '195')
           );
-      
-      $ticket = new Ticket();
-      $ticket->getFromDB($tickets_id);
-      
-      $end = date("Y-m-d H:i:s");
-      if ($ticket->fields['status'] == 'closed') {
-          $end = $ticket->fields['closedate'];
-      }
-
-      $totaltime = 0;
-      if ($ticket->fields['slas_id'] != 0) { // Have SLA
-         $sla = new SLA();
-         $sla->getFromDB($ticket->fields['slas_id']);
-         $currenttime = $sla->getActiveTimeBetween($ticket->fields['date'], date('Y-m-d H:i:s'));
-         $totaltime = $sla->getActiveTimeBetween($ticket->fields['date'], $end);
-      } else {
-         $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
-         if ($calendars_id != 0) { // Ticket entity have calendar
-            $calendar = new Calendar();
-            $calendar->getFromDB($calendars_id);
-            $currenttime = $calendar->getActiveTimeBetween($ticket->fields['date'], date('Y-m-d H:i:s'));
-            $totaltime = $calendar->getActiveTimeBetween($ticket->fields['date'], $end);
-         } else { // No calendar
-            $currenttime = strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['date']);
-            $totaltime = strtotime($end) - strtotime($ticket->fields['date']);
-         }
-      }
-      
-      /* pChart library inclusions */
-      include_once(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pData.class.php");
-      include_once(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pDraw.class.php");
-      include_once(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pImage.class.php");
-      include_once(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pIndicator.class.php");
 
       /* Create and populate the pData object */
       $MyData = new pData();  
@@ -149,13 +116,6 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
       /* Define the indicator sections */
       $IndicatorSections = array();
       $_usersfinished = array();
-
-      $end_date = '';
-      if ($ticket->fields['status'] != 'closed') {
-         $end_date = strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['date']);
-      } else {
-         $end_date = strtotime($ticket->fields['closedate']) - strtotime($ticket->fields['date']);
-      }      
       
       $a_users = $this->find("`tickets_id`='".$ticket->getField('id')."'", "`date`");
       $a_user_end = array();
@@ -183,7 +143,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
                         "B"=>235);
          }
          if (is_null($data['delay'])) {
-            $data['delay'] = $totaltime - $data['begin'];
+            $data['delay'] = $params['totaltime'] - $data['begin'];
             $_usersfinished[$data['users_id']] = false;
          } else {
             $_usersfinished[$data['users_id']] = true;
@@ -200,19 +160,30 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
       echo "<pre>";
 
       foreach ($a_users_list as $users_id) {
-         if ($a_user_end[$users_id] != $end_date) {
-            $IndicatorSections[$users_id][] = array("Start"=>$a_user_end[$users_id],"End"=>($end_date ),"Caption"=>"","R"=>235,"G"=>235,"B"=>235);
+         if ($a_user_end[$users_id] != $params['end_date']) {
+            $IndicatorSections[$users_id][] = array("Start"=>$a_user_end[$users_id],
+                                                   "End"=>($params['end_date']),
+                                                   "Caption"=>"",
+                                                   "R"=>235,
+                                                   "G"=>235,
+                                                   "B"=>235);
          }
       }
 
       echo "<tr>";
-      echo "<th colspan='2'>".$LANG['setup'][239]."</th>";
+      echo "<th colspan='2'>";
+      if (count($a_users_list) > 1) {
+         echo $LANG['plugin_timelineticket'][16];
+      } else {
+         echo $LANG['setup'][239];
+      }
+      echo"</th>";
       echo "</tr>";
       
-      foreach ($IndicatorSections as $users_id=>$array) {
-         echo "<tr>";
+      foreach ($IndicatorSections as $users_id =>$array) {
+         echo "<tr class='tab_bg_2'>";
          echo "<td width='100'>";
-         echo Dropdown::getDropdownName("glpi_users", $users_id);
+         echo getUsername($users_id);
          echo "</td>";
          echo "<td>";
          if ($ticket->fields['status'] != 'closed'

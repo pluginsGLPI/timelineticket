@@ -49,6 +49,7 @@ if (Session::haveRight("configuration", "r") || Session::haveRight("profile", "w
 $ptConfig = new PluginTimelineticketConfig();
 
 if (isset ($_POST["reconstruct"])) {
+   ini_set("max_execution_time", "0");
    $ptState = new PluginTimelineticketState();
    $ptState->reconstructTimeline();
    Html::back();

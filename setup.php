@@ -55,7 +55,7 @@ function plugin_init_timelineticket() {
    $PLUGIN_HOOKS['csrf_compliant']['timelineticket'] = true;
 
 
-   Plugin::registerClass('PluginTimelineticketState',
+   Plugin::registerClass('PluginTimelineticketDisplay',
                           array('addtabon' => array('Ticket')));
 
    $PLUGIN_HOOKS['item_purge']['timelineticket']     =  array(

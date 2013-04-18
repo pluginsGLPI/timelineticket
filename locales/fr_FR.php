@@ -52,4 +52,7 @@ $LANG['plugin_timelineticket'][12] = "Fermeture";
 $LANG['plugin_timelineticket'][13] = "Total avant résolution";
 $LANG['plugin_timelineticket'][14] = "Avant prise en charge";
 $LANG['plugin_timelineticket'][15] = "Chronologie";
+$LANG['plugin_timelineticket'][16] = "Techniciens chargés du ticket";
+$LANG['plugin_timelineticket'][17] = "Groupes chargés du ticket";
+
 ?>

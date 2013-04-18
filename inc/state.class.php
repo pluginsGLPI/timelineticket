@@ -96,126 +96,50 @@ class PluginTimelineticketState extends CommonDBTM {
                        'delay'       => $delay));
    }
 
-   
-
-   static function showForTicket (Ticket $ticket) {
-      global $DB, $LANG, $CFG_GLPI;
-
-      echo "<table class='tab_cadre'>";
-      echo "<tr><th>".$LANG['job'][37]."</th><th>".$LANG['rulesengine'][82]."</th></tr>";
-
-      echo "<tr class='tab_bg_1 center'><td colspan='2'>".$LANG['calendar'][10]."&nbsp;: ";
-      $calendar = new Calendar();
-      $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
-      if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
-         echo $calendar->getLink();
-      } else {
-         echo NOT_AVAILABLE;
-      }
-      echo "</td></tr>";
-
+   static function showHistory (Ticket $ticket) {
+      global $DB, $LANG;
+      
       $query = "SELECT *
                 FROM `glpi_plugin_timelineticket_states`
-                WHERE `tickets_id`='".$ticket->getField('id')."'
+                WHERE `tickets_id` = '".$ticket->getField('id')."'
                 ORDER BY `id` DESC";
 
       $req = $DB->request($query);
       if (!$req->numrows()) {
-         echo "<tr class='tab_bg_1 center'><td colspan='2'>".$LANG['search'][15]."</td></tr>";
+         echo "<tr class='tab_bg_1 center'><td>".$LANG['search'][15]."</td></tr>";
       } else {
-         // Global
-         echo "<tr class='tab_bg_1 top'><td><table class='tab_cadre'>";
-         echo "<tr><th>".$LANG['joblist'][6]."</th>";
-         echo "<th>".$LANG['plugin_timelineticket'][4]."</th></tr>";
 
-         $liste = array(// Prise en compte
-                        $LANG['plugin_timelineticket'][7]  => array('new'),
-                        // Traitement
-                        $LANG['plugin_timelineticket'][8]  => array('assign', 'plan'),
-                        // Avant prise en charge
-                        $LANG['plugin_timelineticket'][14] => array('new', 'assign'),
-                        // Avant Résolution
-                        $LANG['plugin_timelineticket'][9]  => array('new', 'assign', 'plan'),
-                        // Attente
-                        $LANG['plugin_timelineticket'][11] => array('waiting'),
-                        // Total avant résolution
-                        $LANG['plugin_timelineticket'][13] => array('new', 'assign', 'plan', 'waiting'),
-                        // Fermeture
-                        $LANG['plugin_timelineticket'][12] => array('solved'),
-                        // Total
-                        $LANG['plugin_timelineticket'][10] => array('new', 'assign', 'plan', 'waiting',
-                                                              'solved'));
-
-//         foreach ($liste as $title => $tab) {
-//            $query = "SELECT SUM(delay) AS total
-//                      FROM `glpi_plugin_timelineticket_states`
-//                      WHERE `tickets_id`='".$ticket->getField('id')."'
-//                      AND `old_status` IN ('".implode("','",$tab)."')";
-//            $data = $DB->request($query)->next();
-//            if ($data['total']) {
-//               echo "<tr class='tab_bg_1'><td>$title</td>";
-//               echo "<td class='right'>".Html::timestampToString($data['total'],
-//                                                                 Session::haveRight('config','w')).
-//                    "</td></tr>";
-//            }
-//         }
-
-         echo "</table></td>";
-
-         // Detail
-         echo "<td><table class='tab_cadre'>";
-         echo "<tr><th>".$LANG['common'][27]."</th><th>".$LANG['plugin_timelineticket'][5]."</th>";
-         echo "<th>".$LANG['plugin_timelineticket'][6]."</th><th>".$LANG['plugin_timelineticket'][4]."</th></tr>";
+         echo "<tr><th>".$LANG['rulesengine'][82]."</th></tr>";
+         echo "<tr class='tab_bg_2'><td>";
+         
+         echo "<table class='tab_cadrehov' width='100%'>";
+         echo "<tr>";
+         echo "<th>".$LANG['common'][27]."</th>";
+         echo "<th>".$LANG['plugin_timelineticket'][5]."</th>";
+         echo "<th>".$LANG['plugin_timelineticket'][6]."</th>";
+         echo "<th>".$LANG['plugin_timelineticket'][4]."</th>";
+         echo "</tr>";
 
          foreach ($req as $data) {
-            echo "<tr class='tab_bg_1'><td>".Html::convDateTime($data['date'])."</td>";
+            echo "<tr class='tab_bg_1'>";
+            echo "<td>".Html::convDateTime($data['date'])."</td>";
             echo "<td>".Ticket::getStatus($data['old_status'])."</td>";
             echo "<td>".Ticket::getStatus($data['new_status'])."</td>";
             echo "<td class='right'>".Html::timestampToString($data['delay'],
                                                               Session::haveRight('config','w')).
-                 "</td></tr>";
+                 "</td>";
+            echo "</tr>";
          }
-
-         echo "</table></tr>";
+         
+         echo "</table>";
+         echo "</td>";
+         echo "</tr>";
       }
+   }
 
-      echo "</table>";
-      
-      
-      echo "<br/><table class='tab_cadre_fixe'>";
-      echo "<tr>";
-      echo "<th colspan='2'>".$LANG['joblist'][0]."</th>";
-      echo "</tr>";
-      
-      $end = date("Y-m-d H:i:s");
-      if ($ticket->fields['status'] == 'closed') {
-          $end = $ticket->fields['closedate'];
-      }
+   function showTimeline (Ticket $ticket, $params = array()) {
+      global $DB, $LANG, $CFG_GLPI;
 
-      $totaltime = 0;
-      if ($ticket->fields['slas_id'] != 0) { // Have SLA
-         $sla = new SLA();
-         $sla->getFromDB($ticket->fields['slas_id']);
-         $currenttime = $sla->getActiveTimeBetween($ticket->fields['date'], date('Y-m-d H:i:s'));
-         $totaltime = $sla->getActiveTimeBetween($ticket->fields['date'], $end);
-      } else {
-         $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
-         if ($calendars_id != 0) { // Ticket entity have calendar
-            $calendar = new Calendar();
-            $calendar->getFromDB($calendars_id);
-            $currenttime = $calendar->getActiveTimeBetween($ticket->fields['date'], date('Y-m-d H:i:s'));
-            $totaltime = $calendar->getActiveTimeBetween($ticket->fields['date'], $end);
-         } else { // No calendar
-            $currenttime = strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['date']);
-            $totaltime = strtotime($end) - strtotime($ticket->fields['date']);
-         }
-      }
-
-      /* pChart library inclusions */
-      include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pData.class.php");
-      include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pDraw.class.php");
-      include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pImage.class.php");
-      include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pIndicator.class.php");
  
       /* Create and populate the pData object */
       $MyData = new pData();  
@@ -244,8 +168,7 @@ class PluginTimelineticketState extends CommonDBTM {
          $delaystatus[$status] = 0;
       }
 
-      $ptFollow = new PluginTimelineticketState();
-      $a_status = $ptFollow->find("`tickets_id`='".$ticket->getField('id')."'", "`date`");
+      $a_status = $this->find("`tickets_id`='".$ticket->getField('id')."'", "`date`");
       $begin = 0;
       foreach ($a_status as $data) {
          foreach ($a_states as $statusSection) { 
@@ -259,7 +182,7 @@ class PluginTimelineticketState extends CommonDBTM {
                $B = $a_status_color[$statusSection]['B'];
 
                //$caption = $status;
-               $delaystatus[$statusSection] += round(( $data['delay'] * 100) / $totaltime, 2);
+               $delaystatus[$statusSection] += round(( $data['delay'] * 100) / $params['totaltime'], 2);
             }
             $IndicatorSections[$statusSection][] = array("Start"=>$begin,"End"=>($begin + $data['delay']),"Caption"=>$caption,"R"=>$R,"G"=>$G,"B"=>$B);
          }
@@ -276,14 +199,14 @@ class PluginTimelineticketState extends CommonDBTM {
                $G = $a_status_color[$statusSection]['G'];
                $B = $a_status_color[$statusSection]['B'];
                //$caption = $status;
-               $delaystatus[$statusSection] += round(( ($totaltime - $begin) * 100) / $totaltime, 2);
+               $delaystatus[$statusSection] += round(( ($params['totaltime'] - $begin) * 100) / $params['totaltime'], 2);
             }
-            $IndicatorSections[$statusSection][] = array("Start"=>$begin,"End"=>($begin + ($totaltime - $begin)),"Caption"=>$caption,"R"=>$R,"G"=>$G,"B"=>$B);
+            $IndicatorSections[$statusSection][] = array("Start"=>$begin,"End"=>($begin + ($params['totaltime'] - $begin)),"Caption"=>$caption,"R"=>$R,"G"=>$G,"B"=>$B);
          }
       }
       
       foreach ($a_states as $status) {
-         echo "<tr>";
+         echo "<tr class='tab_bg_2'>";
          echo "<td width='100'>";
          echo Ticket::getStatus($status);
          echo "<br/>(".$delaystatus[$status]."%)";
@@ -347,10 +270,10 @@ class PluginTimelineticketState extends CommonDBTM {
             }
          }
          
-         echo "<tr>";
+         echo "<tr class='tab_bg_2'>";
          echo "<td width='100'>";
          echo $LANG['job'][17];
-         echo "<br/>(".round(($dateend * 100) / $totaltime, 2)."%)";
+         echo "<br/>(".round(($dateend * 100) / $params['totaltime'], 2)."%)";
          echo "</td>";
          echo "<td>";
          
@@ -425,41 +348,7 @@ class PluginTimelineticketState extends CommonDBTM {
          echo "</td>";
          echo "</tr>";
       }
-     
-      $ptAssignGroup = new PluginTimelineticketAssignGroup();
-      $ptAssignGroup->showTimeline($ticket->getID());
-      $ptAssignUser = new PluginTimelineticketAssignUser();
-      $ptAssignUser->showTimeline($ticket->getID());
-      echo "</table>";
    }
-   
-
-
-   function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
-      global $LANG;
-      
-      if ($item->getType() == 'Ticket') {
-         if ($item->getField('id')>0 && Session::haveRight('config','r')) {
-            return array(1 => $LANG['plugin_timelineticket'][15]);
-         }
-      }
-      return '';
-   }
-   
-
-
-   static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
-
-      if ($item->getType() == 'Ticket') {
-         $prof = new self();
-         if ($item->getField('id')>0 && Session::haveRight('config','r')) {
-            self::showForTicket($item);
-         }
-      }
-      return true;
-   }
-   
-   
    
    /*
     * Function to reconstruct timeline for all tickets

@@ -53,7 +53,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       
       if ($type == 'new') {
          $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
-         if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
+         if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
             $begin = $calendar->getActiveTimeBetween ($ticket->fields['date'], $date);
          } else {
             // cas 24/24 - 7/7
@@ -85,7 +85,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
    
    
    
-   function showTimeline($tickets_id) {
+   function showTimeline($ticket, $params = array()) {
       global $CFG_GLPI, $LANG;
       
       $palette = array(
@@ -111,40 +111,6 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
          );
 
 
-      
-      $ticket = new Ticket();
-      $ticket->getFromDB($tickets_id);
-      
-      $end = date("Y-m-d H:i:s");
-      if ($ticket->fields['status'] == 'closed') {
-          $end = $ticket->fields['closedate'];
-      }
-
-      $totaltime = 0;
-      if ($ticket->fields['slas_id'] != 0) { // Have SLA
-         $sla = new SLA();
-         $sla->getFromDB($ticket->fields['slas_id']);
-         $currenttime = $sla->getActiveTimeBetween($ticket->fields['date'], date('Y-m-d H:i:s'));
-         $totaltime = $sla->getActiveTimeBetween($ticket->fields['date'], $end);
-      } else {
-         $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
-         if ($calendars_id != 0) { // Ticket entity have calendar
-            $calendar = new Calendar();
-            $calendar->getFromDB($calendars_id);
-            $currenttime = $calendar->getActiveTimeBetween($ticket->fields['date'], date('Y-m-d H:i:s'));
-            $totaltime = $calendar->getActiveTimeBetween($ticket->fields['date'], $end);
-         } else { // No calendar
-            $currenttime = strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['date']);
-            $totaltime = strtotime($end) - strtotime($ticket->fields['date']);
-         }
-      }
-      
-      /* pChart library inclusions */
-      include_once(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pData.class.php");
-      include_once(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pDraw.class.php");
-      include_once(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pImage.class.php");
-      include_once(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pIndicator.class.php");
-
       /* Create and populate the pData object */
       $MyData = new pData();  
       /* Create the pChart object */
@@ -156,13 +122,6 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       $IndicatorSections = array();
       $_groupsfinished = array();
 
-      $end_date = '';
-      if ($ticket->fields['status'] != 'closed') {
-         $end_date = strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['date']);
-      } else {
-         $end_date = strtotime($ticket->fields['closedate']) - strtotime($ticket->fields['date']);
-      }      
-      
       $a_groups = $this->find("`tickets_id`='".$ticket->getField('id')."'", "`date`");
       $a_group_end = array();
       $a_groups_list = array();
@@ -189,7 +148,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
                   "B"=>235);
          }
          if (is_null($data['delay'])) {
-            $data['delay'] = $totaltime - $data['begin'];
+            $data['delay'] = $params['totaltime'] - $data['begin'];
             $_groupsfinished[$data['groups_id']] = false;
          } else {
             $_groupsfinished[$data['groups_id']] = true;
@@ -206,17 +165,28 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       echo "<pre>";
 
       foreach ($a_groups_list as $groups_id) {
-         if ($a_group_end[$groups_id] != $end_date) {
-            $IndicatorSections[$groups_id][] = array("Start"=>$a_group_end[$groups_id],"End"=>($end_date ),"Caption"=>"","R"=>235,"G"=>235,"B"=>235);
+         if ($a_group_end[$groups_id] != $params['end_date']) {
+            $IndicatorSections[$groups_id][] = array("Start"=>$a_group_end[$groups_id],
+                                                   "End"=>($params['end_date']),
+                                                   "Caption"=>"",
+                                                   "R"=>235,
+                                                   "G"=>235,
+                                                   "B"=>235);
          }
       }
 
       echo "<tr>";
-      echo "<th colspan='2'>".$LANG['setup'][248]."</th>";
+      echo "<th colspan='2'>";
+      if (count($a_groups_list) > 1) {
+         echo $LANG['plugin_timelineticket'][17];
+      } else {
+         echo $LANG['setup'][248];
+      }
+      echo "</th>";
       echo "</tr>";
       
       foreach ($IndicatorSections as $groups_id=>$array) {
-         echo "<tr>";
+         echo "<tr class='tab_bg_2'>";
          echo "<td width='100'>";
          echo Dropdown::getDropdownName("glpi_groups", $groups_id);
          echo "</td>";
