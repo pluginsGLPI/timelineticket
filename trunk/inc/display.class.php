@@ -61,9 +61,41 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
       PluginTimelineticketState::showHistory($ticket);
 
+      // Display ticket have Due date
+      if ($ticket->fields['due_date']
+              && (strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['due_date'])) > 0) {
+
+         $calendar = new Calendar();
+         $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+
+         if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
+            if ($ticket->fields['closedate']) {
+               $dateend = $calendar->getActiveTimeBetween($ticket->fields['due_date'], 
+                                                          $ticket->fields['closedate']);
+            } else {
+               $dateend = $calendar->getActiveTimeBetween($ticket->fields['due_date'], 
+                                                          date('Y-m-d H:i:s'));
+            }
+         } else {
+            // cas 24/24 - 7/7
+            if ($ticket->fields['closedate']) {
+               $dateend = strtotime($ticket->fields['closedate'])-strtotime($ticket->fields['due_date']);
+            } else {
+               $dateend = strtotime(date('Y-m-d H:i:s'))-strtotime($ticket->fields['due_date']);
+            }
+         }
+         echo "<tr>";
+         echo "<th>".$LANG['job'][17]."</th>";
+         echo "</tr>";
+         echo "<tr>";
+         echo "<td align='center' class='tab_bg_2_2'>".
+                 Html::timestampToString($dateend, true)."</td>";
+         echo "</tr>";
+      }
+      
       echo "</table>";
       
-      echo "<br/><table class='tab_cadre_fixe'>";
+      echo "<table class='tab_cadre_fixe'>";
       echo "<tr>";
       echo "<th colspan='2'>".$LANG['joblist'][0]."</th>";
       echo "</tr>";
@@ -103,7 +135,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       }
       $params = array('totaltime' => $totaltime,
                         'end_date' => $end_date);
-      
+
       $ptState = new PluginTimelineticketState();
       $ptState->showTimeline($ticket, $params);
       $ptAssignGroup = new PluginTimelineticketAssignGroup();
