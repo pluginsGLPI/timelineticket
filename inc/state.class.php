@@ -125,9 +125,7 @@ class PluginTimelineticketState extends CommonDBTM {
             echo "<td>".Html::convDateTime($data['date'])."</td>";
             echo "<td>".Ticket::getStatus($data['old_status'])."</td>";
             echo "<td>".Ticket::getStatus($data['new_status'])."</td>";
-            echo "<td class='right'>".Html::timestampToString($data['delay'],
-                                                              Session::haveRight('config','w')).
-                 "</td>";
+            echo "<td class='right'>".Html::timestampToString($data['delay'], true)."</td>";
             echo "</tr>";
          }
          
@@ -137,9 +135,10 @@ class PluginTimelineticketState extends CommonDBTM {
       }
    }
 
+   
+   
    function showTimeline (Ticket $ticket, $params = array()) {
       global $DB, $LANG, $CFG_GLPI;
-
  
       /* Create and populate the pData object */
       $MyData = new pData();  
@@ -255,8 +254,12 @@ class PluginTimelineticketState extends CommonDBTM {
          }
       }
       // Display ticket have Due date
-      if ($ticket->fields['due_date']) {
-         
+      if ($ticket->fields['due_date']
+              && (strtotime(date('Y-m-d H:i:s') - strtotime($ticket->fields['due_date'])) > 0)) {
+
+         $calendar = new Calendar();
+         $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+
          if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
             $duedate = $calendar->getActiveTimeBetween($ticket->fields['date'], 
                                                        $ticket->fields['due_date']);
@@ -276,9 +279,8 @@ class PluginTimelineticketState extends CommonDBTM {
                $dateend = strtotime(date('Y-m-d H:i:s'))-strtotime($ticket->fields['due_date']);
             }
          }
-         
          echo "<tr class='tab_bg_2'>";
-         echo "<td width='100'>";
+         echo "<td width='100' class='tab_bg_2_2'>";
          echo $LANG['job'][17];
          echo "<br/>(".round(($dateend * 100) / $params['totaltime'], 2)."%)";
          echo "</td>";
@@ -308,7 +310,7 @@ class PluginTimelineticketState extends CommonDBTM {
                                                ),
                                            array(
                                                "Start"    => $duedate,
-                                               "End"      => $dateend,
+                                               "End"      => ($dateend + $duedate),
                                                "Caption"  => "",
                                                "R"        => 255,
                                                "G"        => 0,
@@ -338,7 +340,7 @@ class PluginTimelineticketState extends CommonDBTM {
                                                ),
                                            array(
                                                "Start"    => $duedate,
-                                               "End"      => $dateend,
+                                               "End"      => ($dateend + $duedate),
                                                "Caption"  => "",
                                                "R"        => 255,
                                                "G"        => 0,
@@ -356,6 +358,8 @@ class PluginTimelineticketState extends CommonDBTM {
          echo "</tr>";
       }
    }
+   
+   
    
    /*
     * Function to reconstruct timeline for all tickets
