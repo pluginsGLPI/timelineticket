@@ -47,6 +47,7 @@ if (Session::haveRight("config", "r")
       || Session::haveRight("profile", "w")) {
 
    $ptConfig = new PluginTimelineticketConfig();
+   ini_set("memory_limit", "-1");
    ini_set("max_execution_time", "0");
    if (isset($_POST["reconstructStates"])) {
       $ptState = new PluginTimelineticketState();
