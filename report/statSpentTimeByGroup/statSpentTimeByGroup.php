@@ -79,8 +79,7 @@ $columns = array('closedate' => array('sorton' => 'closedate'),
                   'type' => array('sorton' => 'type'),
                   'itilcategories_id' => array('sorton' => 'itilcategories_id'),
                   'name' => array('sorton' => 'name'),
-                  'requesttypes_id' => array('sorton' => 'requesttypes_id'),
-                  'TOTAL' => array('sorton' => 'TOTAL')
+                  'requesttypes_id' => array('sorton' => 'requesttypes_id')
     );
    
 $output_type = HTML_OUTPUT;
@@ -221,7 +220,7 @@ if ($res && $nbtot > 0) {
          showTitle($output_type, $num, $LANG['plugin_timelineticket']['statSpentTimeByGroup'][2]."&nbsp;".$key, '', false);
       }
    }
-   showTitle($output_type, $num, $LANG['plugin_timelineticket']['statSpentTimeByGroup'][3], 'TOTAL', true);
+   showTitle($output_type, $num, $LANG['plugin_timelineticket']['statSpentTimeByGroup'][3], 'TOTAL', false);
    echo Search::showEndLine($output_type);
 
    $row_num = 1;
