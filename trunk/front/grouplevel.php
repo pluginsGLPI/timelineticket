@@ -38,50 +38,9 @@
  */
 
 define('GLPI_ROOT', '../../..');
-
 include (GLPI_ROOT . "/inc/includes.php");
 
-Html::header($LANG['plugin_timelineticket'][1], $_SERVER["PHP_SELF"], "plugins", "timelineticket");
-
-if (Session::haveRight("config", "r") 
-      || Session::haveRight("profile", "w")) {
-
-   $ptConfig = new PluginTimelineticketConfig();
-   $grplevel = new PluginTimelineticketGroupLevel();
-   
-   if (isset($_POST["reconstructStates"])) {
-      ini_set("max_execution_time", "0");
-      ini_set("memory_limit", "-1");
-      $ptState = new PluginTimelineticketState();
-      $ptState->reconstructTimeline();
-      Html::back();
-      
-   } else if (isset($_POST["reconstructGroups"])) {
-      ini_set("max_execution_time", "0");
-      ini_set("memory_limit", "-1");
-      $ptGroup = new PluginTimelineticketAssignGroup();
-      $ptGroup->reconstrucTimeline();
-      Html::back();
-      
-   } else if (isset($_POST["add_groups"])) {
-
-      $values = PluginTimelineticketGrouplevel::addGroup($_POST);
-      $grplevel->update($values);
-      Html::back();
-      
-   } else if (isset($_POST["delete_groups"])) {
-
-      $values = PluginTimelineticketGrouplevel::deleteGroup($_POST);
-      $grplevel->update($values);
-      Html::back();
-      
-   } else {
-   
-      $ptConfig->showForm();
-   
-      Html::footer();
-      
-   }
-}
+$dropdown = new PluginTimelineticketGrouplevel();
+include (GLPI_ROOT . "/front/dropdown.common.php");
 
 ?>

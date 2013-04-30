@@ -59,5 +59,7 @@ $LANG['plugin_timelineticket']['config'][1] = "Reconstruct states timeline for a
 $LANG['plugin_timelineticket']['config'][2] = "Reconstruct groups timeline for all tickets";
 $LANG['plugin_timelineticket']['config'][3] = "(Can take many time if you have many tickets)";
 $LANG['plugin_timelineticket']['config'][4] = "Warning : it may be that the reconstruction of groups does not reflect reality because it concern only groups which have the Requester flag to No and Assigned flag to Yes";
+$LANG['plugin_timelineticket']['config'][5] = "Service levels";
+$LANG['plugin_timelineticket']['config'][6] = "List of associated groups";
 
 ?>

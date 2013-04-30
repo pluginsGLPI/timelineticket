@@ -185,51 +185,91 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       echo "</th>";
       echo "</tr>";
       
-      foreach ($IndicatorSections as $groups_id=>$array) {
-         echo "<tr class='tab_bg_2'>";
-         echo "<td width='100'>";
-         echo Dropdown::getDropdownName("glpi_groups", $groups_id);
-         echo "</td>";
-         echo "<td>";
-         if ($ticket->fields['status'] != 'closed'
-                 && $_groupsfinished[$groups_id] === false) {
-
-            $IndicatorSettings = array("Values"=>array(100,201),
-                                       "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM, 
-                                       "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT, 
-                                       "CaptionR"=>0, 
-                                       "CaptionG"=>0,
-                                       "CaptionB"=>0,
-                                       "DrawLeftHead"=>false,
-                                       "DrawRightHead"=>true, 
-                                       "ValueDisplay"=>false,
-                                       "IndicatorSections"=>$array, 
-                                       "SectionsMargin" => 0);
-            $Indicator->draw(2,2,805,25,$IndicatorSettings);
-         } else {
-            $IndicatorSettings = array("Values"=>array(100,201),
-                                       "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM, 
-                                       "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT, 
-                                       "CaptionR"=>0, 
-                                       "CaptionG"=>0,
-                                       "CaptionB"=>0,
-                                       "DrawLeftHead"=>false, 
-                                       "DrawRightHead"=>false, 
-                                       "ValueDisplay"=>false, 
-                                       "IndicatorSections"=>$array, 
-                                       "SectionsMargin" => 0);
-            $Indicator->draw(2,2,814,25,$IndicatorSettings);
+      $mylevels = array();
+      //$restrict = getEntitiesRestrictRequest('',"glpi_plugin_timelineticket_grouplevels",'','',false);
+      $restrict = "1=1 ORDER BY rank";
+      $levels = getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels",$restrict);
+      if (!empty($levels)) {
+         foreach ($levels as $level) {
+            if (!empty($level["groups"])) {
+               $groups = json_decode($level["groups"], true);
+               $mylevels[$level["name"]] = $groups;
+            }
          }
-
-         $filename = $uid=Session::getLoginUserID(false)."_testgroup".$groups_id;
-         $myPicture->render(GLPI_GRAPH_DIR."/".$filename.".png");
-
-
-         echo "<img src='".$CFG_GLPI['root_doc']."/front/graph.send.php?file=".$filename.".png'><br/>";
-         echo "</td>";
-         echo "</tr>";
       }
-      
+
+      $ticketlevels = array();
+      foreach ($IndicatorSections as $groups_id => $array) {
+         foreach ($mylevels as $name => $groups) {
+            if (in_array($groups_id,$groups)) {
+               $ticketlevels[$name][] = $groups_id;
+            }
+         }
+      }
+      //No levels
+      if (sizeof($ticketlevels)  == 0) {
+         
+         foreach ($IndicatorSections as $groups_id => $array) {
+            $ticketlevels[0][] = $groups_id;
+         }
+      }
+
+      foreach ($ticketlevels as $name => $groups) {
+         if (!isset($ticketlevels[0])) {
+            echo "<tr>";
+            echo "<th colspan='2'>";
+            echo $name;
+            echo "</th>";
+            echo "</tr>";
+         }
+         foreach ($IndicatorSections as $groups_id => $array) {
+            
+            if (in_array($groups_id,$groups)) {
+               echo "<tr class='tab_bg_2'>";
+               echo "<td width='100'>";
+               echo Dropdown::getDropdownName("glpi_groups", $groups_id);
+               echo "</td>";
+               echo "<td>";
+               if ($ticket->fields['status'] != 'closed'
+                       && $_groupsfinished[$groups_id] === false) {
+
+                  $IndicatorSettings = array("Values"=>array(100,201),
+                                             "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM, 
+                                             "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT, 
+                                             "CaptionR"=>0, 
+                                             "CaptionG"=>0,
+                                             "CaptionB"=>0,
+                                             "DrawLeftHead"=>false,
+                                             "DrawRightHead"=>true, 
+                                             "ValueDisplay"=>false,
+                                             "IndicatorSections"=>$array, 
+                                             "SectionsMargin" => 0);
+                  $Indicator->draw(2,2,805,25,$IndicatorSettings);
+               } else {
+                  $IndicatorSettings = array("Values"=>array(100,201),
+                                             "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM, 
+                                             "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT, 
+                                             "CaptionR"=>0, 
+                                             "CaptionG"=>0,
+                                             "CaptionB"=>0,
+                                             "DrawLeftHead"=>false, 
+                                             "DrawRightHead"=>false, 
+                                             "ValueDisplay"=>false, 
+                                             "IndicatorSections"=>$array, 
+                                             "SectionsMargin" => 0);
+                  $Indicator->draw(2,2,814,25,$IndicatorSettings);
+               }
+
+               $filename = $uid=Session::getLoginUserID(false)."_testgroup".$groups_id;
+               $myPicture->render(GLPI_GRAPH_DIR."/".$filename.".png");
+
+
+               echo "<img src='".$CFG_GLPI['root_doc']."/front/graph.send.php?file=".$filename.".png'><br/>";
+               echo "</td>";
+               echo "</tr>";
+            }
+         }
+      }
    }
    
    
