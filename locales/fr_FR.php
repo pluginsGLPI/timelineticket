@@ -59,5 +59,7 @@ $LANG['plugin_timelineticket']['config'][1] = "Reconstruire la chronologie des s
 $LANG['plugin_timelineticket']['config'][2] = "Reconstruire la chronologie des groupes pour tous les tickets";
 $LANG['plugin_timelineticket']['config'][3] = "(Cela peut prendre du temps si vous avez beaucoup de tickets)";
 $LANG['plugin_timelineticket']['config'][4] = "Attention : il se peut que la reconstruction des groupes ne reflète pas la réalité car il concerne uniquement les groupes ayant le flag Demandeur à Non et le flag Attribué à Oui";
+$LANG['plugin_timelineticket']['config'][5] = "Niveaux de support";
+$LANG['plugin_timelineticket']['config'][6] = "Liste des groupes associés";
 
 ?>

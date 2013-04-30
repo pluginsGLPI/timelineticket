@@ -43,8 +43,8 @@ function plugin_version_timelineticket() {
 
    return array('name'           => $LANG['plugin_timelineticket'][1],
                 'minGlpiVersion' => '0.83.3',
-                'version'        => '0.83+1.1',
-                'author'         => 'Nelly Mahu-Lasson && David Durieux');
+                'version'        => '0.83+1.2',
+                'author'         => 'Nelly Mahu-Lasson && David Durieux && Xavier Caillaud');
 }
 
 

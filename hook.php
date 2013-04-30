@@ -88,19 +88,31 @@ function plugin_timelineticket_install() {
 
      $DB->query($query) or die($DB->error());
 
+   if (!TableExists("glpi_plugin_timelineticket_grouplevels")) {
+      $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_grouplevels` (
+               `id` int(11) NOT NULL auto_increment,
+               `entities_id` int(11) NOT NULL DEFAULT '0',
+               `is_recursive` tinyint(1) NOT NULL default '0',
+               `name` varchar(255) collate utf8_unicode_ci default NULL,
+               `groups` longtext collate utf8_unicode_ci,
+               `rank` smallint(6) NOT NULL default '0',
+               `comment` text collate utf8_unicode_ci,
+               PRIMARY KEY (`id`)
+             ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+      $DB->query($query) or die($DB->error());
    }
 
    
    return true;
 }
 
-
 function plugin_timelineticket_uninstall() {
-  global $DB;
+   global $DB;
 
-   $tables = array ("glpi_plugin_timelineticket_states",
-                    "glpi_plugin_timelineticket_assigngroups",
-                    "glpi_plugin_timelineticket_assignusers");
+   $tables = array("glpi_plugin_timelineticket_states",
+       "glpi_plugin_timelineticket_assigngroups",
+       "glpi_plugin_timelineticket_assignusers",
+       "glpi_plugin_timelineticket_grouplevels");
 
    foreach ($tables as $table) {
       $query = "DROP TABLE IF EXISTS `$table`;";
@@ -148,51 +160,25 @@ function plugin_timelineticket_ticket_purge(Ticket $item) {
    $followups->cleanFollowup($item->getField("id"));
 }
 
-
-function plugin_timelineticket_getAddSearchOptions($itemtype) {
+function plugin_timelineticket_getDropdown() {
    global $LANG;
 
-   //Plugin::loadLang('timelineticket');
+   $plugin = new Plugin();
 
-   $sopt = array();
-//   if ($itemtype == 'Ticket') {
-//      $sopt[1000]['table']         = 'glpi_plugin_timelineticket_followups';
-//      $sopt[1000]['field']         = 'solved_delay';
-//      $sopt[1000]['linkfield']     = '';
-//      $sopt[1000]['name']          = $LANG['plugin_timelineticket'][2];
-//      $sopt[1000]['datatype']      = 'timestamp';
-//      $sopt[1000]['forcegroupby']  = true;
-//      $sopt[1000]['usehaving']     = true;
-//   }
-   return $sopt;
+   if ($plugin->isActivated("timelineticket"))
+      return array('PluginTimelineticketGrouplevel'=>$LANG['plugin_timelineticket']['config'][5]);
+   else
+      return array();
 }
 
+// Define dropdown relations
+function plugin_timelineticket_getDatabaseRelations() {
 
-function plugin_timelineticket_addSelect($type,$ID,$num) {
-
-   $searchopt = &Search::getOptions($type);
-   $table = $searchopt[$ID]["table"];
-   $field = $searchopt[$ID]["field"];
-
-   switch ($table.".".$field) {
-      case "glpi_plugin_timelineticket_followups.solved_delay" :
-         return "(SUM(glpi_plugin_timelineticket_followups.delay)
-                    * COUNT(DISTINCT glpi_plugin_timelineticket_followups.id)
-                    / COUNT(glpi_plugin_timelineticket_followups.id)) AS ITEM_$num, ";
-   }
-
-   return "";
-}
-
-
-function plugin_timelineticket_addLeftJoin($type,$ref_table,$new_table,$linkfield) {
-
-   switch ($new_table) {
-      case "glpi_plugin_timelineticket_followups" :
-         return " LEFT JOIN `$new_table` ON (`$ref_table`.`id` = `$new_table`.`tickets_id`
-                       AND `$new_table`.`old_status` IN ('new','assign','plan')) ";
-   }
-   return "";
+   $plugin = new Plugin();
+   if ($plugin->isActivated("timelineticket"))
+      return array("glpi_entities" => array("glpi_plugin_timelineticket_grouplevels" => "entities_id"));
+   else
+      return array();
 }
 
 ?>
