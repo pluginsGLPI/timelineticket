@@ -117,7 +117,8 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       $myPicture = new pImage(820,29,$MyData);
       /* Create the pIndicator object */
       $Indicator = new pIndicator($myPicture);
-      $myPicture->setFontProperties(array("FontName"=>GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/fonts/pf_arma_five.ttf","FontSize"=>6));
+      $myPicture->setFontProperties(array("FontName"=>GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/fonts/pf_arma_five.ttf",
+                                       "FontSize"=>6));
       /* Define the indicator sections */
       $IndicatorSections = array();
       $_groupsfinished = array();
@@ -186,8 +187,8 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       echo "</tr>";
       
       $mylevels = array();
-      //$restrict = getEntitiesRestrictRequest('',"glpi_plugin_timelineticket_grouplevels",'','',false);
-      $restrict = "1=1 ORDER BY rank";
+      $restrict = getEntitiesRestrictRequest('',"glpi_plugin_timelineticket_grouplevels",'','',true);
+      $restrict .= " ORDER BY rank";
       $levels = getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels",$restrict);
       if (!empty($levels)) {
          foreach ($levels as $level) {
@@ -213,7 +214,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
             $ticketlevels[0][] = $groups_id;
          }
       }
-
+      ksort($ticketlevels);
       foreach ($ticketlevels as $name => $groups) {
          if (!isset($ticketlevels[0])) {
             echo "<tr>";
