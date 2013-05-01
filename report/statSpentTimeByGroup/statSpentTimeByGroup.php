@@ -180,7 +180,7 @@ if ($nbtot == 0) {
 }
  
 $mylevels = array();
-$restrict = getEntitiesRestrictRequest('',"glpi_plugin_timelineticket_grouplevels",'','',false);
+$restrict = getEntitiesRestrictRequest('',"glpi_plugin_timelineticket_grouplevels",'','',true);
 $restrict .= "ORDER BY rank";
 $levels = getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels",$restrict);
 if (!empty($levels)) {
@@ -188,7 +188,6 @@ if (!empty($levels)) {
       $mylevels[$level["name"]] = json_decode($level["groups"], true);
    }
 }
-
 
 if ($res && $nbtot > 0) {
 

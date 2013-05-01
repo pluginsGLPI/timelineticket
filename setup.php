@@ -44,6 +44,8 @@ function plugin_version_timelineticket() {
    return array('name'           => $LANG['plugin_timelineticket'][1],
                 'minGlpiVersion' => '0.83.3',
                 'version'        => '0.83+1.2',
+                'homepage'       => 'https://forge.indepnet.net/projects/timelineticket',
+                'license'        => 'AGPL3',
                 'author'         => 'Nelly Mahu-Lasson && David Durieux && Xavier Caillaud');
 }
 
