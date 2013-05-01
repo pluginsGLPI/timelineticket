@@ -367,12 +367,12 @@ if ($res && $nbtot > 0) {
             } else {
                $timetask = 0;
             }
-            echo Search::showItem($output_type, Html::formatNumber($timetask / 3600, 2), $num, $row_num);
-            echo Search::showItem($output_type, Html::formatNumber($time / 3600, 2), $num, $row_num);
+            echo Search::showItem($output_type, Html::formatNumber($timetask / 3600, true, 5), $num, $row_num);
+            echo Search::showItem($output_type, Html::formatNumber($time / 3600, true, 5), $num, $row_num);
          }
       }
       $total = strtotime($ticket->fields["closedate"]) - strtotime($ticket->fields["date"]);
-      echo Search::showItem($output_type, Html::formatNumber($total / 3600, 2), $num, $row_num);
+      echo Search::showItem($output_type, Html::formatNumber($total / 3600, 5), $num, $row_num);
       echo Search::showEndLine($output_type);
    }
    echo Search::showFooter($output_type, $title);

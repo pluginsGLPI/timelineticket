@@ -147,7 +147,8 @@ class PluginTimelineticketState extends CommonDBTM {
       /* Create the pIndicator object */
       $Indicator = new pIndicator($myPicture);
  
-      $myPicture->setFontProperties(array("FontName"=>GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/fonts/pf_arma_five.ttf","FontSize"=>6));
+      $myPicture->setFontProperties(array("FontName"=>GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/fonts/pf_arma_five.ttf",
+                                          "FontSize"=>6));
  
       /* Define the indicator sections */
       $IndicatorSections   = array();
@@ -162,6 +163,7 @@ class PluginTimelineticketState extends CommonDBTM {
       $a_status_color['closed'] = array('R'=>51, 'G'=>51, 'B'=>51);
       
       $delaystatus = array();
+      
       foreach ($a_states as $status) {
          $IndicatorSections[$status] = '';
          $delaystatus[$status] = 0;
@@ -169,46 +171,53 @@ class PluginTimelineticketState extends CommonDBTM {
 
       $a_status = $this->find("`tickets_id`='".$ticket->getField('id')."'", "`date`");
       $begin = 0;
-      foreach ($a_status as $data) {
-         foreach ($a_states as $statusSection) { 
-            $R = 235;
-            $G = 235;
-            $B = 235;
-            $caption = '';
-            if ($statusSection == $data['old_status']) {
-               $R = $a_status_color[$statusSection]['R'];
-               $G = $a_status_color[$statusSection]['G'];
-               $B = $a_status_color[$statusSection]['B'];
-
-               //$caption = $status;
-               $delaystatus[$statusSection] += round(( $data['delay'] * 100) / $params['totaltime'], 2);
-            }
-            $IndicatorSections[$statusSection][] = array("Start"=>$begin,"End"=>($begin + $data['delay']),"Caption"=>$caption,"R"=>$R,"G"=>$G,"B"=>$B);
-         }
-         $begin += $data['delay'];
-      }
-      if ($ticket->fields['status'] != 'closed') {
-         foreach ($a_states as $statusSection) { 
-            $R = 235;
-            $G = 235;
-            $B = 235;
-            $caption = ' ';
-            if ($statusSection == $ticket->fields['status']) {
-               $R = $a_status_color[$statusSection]['R'];
-               $G = $a_status_color[$statusSection]['G'];
-               $B = $a_status_color[$statusSection]['B'];
-               //$caption = $status;
-               $delaystatus[$statusSection] += round(( ($params['totaltime'] - $begin) * 100) / $params['totaltime'], 2);
-            }
-            $IndicatorSections[$statusSection][] = array("Start"=>$begin,
-                                                         "End"=>($begin + ($params['totaltime'] - $begin)),
-                                                         "Caption"=>$caption,
-                                                         "R"=>$R,
-                                                         "G"=>$G,
-                                                         "B"=>$B);
-         }
-      }
       
+      if ($params['totaltime'] > 0) {
+         foreach ($a_status as $data) {
+            foreach ($a_states as $statusSection) { 
+               $R = 235;
+               $G = 235;
+               $B = 235;
+               $caption = '';
+               if ($statusSection == $data['old_status']) {
+                  $R = $a_status_color[$statusSection]['R'];
+                  $G = $a_status_color[$statusSection]['G'];
+                  $B = $a_status_color[$statusSection]['B'];
+
+                  //$caption = $status;
+                  $delaystatus[$statusSection] += round(( $data['delay'] * 100) / $params['totaltime'], 2);
+               }
+               $IndicatorSections[$statusSection][] = array("Start"=>$begin,
+                                                            "End"=>($begin + $data['delay']),
+                                                            "Caption"=>$caption,
+                                                            "R"=>$R,
+                                                            "G"=>$G,
+                                                            "B"=>$B);
+            }
+            $begin += $data['delay'];
+         }
+         if ($ticket->fields['status'] != 'closed') {
+            foreach ($a_states as $statusSection) { 
+               $R = 235;
+               $G = 235;
+               $B = 235;
+               $caption = ' ';
+               if ($statusSection == $ticket->fields['status']) {
+                  $R = $a_status_color[$statusSection]['R'];
+                  $G = $a_status_color[$statusSection]['G'];
+                  $B = $a_status_color[$statusSection]['B'];
+                  //$caption = $status;
+                  $delaystatus[$statusSection] += round(( ($params['totaltime'] - $begin) * 100) / $params['totaltime'], 2);
+               }
+               $IndicatorSections[$statusSection][] = array("Start"=>$begin,
+                                                            "End"=>($begin + ($params['totaltime'] - $begin)),
+                                                            "Caption"=>$caption,
+                                                            "R"=>$R,
+                                                            "G"=>$G,
+                                                            "B"=>$B);
+            }
+         }
+      }
       if (count($a_status) > 1) {
          foreach ($a_states as $status) {
             echo "<tr class='tab_bg_2'>";
