@@ -37,7 +37,7 @@
    ------------------------------------------------------------------------
  */
 
-$LANG['plugin_timelineticket'][1]  = "Timeline ticket";
+$LANG['plugin_timelineticket'][1]  = "Timeline of tickets";
 $LANG['plugin_timelineticket'][2]  = "Delay of resolution";
 $LANG['plugin_timelineticket'][3]  = "Delays";
 $LANG['plugin_timelineticket'][4]  = "Delay";

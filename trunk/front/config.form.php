@@ -63,16 +63,10 @@ if (Session::haveRight("config", "r")
       $ptGroup->reconstrucTimeline();
       Html::back();
       
-   } else if (isset($_POST["add_groups"])) {
+   } else if (isset($_POST["add_groups"]) 
+               || isset($_POST["delete_groups"])) {
 
-      $values = PluginTimelineticketGrouplevel::addGroup($_POST);
-      $grplevel->update($values);
-      Html::back();
-      
-   } else if (isset($_POST["delete_groups"])) {
-
-      $values = PluginTimelineticketGrouplevel::deleteGroup($_POST);
-      $grplevel->update($values);
+      $grplevel->update($_POST);
       Html::back();
       
    } else {

@@ -55,16 +55,65 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
       return array(array('name'  => 'rank',
                          'label' => $LANG['rulesengine'][10],
                          'type'  => 'text',
+                         'list'  => true),
+                     array('name'  => 'groups',
+                         'label' => $LANG['plugin_timelineticket']['config'][6],
+                         'type'  => 'groups',
                          'list'  => true));
    }
    
    function displaySpecificTypeField($ID, $field = array()) {
-
+      global $LANG, $CFG_GLPI;
+      
       switch ($field['type']) {
          case 'groups' :
-            echo $this->fields[$field['name']];
+            $groups = json_decode($this->fields[$field['name']], true);
+            if (!empty($groups)) {
+               echo "<table class='tab_cadrehov' cellpadding='5'>";
+               foreach ($groups as $key => $val) {
+
+                  echo "<tr class='tab_bg_1 center'>";
+                  echo "<td>";
+                  echo Dropdown::getDropdownName("glpi_groups", $val);
+                  echo "</td>";
+                  echo "<td>";
+                  Html::showSimpleForm(Toolbox::getItemTypeFormURL('PluginTimelineticketConfig'), 
+                                       'delete_groups', 
+                                       $LANG['buttons'][6], 
+                                       array('delete_groups' => 'delete_groups',
+                                              'id' => $ID,
+                                              '_groups_id_assign' => $val
+                                                  ), 
+                                       $CFG_GLPI["root_doc"] . "/pics/delete.png");
+                  echo " </td>";
+                  echo "</tr>";
+                  
+               }
+               
+               echo "</table>";
+            } else {
+               echo $LANG['common'][49];
+            }
             break;
       }
+   }
+   
+   function getSearchOptions() {
+      global $LANG;
+
+      $tab                          = parent::getSearchOptions();
+
+      $tab[11]['table']             = 'glpi_plugin_timelineticket_grouplevels';
+      $tab[11]['field']             = 'rank';
+      $tab[11]['name']              = $LANG['rulesengine'][10];
+      $tab[11]['massiveaction']     = false;
+      
+      $tab[12]['table']           = 'glpi_plugin_timelineticket_grouplevels';
+      $tab[12]['field']           = 'groups';
+      $tab[12]['name']            = $LANG['plugin_timelineticket']['config'][6];
+      $tab[12]['massiveaction']   = false;
+      $tab[12]['nosearch']        = true;
+      return $tab;
    }
    
    /**
@@ -76,7 +125,6 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
       global $LANG;
 
       $ong = array();
-      //$ong['empty'] = $this->getTypeName();
       $this->addStandardTab(__CLASS__, $ong, $options);
 
       return $ong;
@@ -98,59 +146,9 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
    static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
 
       if ($item->getType()==__CLASS__) {
-         self::showGrouplevel($item);
          self::showAddGroup($item);
       }
       return true;
-   }
-
-   static function showGrouplevel($item) {
-      global $LANG, $DB, $CFG_GLPI;
-
-      echo "<div class='center'>";
-      
-      //self::showAddLevel();
-
-      // We retrieve the filled data in DB.
-      //$restrict = getEntitiesRestrictRequest('', "glpi_plugin_timelineticket_grouplevels", '', '', false);
-      $restrict = "`id` = " . $item->getID();
-      $configs = getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
-      $options = array();
-      if (!empty($configs)) {
-         
-         echo "<form action='" .Toolbox::getItemTypeFormURL('PluginTimelineticketConfig')."' method='post'>";
-         echo "<table class='tab_cadre_fixe' cellpadding='5'>";
-         echo "<tr class='tab_bg_1 center'>";
-         echo "<th colspan='2'>" . $LANG['plugin_timelineticket']['config'][6] . "</th>";
-         echo "</tr>";
-
-         // Display data with option to delete a row.
-         foreach ($configs as $config) {
-
-            $groups = json_decode($config["groups"], true);
-
-            if (!empty($groups)) {
-
-               foreach ($groups as $key => $val) {
-
-                  echo "<tr class='tab_bg_1 center'>";
-                  echo "<td>";
-                  echo Dropdown::getDropdownName("glpi_groups", $val);
-                  echo "</td>";
-                  echo "<td>";
-                  Html::showSimpleForm(Toolbox::getItemTypeFormURL('PluginTimelineticketConfig'), 'delete_groups', $LANG['buttons'][6], array('delete_groups' => 'delete_groups',
-                      'id' => $config["id"],
-                      '_groups_id_assign' => $val
-                          ), $CFG_GLPI["root_doc"] . "/pics/delete.png");
-                  echo " </td>";
-                  echo "</tr>";
-               }
-            }
-         }
-         echo "</table>";
-         Html::closeForm();
-      }
-      
    }
    
    static function showAddGroup($item) {
@@ -164,9 +162,14 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
       echo "</tr>";
       echo "<tr class='tab_bg_1 center'>";
       echo "<td>";
+      
+      $used = json_decode($item->fields["groups"], true);
+
       Dropdown::show('Group', array('name' => '_groups_id_assign',
-          'entity' => $_SESSION["glpiactiveentities"],
-          'condition' => '`is_assign`'));
+                                     'entity' => $item->fields["entities_id"],
+                                     'condition' => '`is_assign`',
+                                     'entity_sons' => $item->fields["is_recursive"],
+                                     'used' => $used));
       echo "</td>";
       echo "<td><input type='hidden' name='id' value='".$item->getID()."'>";
       echo "<input type='submit' name='add_groups' value='" . $LANG["buttons"][8] . " groupe' class='submit' ></td>";
@@ -176,72 +179,87 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
 
    }
    
-   static function addGroup($params) {
+   function getLaskRank() {
       
-      $values = array();
-      
-      $restrict = "`id` = " . $params['id'];
+      $restrict = getEntitiesRestrictRequest('',"glpi_plugin_timelineticket_grouplevels",'','',true);
+      $restrict .= "ORDER BY rank DESC LIMIT 1";
       $configs = getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
-
-      $groups = array();
       if (!empty($configs)) {
          foreach ($configs as $config) {
-            if (!empty($config["groups"])) {
-               $groups = json_decode($config["groups"], true);
-               if (count($groups) > 0) {
-                  if (!in_array($params["_groups_id_assign"], $groups)) {
-                     array_push($groups, $params["_groups_id_assign"]);
+            return $config['rank'];
+         }
+      }
+   }
+   
+   function post_getEmpty() {
+      
+      $this->fields['rank'] = self::getLaskRank() + 1;
+   }
+   
+   function prepareInputForUpdate($params) {
+      
+      if (isset($params["add_groups"])) {
+         $input = array();
+         
+         $restrict = "`id` = " . $params['id'];
+         $configs = getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
+
+         $groups = array();
+         if (!empty($configs)) {
+            foreach ($configs as $config) {
+               if (!empty($config["groups"])) {
+                  $groups = json_decode($config["groups"], true);
+                  if (count($groups) > 0) {
+                     if (!in_array($params["_groups_id_assign"], $groups)) {
+                        array_push($groups, $params["_groups_id_assign"]);
+                     }
+                  } else {
+                     $groups = array($params["_groups_id_assign"]);
                   }
                } else {
                   $groups = array($params["_groups_id_assign"]);
                }
-            } else {
-               $groups = array($params["_groups_id_assign"]);
             }
          }
-      }
 
-      $group = json_encode($groups);
+         $group = json_encode($groups);
 
-      $values['id'] = $params['id'];
-      $values['groups'] = $group;
-      
-      return $values;
+         $input['id'] = $params['id'];
+         $input['groups'] = $group;
+         
+      } else if (isset($params["delete_groups"])) {
+         
+         $restrict = "`id` = " . $params['id'];
+         $configs = getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
 
-   }
-   
-   static function deleteGroup($params) {
-      
-      $values = array();
-      
-      $restrict = "`id` = " . $params['id'];
-      $configs = getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
-
-      $groups = array();
-      if (!empty($configs)) {
-         foreach ($configs as $config) {
-            if (!empty($config["groups"])) {
-               $groups = json_decode($config["groups"], true);
-               if (count($groups) > 0) {
-                  if (($key = array_search($params["_groups_id_assign"], $groups)) !== false) {
-                     unset($groups[$key]);
+         $groups = array();
+         if (!empty($configs)) {
+            foreach ($configs as $config) {
+               if (!empty($config["groups"])) {
+                  $groups = json_decode($config["groups"], true);
+                  if (count($groups) > 0) {
+                     if (($key = array_search($params["_groups_id_assign"], $groups)) !== false) {
+                        unset($groups[$key]);
+                     }
                   }
                }
             }
          }
-      }
 
-      if (count($groups) > 0) {
-         $group = json_encode($groups);
+         if (count($groups) > 0) {
+            $group = json_encode($groups);
+         } else {
+            $group = "";
+         }
+         
+         $input['id'] = $params['id'];
+         $input['groups'] = $group;
+         
+         
       } else {
-         $group = "";
+         $input = $params;
       }
-      
-      $values['id'] = $params['id'];
-      $values['groups'] = $group;
-      
-      return $values;
-
+      return $input;
    }
 }
 

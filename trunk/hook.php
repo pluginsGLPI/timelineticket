@@ -182,4 +182,30 @@ function plugin_timelineticket_getDatabaseRelations() {
       return array();
 }
 
+function plugin_timelineticket_giveItem($type,$ID,$data,$num) {
+	global $CFG_GLPI,$DB,$LANG;
+
+	$searchopt=&Search::getOptions($type);
+	$table=$searchopt[$ID]["table"];
+	$field=$searchopt[$ID]["field"];
+
+	switch ($table.'.'.$field) {
+		case "glpi_plugin_timelineticket_grouplevels.groups" :
+			if (empty($data["ITEM_$num"])) {
+				$out=$LANG['common'][49];
+			} else {
+				$out= "";
+				$groups = json_decode($data["ITEM_$num"], true);
+            if (!empty($groups)) {
+               foreach ($groups as $key => $val) {
+                  $out .= Dropdown::getDropdownName("glpi_groups", $val)."<br>";
+               }
+            }
+         }
+         return $out;
+         break;
+	}
+	return "";
+}
+
 ?>
