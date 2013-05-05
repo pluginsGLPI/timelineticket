@@ -39,7 +39,9 @@
 
 function plugin_timelineticket_install() {
    global $DB, $LANG;
-
+   
+   include_once (GLPI_ROOT."/plugins/timelineticket/inc/profile.class.php");
+   
    $migration = new Migration(160);
 
    // installation
@@ -102,7 +104,20 @@ function plugin_timelineticket_install() {
              ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
       $DB->query($query) or die($DB->error());
    }
+   
+   if (!TableExists("glpi_plugin_timelineticket_profiles")) {
+      $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_profiles` (
+              `id` int(11) NOT NULL auto_increment,
+              `profiles_id` int(11) NOT NULL default '0' COMMENT 'RELATION to glpi_profiles (id)',
+              `timelineticket` char(1) collate utf8_unicode_ci default NULL,
+              PRIMARY KEY  (`id`),
+              KEY `profiles_id` (`profiles_id`)
+            ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+      $DB->query($query) or die($DB->error());
+   }
 
+   
+   PluginTimelineticketProfile::createFirstAccess($_SESSION['glpiactiveprofile']['id']);
    
    return true;
 }
@@ -113,7 +128,8 @@ function plugin_timelineticket_uninstall() {
    $tables = array("glpi_plugin_timelineticket_states",
        "glpi_plugin_timelineticket_assigngroups",
        "glpi_plugin_timelineticket_assignusers",
-       "glpi_plugin_timelineticket_grouplevels");
+       "glpi_plugin_timelineticket_grouplevels",
+       "glpi_plugin_timelineticket_profiles");
 
    foreach ($tables as $table) {
       $query = "DROP TABLE IF EXISTS `$table`;";
@@ -177,7 +193,8 @@ function plugin_timelineticket_getDatabaseRelations() {
 
    $plugin = new Plugin();
    if ($plugin->isActivated("timelineticket"))
-      return array("glpi_entities" => array("glpi_plugin_timelineticket_grouplevels" => "entities_id"));
+      return array("glpi_profiles" => array("glpi_plugin_timelineticket_profiles" => "profiles_id"),
+                     "glpi_entities" => array("glpi_plugin_timelineticket_grouplevels" => "entities_id"));
    else
       return array();
 }
