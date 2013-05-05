@@ -152,7 +152,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       
       if ($item->getType() == 'Ticket') {
          if ($item->getField('id')>0 
-            && Session::haveRight('config','r')) {
+            && plugin_timelineticket_haveRight('timelineticket','r')) {
             return array(1 => $LANG['plugin_timelineticket'][15]);
          }
       }
@@ -166,7 +166,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       if ($item->getType() == 'Ticket') {
          $prof = new self();
          if ($item->getField('id')>0 
-            && Session::haveRight('config','r')) {
+            && plugin_timelineticket_haveRight('timelineticket','r')) {
             self::showForTicket($item);
          }
       }

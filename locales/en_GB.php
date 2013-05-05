@@ -62,4 +62,6 @@ $LANG['plugin_timelineticket']['config'][4] = "Warning : it may be that the reco
 $LANG['plugin_timelineticket']['config'][5] = "Service levels";
 $LANG['plugin_timelineticket']['config'][6] = "List of associated groups";
 
+$LANG['plugin_timelineticket']['profile'][0] = "Rights management";
+
 ?>

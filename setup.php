@@ -55,8 +55,10 @@ function plugin_init_timelineticket() {
    global $PLUGIN_HOOKS, $LANG;
 
    $PLUGIN_HOOKS['csrf_compliant']['timelineticket'] = true;
-
-
+   $PLUGIN_HOOKS['change_profile']['timelineticket'] = array('PluginTimelineticketProfile', 'changeProfile');
+   
+   Plugin::registerClass('PluginTimelineticketProfile', array('addtabon' => 'Profile'));
+   
    Plugin::registerClass('PluginTimelineticketDisplay',
                           array('addtabon' => array('Ticket')));
 
@@ -75,8 +77,10 @@ function plugin_init_timelineticket() {
          'Ticket' => 'plugin_timelineticket_ticket_update'
        );
    
-   if (Session::haveRight("config", "r") 
-         || Session::haveRight("profile", "w")) {// Config page
+   $PLUGIN_HOOKS['pre_item_purge']['timelineticket'] = array('Profile' => array('PluginTimelineticketProfile', 'purgeProfiles'));
+   
+   if (Session::haveRight("config", "w") 
+         || plugin_timelineticket_haveRight('timelineticket','w')) {// Config page
       $PLUGIN_HOOKS['config_page']['timelineticket'] = 'front/config.form.php';
    }
 }
@@ -86,7 +90,8 @@ function plugin_init_timelineticket() {
 function plugin_timelineticket_check_prerequisites() {
 
    // Checking of the GLPI version
-   if (version_compare(GLPI_VERSION,'0.83.3','lt') || version_compare(GLPI_VERSION,'0.84','ge')) {
+   if (version_compare(GLPI_VERSION,'0.83.3','lt') 
+         || version_compare(GLPI_VERSION,'0.84','ge')) {
       echo "This plugin requires GLPI >= 0.83.3";
       return false;
    }
@@ -97,6 +102,25 @@ function plugin_timelineticket_check_prerequisites() {
 
 function plugin_timelineticket_check_config() {
    return true;
+}
+
+//general right
+function plugin_timelineticket_haveRight($module, $right) {
+
+   $matches = array(
+       "" => array("", "r", "w"), // ne doit pas arriver normalement
+       "r" => array("r", "w"),
+       "w" => array("w"),
+       "1" => array("1"),
+       "0" => array("0", "1"), // ne doit pas arriver non plus
+   );
+   if (isset($_SESSION["glpi_plugin_timelineticket_profile"][$module]) &&
+           in_array($_SESSION["glpi_plugin_timelineticket_profile"][$module], $matches[$right]))
+      return true;
+   else
+      return false;
+   
+   
 }
 
 ?>
