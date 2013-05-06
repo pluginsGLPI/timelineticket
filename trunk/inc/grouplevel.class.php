@@ -172,7 +172,7 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
                                      'used' => $used));
       echo "</td>";
       echo "<td><input type='hidden' name='id' value='".$item->getID()."'>";
-      echo "<input type='submit' name='add_groups' value='" . $LANG["buttons"][8] . " groupe' class='submit' ></td>";
+      echo "<input type='submit' name='add_groups' value='" . $LANG["buttons"][8] . "' class='submit' ></td>";
       echo "</tr>";
       echo "</table>";
       Html::closeForm();
