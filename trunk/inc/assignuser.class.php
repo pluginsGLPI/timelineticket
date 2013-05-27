@@ -230,6 +230,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
    
    
    static function addUserTicket(Ticket_User $item) {
+   
       if ($item->fields['type'] == 2) {
          $ptAssignUser = new PluginTimelineticketAssignUser();
          $ticket = new Ticket();
@@ -243,16 +244,101 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
             // cas 24/24 - 7/7
             $delay = strtotime(date('Y-m-d H:i:s'))-strtotime($datedebut);
          }
-                  
-         $input = array();
-         $input['tickets_id'] = $item->fields['tickets_id'];
-         $input['users_id'] = $item->fields['users_id'];
-         $input['date'] = date('Y-m-d H:i:s');
-         $input['begin'] = $delay;
-         $ptAssignUser->add($input);
+         
+         $ok = 1;
+         
+         $ptConfig = new PluginTimelineticketConfig();
+         $ptConfig->getFromDB(1);
+         if ($ptConfig->fields["drop_waiting"] == 1
+               && $ticket->fields["status"] == "waiting") {
+            $ok = 0;
+         }
+         if ($ok) {
+            $input = array();
+            $input['tickets_id'] = $item->fields['tickets_id'];
+            $input['users_id'] = $item->fields['users_id'];
+            $input['date'] = date('Y-m-d H:i:s');
+            $input['begin'] = $delay;
+            $ptAssignUser->add($input);
+         }
       }
    }
    
+   static function checkAssignUser(Ticket $ticket) {
+      global $DB;
+      
+      $ok = 0;
+      $ptConfig = new PluginTimelineticketConfig();
+      $ptConfig->getFromDB(1);
+      if ($ptConfig->fields["drop_waiting"] == 1) {
+         $ok = 1;
+      }
+ 
+      if ($ok && in_array("status", $ticket->updates)
+            && isset($ticket->oldvalues["status"])
+               && $ticket->oldvalues["status"] == "waiting") {
+         if ($ticket->countUsers(CommonITILObject::ASSIGN)) {
+            foreach ($ticket->getUsers(CommonITILObject::ASSIGN) as $d) {
+               $ptAssignUser = new PluginTimelineticketAssignUser();
+               $calendar = new Calendar();
+               $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+               $datedebut = $ticket->fields['date'];
+               if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
+                  $delay = $calendar->getActiveTimeBetween ($datedebut, date('Y-m-d H:i:s'));
+               } else {
+                  // cas 24/24 - 7/7
+                  $delay = strtotime(date('Y-m-d H:i:s'))-strtotime($datedebut);
+               }
+   
+               $input = array();
+               $input['tickets_id'] = $ticket->getID();
+               $input['users_id'] = $d["users_id"];
+               $input['date'] = date('Y-m-d H:i:s');
+               $input['begin'] = $delay;
+               $ptAssignUser->add($input);
+            }
+         }
+      } else if ($ok && in_array("status", $ticket->updates) 
+            && isset($ticket->fields["status"])
+               && $ticket->fields["status"] == "waiting") {
+         if ($ticket->countUsers(CommonITILObject::ASSIGN)) {
+            foreach ($ticket->getUsers(CommonITILObject::ASSIGN) as $d) {
+               
+               $calendar = new Calendar();
+               $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+               $ptAssignUser = new PluginTimelineticketAssignUser();
+               $query = "SELECT MAX(`date`) AS datedebut, id
+                         FROM `".$ptAssignUser->getTable()."`
+                         WHERE `tickets_id` = '".$ticket->getID()."' 
+                           AND `users_id`='".$d["users_id"]."'
+                           AND `delay` IS NULL";
+
+               $result    = $DB->query($query);
+               $datedebut = '';
+               $input = array();
+               if ($result && $DB->numrows($result)) {
+                  $datedebut = $DB->result($result, 0, 'datedebut');
+                  $input['id'] = $DB->result($result, 0, 'id');
+               } else {
+                  return;
+               }
+               
+               if (!$datedebut) {
+                  $delay = 0;
+               // Utilisation calendrier
+               } else if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
+                  $delay = $calendar->getActiveTimeBetween ($datedebut, date('Y-m-d H:i:s'));
+               } else {
+                  // cas 24/24 - 7/7
+                  $delay = strtotime(date('Y-m-d H:i:s'))-strtotime($datedebut);
+               }
+
+               $input['delay'] = $delay;
+               $ptAssignUser->update($input);
+            }
+         }
+      }
+   }
    
    static function deleteUserTicket(Ticket_User $item) {
       global $DB;

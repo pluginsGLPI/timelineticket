@@ -61,6 +61,8 @@ $LANG['plugin_timelineticket']['config'][3] = "(Can take many time if you have m
 $LANG['plugin_timelineticket']['config'][4] = "Warning : it may be that the reconstruction of groups does not reflect reality because it concern only groups which have the Requester flag to No and Assigned flag to Yes";
 $LANG['plugin_timelineticket']['config'][5] = "Service levels";
 $LANG['plugin_timelineticket']['config'][6] = "List of associated groups";
+$LANG['plugin_timelineticket']['config'][7] = "Options";
+$LANG['plugin_timelineticket']['config'][8] = "Don't input time on groups / users when ticket is waiting";
 
 $LANG['plugin_timelineticket']['profile'][0] = "Rights management";
 
