@@ -43,7 +43,7 @@ if (!defined('GLPI_ROOT')){
 
 class PluginTimelineticketConfig extends CommonDBTM {
 
-   function showForm() {
+   function showReconstructForm() {
       global $LANG;
       
       echo "<form method='POST' action=\"".$this->getFormURL()."\">";
@@ -67,7 +67,43 @@ class PluginTimelineticketConfig extends CommonDBTM {
       echo "</td>";
       echo "</table>";
       Html::closeForm();
-   } 
+   }
+   
+   function showForm() {
+      global $LANG;
+      
+      echo "<form method='POST' action=\"".$this->getFormURL()."\">";
+       
+      echo "<table class='tab_cadre_fixe'>";
+      
+      echo "<tr><th colspan='2'>";
+      echo $LANG['plugin_timelineticket']['config'][7];
+      echo "</th></tr>";
+      
+      echo "<tr class='tab_bg_1 top'><td>".$LANG['plugin_timelineticket']['config'][8]."</td>";
+      echo "<td>";
+      Dropdown::showYesNo("drop_waiting",$this->fields["drop_waiting"]);
+      echo "</td></tr>";
+      
+      echo "<tr><th colspan='2'>";
+      echo "<input type='hidden' name='id' value='1'>";
+      echo "<input type=\"submit\" name=\"update\" class=\"submit\"
+         value=\"".$LANG["buttons"][2]."\" ></th></tr>";
+      echo "</table>";
+      Html::closeForm();
+   }
+   
+   static function createFirstConfig() {
+      
+      $conf = new self();
+      if (!$conf->getFromDB(1)) {
+
+         $conf->add(array(
+            'id' => 1,
+            'drop_waiting' => 0));
+      }
+   }
+   
 }
 
 ?>

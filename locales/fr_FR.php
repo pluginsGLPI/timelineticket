@@ -61,6 +61,8 @@ $LANG['plugin_timelineticket']['config'][3] = "(Cela peut prendre du temps si vo
 $LANG['plugin_timelineticket']['config'][4] = "Attention : il se peut que la reconstruction des groupes ne reflète pas la réalité car il concerne uniquement les groupes ayant le flag Demandeur à Non et le flag Attribué à Oui";
 $LANG['plugin_timelineticket']['config'][5] = "Niveaux de support";
 $LANG['plugin_timelineticket']['config'][6] = "Liste des groupes associés";
+$LANG['plugin_timelineticket']['config'][7] = "Options";
+$LANG['plugin_timelineticket']['config'][8] = "Ne pas inputer du temps au groupes / techniciens assignés quand le ticket est en En attente";
 
 $LANG['plugin_timelineticket']['profile'][0] = "Gestion des droits";
 

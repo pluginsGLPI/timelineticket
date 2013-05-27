@@ -69,10 +69,17 @@ if (Session::haveRight("config", "r")
       $grplevel->update($_POST);
       Html::back();
       
+   } else if (isset($_POST["update"])) {
+
+      $ptConfig->update($_POST);
+      Html::back();
+      
    } else {
    
+      $ptConfig->showReconstructForm();
+
+      $ptConfig->getFromDB(1);
       $ptConfig->showForm();
-   
       Html::footer();
       
    }

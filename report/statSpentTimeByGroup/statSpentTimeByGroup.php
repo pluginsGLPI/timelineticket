@@ -178,18 +178,18 @@ if ($nbtot == 0) {
 
    Html::printPager($start, $nbtot, $_SERVER['PHP_SELF'], $param);
 }
- 
-$mylevels = array();
-$restrict = getEntitiesRestrictRequest('',"glpi_plugin_timelineticket_grouplevels",'','',true);
-$restrict .= "ORDER BY rank";
-$levels = getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels",$restrict);
-if (!empty($levels)) {
-   foreach ($levels as $level) {
-      $mylevels[$level["name"]] = json_decode($level["groups"], true);
-   }
-}
 
 if ($res && $nbtot > 0) {
+
+   $mylevels = array();
+   $restrict = getEntitiesRestrictRequest('',"glpi_plugin_timelineticket_grouplevels",'','',true);
+   $restrict .= "ORDER BY rank";
+   $levels = getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels",$restrict);
+   if (!empty($levels)) {
+      foreach ($levels as $level) {
+         $mylevels[$level["name"]] = json_decode($level["groups"], true);
+      }
+   }
 
    $nbCols = $DB->num_fields($res);
    $nbrows = $DB->numrows($res);
@@ -256,6 +256,9 @@ if ($res && $nbtot > 0) {
                   $timegroups[$group["groups_id"]] += $group["delay"];
                } else {
                   $delay = strtotime($data["closedate"]) - strtotime($group["date"]);
+                  if ($delay < 0) {
+                     $delay = 0;
+                  }
                   $timegroups[$group["groups_id"]] += $delay;
                }
             } else {
@@ -263,6 +266,9 @@ if ($res && $nbtot > 0) {
                   $timegroups[$group["groups_id"]] = $group["delay"];
                } else {
                   $delay = strtotime($data["closedate"]) - strtotime($group["date"]);
+                  if ($delay < 0) {
+                     $delay = 0;
+                  }
                   $timegroups[$group["groups_id"]] = $delay;
                }
             }

@@ -115,7 +115,17 @@ function plugin_timelineticket_install() {
             ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
       $DB->query($query) or die($DB->error());
    }
+   
+   if (!TableExists("glpi_plugin_timelineticket_configs")) {
+      $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_configs` (
+              `id` int(11) NOT NULL auto_increment,
+              `drop_waiting` int(11) NOT NULL default '0',
+              PRIMARY KEY  (`id`)
+            ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+      $DB->query($query) or die($DB->error());
+   }
 
+   PluginTimelineticketConfig::createFirstConfig();
    
    PluginTimelineticketProfile::createFirstAccess($_SESSION['glpiactiveprofile']['id']);
    
@@ -129,7 +139,8 @@ function plugin_timelineticket_uninstall() {
        "glpi_plugin_timelineticket_assigngroups",
        "glpi_plugin_timelineticket_assignusers",
        "glpi_plugin_timelineticket_grouplevels",
-       "glpi_plugin_timelineticket_profiles");
+       "glpi_plugin_timelineticket_profiles",
+       "glpi_plugin_timelineticket_configs");
 
    foreach ($tables as $table) {
       $query = "DROP TABLE IF EXISTS `$table`;";
@@ -151,8 +162,8 @@ function plugin_timelineticket_ticket_update(Ticket $item) {
       // calcul du délai + insertion dans la table
    }
 
-//   $ptAssignGroup = new PluginTimelineticketAssignGroup();
-//   $ptAssignGroup->updateTicket($item);
+   PluginTimelineticketAssignGroup::checkAssignGroup($item);
+   PluginTimelineticketAssignUser::checkAssignUser($item);
 }
 
 
