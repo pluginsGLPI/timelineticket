@@ -41,7 +41,7 @@ function plugin_timelineticket_install() {
    global $DB, $LANG;
    
    include_once (GLPI_ROOT."/plugins/timelineticket/inc/profile.class.php");
-   
+   include_once (GLPI_ROOT."/plugins/timelineticket/inc/config.class.php");
    $migration = new Migration(160);
 
    // installation
