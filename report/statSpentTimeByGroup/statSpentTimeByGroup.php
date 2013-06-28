@@ -255,18 +255,35 @@ if ($res && $nbtot > 0) {
                if ($group["delay"] != null) {
                   $timegroups[$group["groups_id"]] += $group["delay"];
                } else {
-                  $delay = strtotime($data["closedate"]) - strtotime($group["date"]);
-                  if ($delay < 0) {
+					$calendar = new Calendar();
+					$calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+					if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
+						$delay = $calendar->getActiveTimeBetween ($group["date"], $data["closedate"]);
+
+					} else {
+						$delay = strtotime($data["closedate"]) - strtotime($group["date"]);
+					}
+
+				  if ($delay < 0) {
                      $delay = 0;
                   }
+				  
                   $timegroups[$group["groups_id"]] += $delay;
                }
             } else {
                if ($group["delay"] != null) {
                   $timegroups[$group["groups_id"]] = $group["delay"];
                } else {
-                  $delay = strtotime($data["closedate"]) - strtotime($group["date"]);
-                  if ($delay < 0) {
+					$calendar = new Calendar();
+					$calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+					if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
+						$delay = $calendar->getActiveTimeBetween ($group["date"], $data["closedate"]);
+
+					} else {
+						$delay = strtotime($data["closedate"]) - strtotime($group["date"]);
+					}
+				 
+				  if ($delay < 0) {
                      $delay = 0;
                   }
                   $timegroups[$group["groups_id"]] = $delay;
