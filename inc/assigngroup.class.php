@@ -87,7 +87,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
    
    function showTimeline($ticket, $params = array()) {
       global $CFG_GLPI, $LANG;
-      
+
       $palette = array(
             array('250', '151', '186'),
             array('255', '211', '112'),
@@ -490,6 +490,100 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
             }
          }
       }
+   }
+   
+   
+   
+   /**
+    * Used to display each status time used for each group
+    * 
+    * 
+    * @param Ticket $ticket
+    */
+   function ShowDetail(Ticket $ticket) {
+      global $LANG;
+
+      $ptState = new PluginTimelineticketState();
+      
+      $a_states = $ptState->find("`tickets_id`='".$ticket->getField('id')."'", "`date`");
+      
+      $a_state_delays = array();
+      $a_state_num = array();
+      $delay = 0;
+      
+      $status = "new";
+      foreach ($a_states as $array) {
+         $delay += $array['delay'];
+         $a_state_delays[$delay] = $array['new_status'];
+         $a_state_num[] = $delay;
+      }
+      $a_state_num[] = $delay;
+      $last_delay = $delay;
+      
+      $a_groups = $this->find("`tickets_id`='".$ticket->getField('id')."'", "`date`");
+
+      echo "<table class='tab_cadrehov' width='100%'>";
+      echo "<tr class='tab_bg_1'>";
+      echo "<th colspan='2'>";
+      echo $LANG['rulesengine'][82];
+      echo " (".$LANG['plugin_timelineticket'][17].")";
+      echo "</th>";
+      echo "</tr>";
+      
+      foreach ($a_groups as $a_group) {
+         echo "<tr class='tab_bg_1'>";
+         echo "<td>".Dropdown::getDropdownName("glpi_groups", $a_group['groups_id'])."</td>";
+         echo "<td>";
+         
+         $begin = $a_group['begin'];
+         $delay = $a_group['delay'];
+         if (is_null($a_group['delay'])) {
+            $delay = $last_delay;
+         }
+         
+         $num = 2;
+         foreach ($a_state_delays as $key_delay=>$value_status) {
+            if ($begin >= $a_state_num[$num]
+                    || $delay == 0) {
+               // nothing
+            } else if ($begin > $key_delay) {
+               if (($begin + $delay) >= ($a_state_num[$num])) {
+                  // all end of delay of this state
+                  echo Ticket::getStatus($value_status)." : ".Html::timestampToString(
+                          ($a_state_num[$num] - $begin), true)."<br/>";
+                  $delay -= ($a_state_num[$num] - $begin);
+                  $begin = $a_state_num[$num];
+               } else {
+                  // Part of status
+                  $begin_delay = $begin - $key_delay;
+                  $end_delay = $a_state_num[$num] - ($begin + $delay);
+                  echo Ticket::getStatus($value_status)." : ".Html::timestampToString(
+                          ($a_state_num[$num] - $begin_delay - $end_delay), true)."<br/>";
+                  $begin += $a_state_num[$num] - $begin_delay - $end_delay;
+                  $delay = 0;
+               }
+            } else { // $begin == $key_delay
+               if (($begin + $delay) >= ($a_state_num[$num])) {
+                  // All delay of this state
+                  echo Ticket::getStatus($value_status)." : ".Html::timestampToString(
+                          ($a_state_num[$num] - $key_delay), true)."<br/>";
+                  $delay -= ($a_state_num[$num] - $key_delay);
+                  $begin = $a_state_num[$num];
+               } else {
+                  // Part of status
+                  
+                  echo Ticket::getStatus($value_status)." : ".Html::timestampToString(
+                          $delay, true)."<br/>";
+                  $begin += $delay;
+                  $delay = 0;
+               }
+            }
+            $num++;
+        }
+         echo "</td>";
+         echo "</tr>";
+      }
+      echo "</table>";      
    }
 }
 

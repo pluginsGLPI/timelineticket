@@ -143,6 +143,10 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       $ptAssignUser = new PluginTimelineticketAssignUser();
       $ptAssignUser->showTimeline($ticket, $params);
       echo "</table>";
+      
+      $ptAssignGroup->ShowDetail($ticket);
+      $ptAssignUser->ShowDetail($ticket);
+
    }
    
 
