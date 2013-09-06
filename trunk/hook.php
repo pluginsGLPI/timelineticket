@@ -49,7 +49,7 @@ function plugin_timelineticket_install() {
    if (!TableExists("glpi_plugin_timelineticket_states")) {
       $query = "CREATE TABLE `glpi_plugin_timelineticket_states` (
                   `id` int(11) NOT NULL AUTO_INCREMENT,
-                  `tickets_id` int(11) NOT NULL,
+                  `tickets_id` int(11) NOT NULL DEFAULT '0',
                   `date` datetime DEFAULT NULL,
                   `old_status` varchar(255) DEFAULT NULL,
                   `new_status` varchar(255) DEFAULT NULL,
@@ -63,7 +63,7 @@ function plugin_timelineticket_install() {
    if (!TableExists("glpi_plugin_timelineticket_assigngroups")) {
       $query = "CREATE TABLE `glpi_plugin_timelineticket_assigngroups` (
                   `id` int(11) NOT NULL AUTO_INCREMENT,
-                  `tickets_id` int(11) NOT NULL,
+                  `tickets_id` int(11) NOT NULL DEFAULT '0',
                   `date` datetime DEFAULT NULL,
                   `groups_id` varchar(255) DEFAULT NULL,
                   `begin` INT( 11 ) NULL,
@@ -79,11 +79,11 @@ function plugin_timelineticket_install() {
    if (!TableExists("glpi_plugin_timelineticket_assignusers")) {
       $query = "CREATE TABLE `glpi_plugin_timelineticket_assignusers` (
                   `id` int(11) NOT NULL AUTO_INCREMENT,
-                  `tickets_id` int(11) NOT NULL,
+                  `tickets_id` int(11) NOT NULL DEFAULT '0',
                   `date` datetime DEFAULT NULL,
                   `users_id` varchar(255) DEFAULT NULL,
-                  `begin` INT( 11 ) NULL,
-                  `delay` INT( 11 ) NULL,
+                  `begin` INT(11) NULL,
+                  `delay` INT(11) NULL,
                   PRIMARY KEY (`id`),
                   KEY `tickets_id` (`tickets_id`)
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
@@ -93,7 +93,7 @@ function plugin_timelineticket_install() {
    
    if (!TableExists("glpi_plugin_timelineticket_grouplevels")) {
       $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_grouplevels` (
-               `id` int(11) NOT NULL auto_increment,
+               `id` int(11) NOT NULL AUTO_INCREMENT,
                `entities_id` int(11) NOT NULL DEFAULT '0',
                `is_recursive` tinyint(1) NOT NULL default '0',
                `name` varchar(255) collate utf8_unicode_ci default NULL,
@@ -107,8 +107,8 @@ function plugin_timelineticket_install() {
    
    if (!TableExists("glpi_plugin_timelineticket_profiles")) {
       $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_profiles` (
-              `id` int(11) NOT NULL auto_increment,
-              `profiles_id` int(11) NOT NULL default '0' COMMENT 'RELATION to glpi_profiles (id)',
+              `id` int(11) NOT NULL AUTO_INCREMENT,
+              `profiles_id` int(11) NOT NULL DEFAULT '0' COMMENT 'RELATION to glpi_profiles (id)',
               `timelineticket` char(1) collate utf8_unicode_ci default NULL,
               PRIMARY KEY  (`id`),
               KEY `profiles_id` (`profiles_id`)
@@ -118,8 +118,8 @@ function plugin_timelineticket_install() {
    
    if (!TableExists("glpi_plugin_timelineticket_configs")) {
       $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_configs` (
-              `id` int(11) NOT NULL auto_increment,
-              `drop_waiting` int(11) NOT NULL default '0',
+              `id` int(11) NOT NULL AUTO_INCREMENT,
+              `drop_waiting` int(11) NOT NULL DEFAULT '0',
               PRIMARY KEY  (`id`)
             ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
       $DB->query($query) or die($DB->error());
@@ -127,8 +127,10 @@ function plugin_timelineticket_install() {
 
    PluginTimelineticketConfig::createFirstConfig();
    
-   PluginTimelineticketProfile::createFirstAccess($_SESSION['glpiactiveprofile']['id']);
-   
+   if (isset($_SESSION['glpiactiveprofile'])
+           && isset($_SESSION['glpiactiveprofile']['id'])) {
+      PluginTimelineticketProfile::createFirstAccess($_SESSION['glpiactiveprofile']['id']);
+   } 
    return true;
 }
 

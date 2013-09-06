@@ -239,10 +239,10 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
          $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
          $datedebut = $ticket->fields['date'];
          if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
-            $delay = $calendar->getActiveTimeBetween ($datedebut, date('Y-m-d H:i:s'));
+            $delay = $calendar->getActiveTimeBetween ($datedebut, $_SESSION["glpi_currenttime"]);
          } else {
             // cas 24/24 - 7/7
-            $delay = strtotime(date('Y-m-d H:i:s'))-strtotime($datedebut);
+            $delay = strtotime($_SESSION["glpi_currenttime"])-strtotime($datedebut);
          }
          
          $ok = 1;
@@ -257,7 +257,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
             $input = array();
             $input['tickets_id'] = $item->fields['tickets_id'];
             $input['users_id'] = $item->fields['users_id'];
-            $input['date'] = date('Y-m-d H:i:s');
+            $input['date'] = $_SESSION["glpi_currenttime"];
             $input['begin'] = $delay;
             $ptAssignUser->add($input);
          }
@@ -284,16 +284,16 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
                $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
                $datedebut = $ticket->fields['date'];
                if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
-                  $delay = $calendar->getActiveTimeBetween ($datedebut, date('Y-m-d H:i:s'));
+                  $delay = $calendar->getActiveTimeBetween ($datedebut, $_SESSION["glpi_currenttime"]);
                } else {
                   // cas 24/24 - 7/7
-                  $delay = strtotime(date('Y-m-d H:i:s'))-strtotime($datedebut);
+                  $delay = strtotime($_SESSION["glpi_currenttime"])-strtotime($datedebut);
                }
    
                $input = array();
                $input['tickets_id'] = $ticket->getID();
                $input['users_id'] = $d["users_id"];
-               $input['date'] = date('Y-m-d H:i:s');
+               $input['date'] = $_SESSION["glpi_currenttime"];
                $input['begin'] = $delay;
                $ptAssignUser->add($input);
             }
@@ -327,10 +327,10 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
                   $delay = 0;
                // Utilisation calendrier
                } else if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
-                  $delay = $calendar->getActiveTimeBetween ($datedebut, date('Y-m-d H:i:s'));
+                  $delay = $calendar->getActiveTimeBetween ($datedebut, $_SESSION["glpi_currenttime"]);
                } else {
                   // cas 24/24 - 7/7
-                  $delay = strtotime(date('Y-m-d H:i:s'))-strtotime($datedebut);
+                  $delay = strtotime($_SESSION["glpi_currenttime"])-strtotime($datedebut);
                }
 
                $input['delay'] = $delay;
@@ -371,10 +371,10 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
          $delay = 0;
       // Utilisation calendrier
       } else if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
-         $delay = $calendar->getActiveTimeBetween ($datedebut, date('Y-m-d H:i:s'));
+         $delay = $calendar->getActiveTimeBetween ($datedebut, $_SESSION["glpi_currenttime"]);
       } else {
          // cas 24/24 - 7/7
-         $delay = strtotime(date('Y-m-d H:i:s'))-strtotime($datedebut);
+         $delay = strtotime($_SESSION["glpi_currenttime"])-strtotime($datedebut);
       }
 
       $input['delay'] = $delay;
