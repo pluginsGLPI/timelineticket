@@ -128,7 +128,8 @@ class PluginTimelineticketProfile extends CommonDBTM {
    static function changeProfile() {
       
       $prof = new self();
-      if ($prof->getFromDBByProfile($_SESSION['glpiactiveprofile']['id'])) {
+      if (isset($_SESSION['glpiactiveprofile'])
+              && $prof->getFromDBByProfile($_SESSION['glpiactiveprofile']['id'])) {
          $_SESSION["glpi_plugin_timelineticket_profile"]=$prof->fields;
 
       } else {

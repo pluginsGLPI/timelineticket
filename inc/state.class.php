@@ -54,6 +54,7 @@ class PluginTimelineticketState extends CommonDBTM {
       $DB->query($query);
    }
 
+   
 
    // Method permitting to save the current status
    function createFollowup(Ticket $ticket, $date, $old_status, $new_status) {
@@ -96,6 +97,8 @@ class PluginTimelineticketState extends CommonDBTM {
                        'delay'       => $delay));
    }
 
+   
+   
    static function showHistory (Ticket $ticket) {
       global $DB, $LANG;
       
@@ -427,6 +430,5 @@ class PluginTimelineticketState extends CommonDBTM {
          }
       }      
    }
-
 }
 ?>

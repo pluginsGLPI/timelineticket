@@ -37,15 +37,16 @@
    ------------------------------------------------------------------------
  */
 
+define ("PLUGIN_TIMELINETICKET_VERSION","0.83+1.2");
 
 function plugin_version_timelineticket() {
    global $LANG;
 
    return array('name'           => $LANG['plugin_timelineticket'][1],
                 'minGlpiVersion' => '0.83.3',
-                'version'        => '0.83+1.2',
+                'version'        => PLUGIN_TIMELINETICKET_VERSION,
                 'homepage'       => 'https://forge.indepnet.net/projects/timelineticket',
-                'license'        => 'AGPL3',
+                'license'        => 'AGPLv3+',
                 'author'         => 'Nelly Mahu-Lasson && David Durieux && Xavier Caillaud');
 }
 
