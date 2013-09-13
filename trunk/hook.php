@@ -119,7 +119,7 @@ function plugin_timelineticket_install() {
    if (!TableExists("glpi_plugin_timelineticket_configs")) {
       $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_configs` (
               `id` int(11) NOT NULL AUTO_INCREMENT,
-              `drop_waiting` int(11) NOT NULL DEFAULT '0',
+              `add_waiting` int(11) NOT NULL DEFAULT '1',
               PRIMARY KEY  (`id`)
             ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
       $DB->query($query) or die($DB->error());

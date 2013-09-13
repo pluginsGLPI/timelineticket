@@ -41,6 +41,10 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
    
    protected static $storedate;
    
+    public function __construct() {
+
+    }
+   
    /*
     * Create a ticket
     * 01/ Create a new ticket
@@ -65,9 +69,33 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
     * 20/ close the ticket
     */
     
+   
+   
+   public function testManageTicketNotClosed() {
+      
+      $this->manageTicket(false);
+      $this->states(false);
+      $this->groups(false);
+      $this->totaltimeEnddateOfTicket();
+      $this->displayGroups(false);
+   }
+   
+   public function testManageTicketClosed() {
+      global $DB;
+
+      $DB->connect();
+      
+      $Install = new Install();
+      $Install->testInstall(0);
+      
+      $this->manageTicket();
+      $this->states();
+      $this->groups();
+      $this->totaltimeEnddateOfTicket();
+      $this->displayGroups();
+   }
     
-    
-   public function testManageTicket() {
+   private function manageTicket($closed=true) {
       global $DB, $CFG_GLPI;
 
       $DB->connect();
@@ -86,6 +114,7 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       $group         = new Group();
       $group_ticket  = new Group_Ticket();
       $GLPIlog       = new GLPIlogs();
+      $ticket_User   = new Ticket_User();
       
       $_SESSION['plugin_timelineticket_date'] = array();
       
@@ -115,6 +144,9 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       $input['_itil_assign']['_type'] = 'group';
       $input['_itil_assign']['groups_id'] = 1;
       $ticket->update($input);
+      $input['_itil_assign']['_type'] = 'user';
+      $input['_itil_assign']['users_id'] = 2;
+      $ticket->update($input);
       
       $GLPIlog->testSQLlogs('03/');
       $GLPIlog->testPHPlogs('03/');
@@ -129,6 +161,27 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
           'type'        => '2'
       );
       $this->assertEquals($a_ref, $a_db, 'May have ticket assigned to group1');
+
+      $a_db = getAllDatasFromTable('glpi_tickets_users');
+      $a_ref = array();
+
+      $a_ref[1] = array(
+          'id'                => '1',
+          'tickets_id'        => '1',
+          'users_id'          => '2',
+          'type'              => '1',
+          'use_notification'  => '1',
+          'alternative_email' => ''
+      );
+      $a_ref[2] = array(
+          'id'                => '2',
+          'tickets_id'        => '1',
+          'users_id'          => '2',
+          'type'              => '2',
+          'use_notification'  => '1',
+          'alternative_email' => ''
+      );
+      $this->assertEquals($a_ref, $a_db, 'May have ticket assigned to user 2 (glpi)');
       
       // * 04/
       sleep(2);
@@ -153,6 +206,12 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       // * 07/
       $_SESSION["glpi_currenttime"] = date("Y-m-d H:i:s");
       $a_storedate[7] = $_SESSION["glpi_currenttime"];
+      $input = array();
+      $input['id'] = 2;
+      $input['itickets_id'] = $tickets_id;
+      $ticket_User->check($input['id'], 'w');
+      $ticket_User->delete($input);      
+      
       $input = array();
       $input['id'] = 1;
       $input['itickets_id'] = $tickets_id;
@@ -204,6 +263,12 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       $input['status'] = 'waiting';
       $ticket->update($input);
       
+      $input = array();
+      $input['id'] = $tickets_id;      
+      $input['_itil_assign']['_type'] = 'user';
+      $input['_itil_assign']['users_id'] = 4;
+      $ticket->update($input);
+      
       $GLPIlog->testSQLlogs('11/');
       $GLPIlog->testPHPlogs('11/');
       
@@ -218,6 +283,11 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       $input['_itil_assign']['_type'] = 'group';
       $input['_itil_assign']['groups_id'] = 1;
       $ticket->update($input);
+      
+      $input['_itil_assign']['_type'] = 'user';
+      $input['_itil_assign']['users_id'] = 2;
+      $ticket->update($input);
+      
       
       $GLPIlog->testSQLlogs('13/');
       $GLPIlog->testPHPlogs('13/');
@@ -279,31 +349,32 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       $ticket->getFromDB(1);
       $this->assertEquals('solved', $ticket->fields['status'], '(18/) Status is solved');
       
-      
-      // * 19/
-      sleep(1);
-      
-      // * 20/
-      $_SESSION["glpi_currenttime"] = date("Y-m-d H:i:s");
-      $a_storedate[20] = $_SESSION["glpi_currenttime"];
-      $fup = new TicketFollowup();
-      $input = array();
-      $input['tickets_id'] = $tickets_id;
-      $input['add_close'] = 'add_close';
-      $fup->add($input);
-      
-      $GLPIlog->testSQLlogs('20/');
-      $GLPIlog->testPHPlogs('20/');
-      
-      $ticket->getFromDB(1);
-      $this->assertEquals('closed', $ticket->fields['status'], '(19/) Status is closed');
+      if ($closed) {
+         // * 19/
+         sleep(1);
+
+         // * 20/
+         $_SESSION["glpi_currenttime"] = date("Y-m-d H:i:s");
+         $a_storedate[20] = $_SESSION["glpi_currenttime"];
+         $fup = new TicketFollowup();
+         $input = array();
+         $input['tickets_id'] = $tickets_id;
+         $input['add_close'] = 'add_close';
+         $fup->add($input);
+
+         $GLPIlog->testSQLlogs('20/');
+         $GLPIlog->testPHPlogs('20/');
+
+         $ticket->getFromDB(1);
+         $this->assertEquals('closed', $ticket->fields['status'], '(19/) Status is closed');
+      }
       
       self::$storedate = $a_storedate;
    }   
    
    
    
-   public function testStates() {
+   private function states($closed=true) {
       global $DB;
 
       $DB->connect();
@@ -311,7 +382,12 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       $a_storedate_temp = self::$storedate;
       $a_states = getAllDatasFromTable('glpi_plugin_timelineticket_states', '', FALSE, 'id');
       
-      $this->assertEquals(9, count($a_states), 'Number of lines in states table of plugin');
+      $numlines = 9;
+      if (!$closed) {
+         $numlines = 8;
+      }
+      
+      $this->assertEquals($numlines, count($a_states), 'Number of lines in states table of plugin');
       
       $a_ref = array(
           'id'          => '1',
@@ -393,20 +469,22 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       );      
       $this->assertEquals($a_ref, $a_states[8], '(18/)Status Solved');
       
-      $a_ref = array(
-          'id'          => '9',
-          'tickets_id'   => '1',
-          'date'        => $a_storedate_temp[20],
-          'old_status'  => 'solved',
-          'new_status'  => 'closed',
-          'delay'       => (strtotime($a_storedate_temp[20]) - strtotime($a_storedate_temp[18]))
-      );      
-      $this->assertEquals($a_ref, $a_states[9], '(20/)Status Closed');     
+      if ($closed) {
+         $a_ref = array(
+             'id'          => '9',
+             'tickets_id'   => '1',
+             'date'        => $a_storedate_temp[20],
+             'old_status'  => 'solved',
+             'new_status'  => 'closed',
+             'delay'       => (strtotime($a_storedate_temp[20]) - strtotime($a_storedate_temp[18]))
+         );      
+         $this->assertEquals($a_ref, $a_states[9], '(20/)Status Closed');     
+      }
    }
 
    
    
-   public function testGroups() {
+   private function groups($closed=true) {
       global $DB;
 
       $DB->connect();
@@ -472,6 +550,124 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
           'delay'       => NULL
       );      
       $this->assertEquals($a_ref, $a_states[3], '(20/) Group 1');
+      
+   }
+   
+   
+
+   private function totaltimeEnddateOfTicket() {
+      global $DB;
+
+      $DB->connect();
+      
+      $ticket = new Ticket();
+//      $a_storedate_temp = self::$storedate;
+      
+      $ticket->getFromDB(1);
+      $a_data = PluginTimelineticketDisplay::getTotaltimeEnddate($ticket);
+
+      $totaltime_ref = 0;
+      $a_states = getAllDatasFromTable('glpi_plugin_timelineticket_states', '', FALSE, 'id');
+      
+      foreach($a_states as $data) {
+         $totaltime_ref += $data['delay'];         
+      }
+      $this->assertEquals($totaltime_ref, $a_data['totaltime'], 'Totaltime of ticket (without hours of calendar');
+      
+   }
+   
+   
+   
+   private function displayGroups($closed=true) {
+      global $DB, $CFG_GLPI;
+
+      $DB->connect();
+      $CFG_GLPI['root_doc'] = "http://127.0.0.1/fusion0.83/";
+      Session::loadLanguage("en_GB");
+   
+      $ticket        = new Ticket();
+      $ptAssignGroup = new PluginTimelineticketAssignGroup();
+      $a_storedate_temp = self::$storedate;
+      
+      $ticket->getFromDB(1);      
+      
+//      $a_data = PluginTimelineticketDisplay::getTotaltimeEnddate($ticket);
+//      ob_start();
+//      $a_data = $ptAssignGroup->showTimeline($ticket, $a_data);
+//      ob_end_clean();
+      
+      $a_data = PluginTimelineticketToolbox::getDetails($ticket, 'group',0);
+      
+      foreach ($a_data as $num=>$data) {
+         foreach ($data as $num2=>$data2) {
+            unset($data2['Caption']);
+            unset($data2['R']);
+            unset($data2['G']);
+            unset($data2['B']);
+            $a_data[$num][$num2] = $data2;
+         }         
+      }
+
+      $ticket_date = $ticket->fields['date'];
+      $a_ref = array();
+      $a_ref[1] = array(
+          array(
+              'Start' => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
+                                                                    $a_storedate_temp[3]),
+              'End'   => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
+                                                                    $a_storedate_temp[5]),
+              'Status'=> 'assign'
+          ),
+          array(
+              'Start' => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
+                                                                    $a_storedate_temp[5]),
+              'End'   => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
+                                                                    $a_storedate_temp[7]),
+              'Status'=> 'waiting'
+          ),
+          array(
+              'Start' => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
+                                                                    $a_storedate_temp[13]),
+              'End'   => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
+                                                                    $a_storedate_temp[16]),
+              'Status'=> 'waiting'
+          ),
+          array(
+              'Start' => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
+                                                                    $a_storedate_temp[16]),
+              'End'   => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
+                                                                    $a_storedate_temp[18]),
+              'Status'=> 'assign'
+          )
+      );
+      if ($closed) {
+         $a_ref[1][]= 
+          array(
+              'Start' => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
+                                                                    $a_storedate_temp[18]),
+              'End'   => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
+                                                                    $a_storedate_temp[20]),
+              'Status'=> 'solved'
+          );
+      }
+      
+      $a_ref[2] = array(
+          array(
+              'Start' => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
+                                                                    $a_storedate_temp[9]),
+              'End'   => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
+                                                                    $a_storedate_temp[11]),
+              'Status'=> 'assign'
+          ),     
+          array(
+              'Start' => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
+                                                                    $a_storedate_temp[11]),
+              'End'   => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
+                                                                    $a_storedate_temp[13]),
+              'Status'=> 'waiting'
+          )
+      );
+      $this->assertEquals($a_ref, $a_data, 'Data used to display groups in graph');
       
    }
  }

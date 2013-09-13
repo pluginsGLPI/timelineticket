@@ -75,6 +75,6 @@ DROP TABLE IF EXISTS `glpi_plugin_timelineticket_configs`;
 
 CREATE TABLE `glpi_plugin_timelineticket_configs` (
    `id` int(11) NOT NULL AUTO_INCREMENT,
-   `drop_waiting` int(11) NOT NULL DEFAULT '0',
+   `add_waiting` int(11) NOT NULL DEFAULT '1',
    PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;

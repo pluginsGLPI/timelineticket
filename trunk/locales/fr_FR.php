@@ -62,7 +62,7 @@ $LANG['plugin_timelineticket']['config'][4] = "Attention : il se peut que la rec
 $LANG['plugin_timelineticket']['config'][5] = "Niveaux de support";
 $LANG['plugin_timelineticket']['config'][6] = "Liste des groupes associés";
 $LANG['plugin_timelineticket']['config'][7] = "Options";
-$LANG['plugin_timelineticket']['config'][8] = "Ne pas inputer du temps au groupes / techniciens assignés quand le ticket est en En attente";
+$LANG['plugin_timelineticket']['config'][8] = "Inputer du temps au groupes / techniciens assignés quand le ticket est en En attente";
 
 $LANG['plugin_timelineticket']['profile'][0] = "Gestion des droits";
 
