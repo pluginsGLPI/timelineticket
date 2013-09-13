@@ -85,31 +85,8 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
    
    
    
-   function showTimeline($ticket, $params = array()) {
+   function showTimeline(CommonGLPI $ticket, $params = array()) {
       global $CFG_GLPI, $LANG;
-
-      $palette = array(
-            array('250', '151', '186'),
-            array('255', '211', '112'),
-            array('183', '210', '118'),
-            array('117', '199', '187'),
-            array('188', '168', '208'),
-            array('186', '213', '118'),
-            array('124', '169', '0'),
-            array('168', '208', '49'),
-            array('239', '215', '113'),
-            array('235', '155', '0'),
-            array('235', '249', '255'),
-            array('193', '228', '250'),
-            array('164', '217', '250'),
-            array('88', '195', '240'),
-            array('0', '156', '231'),
-            array('198', '229', '111'),
-            array('234', '38', '115'),
-            array('245', '122', '160'),
-            array('255', '208', '220')
-         );
-
 
       /* Create and populate the pData object */
       $MyData = new pData();  
@@ -123,56 +100,18 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       $IndicatorSections = array();
       $_groupsfinished = array();
 
-      $a_groups = $this->find("`tickets_id`='".$ticket->getField('id')."'", "`date`");
-      $a_group_end = array();
       $a_groups_list = array();
-      $a_group_palette = array();
-      foreach($a_groups as $data) {
-         if (!isset($a_group_palette[$data['groups_id']])) {
-            $a_group_palette[$data['groups_id']] = array_shift($palette);
-         }
-         $color_R = $a_group_palette[$data['groups_id']][0];
-         $color_G = $a_group_palette[$data['groups_id']][1];
-         $color_B = $a_group_palette[$data['groups_id']][2];
+      $IndicatorSections = PluginTimelineticketToolbox::getDetails($ticket, 'group');
+      foreach ($IndicatorSections as $groups_id=>$data) {
+         $a_groups_list[$groups_id] = $groups_id;
          
-         $a_groups_list[$data['groups_id']] = $data['groups_id'];
-         if (!isset($a_group_end[$data['groups_id']])) {
-            $a_group_end[$data['groups_id']] = 0;
-         }
-         if ($data['begin'] != $a_group_end[$data['groups_id']]) {
-            $IndicatorSections[$data['groups_id']][] = array(
-                  "Start"=>$a_group_end[$data['groups_id']],
-                  "End"=>$data['begin'],
-                  "Caption"=>"",
-                  "R"=>235,
-                  "G"=>235,
-                  "B"=>235);
-         }
-         if (is_null($data['delay'])) {
-            $data['delay'] = $params['totaltime'] - $data['begin'];
-            $_groupsfinished[$data['groups_id']] = false;
+         $a_end = end($data);
+         if ($a_end['R'] == 235
+                 && $a_end['G'] == 235
+                 && $a_end['B'] == 235) {
+            $_groupsfinished[$groups_id] = true;
          } else {
-            $_groupsfinished[$data['groups_id']] = true;
-         }
-         $IndicatorSections[$data['groups_id']][] = array(
-                  "Start"=>$data['begin'],
-                  "End"=>($data['begin'] + $data['delay']),
-                  "Caption"=>"",
-                  "R"=>$color_R,
-                  "G"=>$color_G,
-                  "B"=>$color_B);
-         $a_group_end[$data['groups_id']] = ($data['begin'] + $data['delay']);
-      }
-      echo "<pre>";
-
-      foreach ($a_groups_list as $groups_id) {
-         if ($a_group_end[$groups_id] != $params['end_date']) {
-            $IndicatorSections[$groups_id][] = array("Start"=>$a_group_end[$groups_id],
-                                                   "End"=>($params['end_date']),
-                                                   "Caption"=>"",
-                                                   "R"=>235,
-                                                   "G"=>235,
-                                                   "B"=>235);
+            $_groupsfinished[$groups_id] = false;
          }
       }
 
@@ -271,6 +210,9 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
             }
          }
       }
+      
+      // Return list for unit tests
+      return $IndicatorSections;
    }
    
    
@@ -294,7 +236,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
          
          $ptConfig = new PluginTimelineticketConfig();
          $ptConfig->getFromDB(1);
-         if ($ptConfig->fields["drop_waiting"] == 1
+         if ($ptConfig->fields["add_waiting"] == 0
                && $ticket->fields["status"] == "waiting") {
             $ok = 0;
          }
@@ -309,13 +251,15 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       }
    }
    
+   
+   
    static function checkAssignGroup(Ticket $ticket) {
       global $DB;
       
       $ok = 0;
       $ptConfig = new PluginTimelineticketConfig();
       $ptConfig->getFromDB(1);
-      if ($ptConfig->fields["drop_waiting"] == 1) {
+      if ($ptConfig->fields["add_waiting"] == 0) {
          $ok = 1;
       }
  
@@ -386,6 +330,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
    }
    
    
+   
    static function deleteGroupTicket(Group_Ticket $item) {
       global $DB;
       
@@ -427,6 +372,8 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       $ptAssignGroup->update($input);      
       
    }
+   
+   
    
    /*
    * Function to reconstruct timeline for all tickets
@@ -490,101 +437,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
             }
          }
       }
-   }
-   
-   
-   
-   /**
-    * Used to display each status time used for each group
-    * 
-    * 
-    * @param Ticket $ticket
-    */
-   function ShowDetail(Ticket $ticket) {
-      global $LANG;
-
-      $ptState = new PluginTimelineticketState();
-      
-      $a_states = $ptState->find("`tickets_id`='".$ticket->getField('id')."'", "`date`");
-      
-      $a_state_delays = array();
-      $a_state_num = array();
-      $delay = 0;
-      
-      $status = "new";
-      foreach ($a_states as $array) {
-         $delay += $array['delay'];
-         $a_state_delays[$delay] = $array['new_status'];
-         $a_state_num[] = $delay;
-      }
-      $a_state_num[] = $delay;
-      $last_delay = $delay;
-      
-      $a_groups = $this->find("`tickets_id`='".$ticket->getField('id')."'", "`date`");
-
-      echo "<table class='tab_cadrehov' width='100%'>";
-      echo "<tr class='tab_bg_1'>";
-      echo "<th colspan='2'>";
-      echo $LANG['rulesengine'][82];
-      echo " (".$LANG['plugin_timelineticket'][17].")";
-      echo "</th>";
-      echo "</tr>";
-      
-      foreach ($a_groups as $a_group) {
-         echo "<tr class='tab_bg_1'>";
-         echo "<td>".Dropdown::getDropdownName("glpi_groups", $a_group['groups_id'])."</td>";
-         echo "<td>";
-         
-         $begin = $a_group['begin'];
-         $delay = $a_group['delay'];
-         if (is_null($a_group['delay'])) {
-            $delay = $last_delay;
-         }
-         
-         $num = 2;
-         foreach ($a_state_delays as $key_delay=>$value_status) {
-            if ($begin >= $a_state_num[$num]
-                    || $delay == 0) {
-               // nothing
-            } else if ($begin > $key_delay) {
-               if (($begin + $delay) >= ($a_state_num[$num])) {
-                  // all end of delay of this state
-                  echo Ticket::getStatus($value_status)." : ".Html::timestampToString(
-                          ($a_state_num[$num] - $begin), true)."<br/>";
-                  $delay -= ($a_state_num[$num] - $begin);
-                  $begin = $a_state_num[$num];
-               } else {
-                  // Part of status
-                  $begin_delay = $begin - $key_delay;
-                  $end_delay = $a_state_num[$num] - ($begin + $delay);
-                  echo Ticket::getStatus($value_status)." : ".Html::timestampToString(
-                          ($a_state_num[$num] - $begin_delay - $end_delay), true)."<br/>";
-                  $begin += $a_state_num[$num] - $begin_delay - $end_delay;
-                  $delay = 0;
-               }
-            } else { // $begin == $key_delay
-               if (($begin + $delay) >= ($a_state_num[$num])) {
-                  // All delay of this state
-                  echo Ticket::getStatus($value_status)." : ".Html::timestampToString(
-                          ($a_state_num[$num] - $key_delay), true)."<br/>";
-                  $delay -= ($a_state_num[$num] - $key_delay);
-                  $begin = $a_state_num[$num];
-               } else {
-                  // Part of status
-                  
-                  echo Ticket::getStatus($value_status)." : ".Html::timestampToString(
-                          $delay, true)."<br/>";
-                  $begin += $delay;
-                  $delay = 0;
-               }
-            }
-            $num++;
-        }
-         echo "</td>";
-         echo "</tr>";
-      }
-      echo "</table>";      
-   }
+   }   
 }
 
 ?>

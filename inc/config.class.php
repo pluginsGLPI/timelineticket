@@ -69,6 +69,8 @@ class PluginTimelineticketConfig extends CommonDBTM {
       Html::closeForm();
    }
    
+   
+   
    function showForm() {
       global $LANG;
       
@@ -82,7 +84,7 @@ class PluginTimelineticketConfig extends CommonDBTM {
       
       echo "<tr class='tab_bg_1 top'><td>".$LANG['plugin_timelineticket']['config'][8]."</td>";
       echo "<td>";
-      Dropdown::showYesNo("drop_waiting",$this->fields["drop_waiting"]);
+      Dropdown::showYesNo("add_waiting",$this->fields["add_waiting"]);
       echo "</td></tr>";
       
       echo "<tr><th colspan='2'>";
@@ -93,14 +95,16 @@ class PluginTimelineticketConfig extends CommonDBTM {
       Html::closeForm();
    }
    
+   
+   
    static function createFirstConfig() {
       
       $conf = new self();
       if (!$conf->getFromDB(1)) {
 
          $conf->add(array(
-            'id' => 1,
-            'drop_waiting' => 0));
+            'id'          => 1,
+            'add_waiting' => 1));
       }
    }
    

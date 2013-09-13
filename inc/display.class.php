@@ -106,33 +106,11 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pImage.class.php");
       include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pIndicator.class.php");
 
-      $totaltime = 0;
-      $end = date("Y-m-d H:i:s");
-      if ($ticket->fields['status'] == 'closed') {
-         $end = $ticket->fields['closedate'];
-      }
+      $a_data = PluginTimelineticketDisplay::getTotaltimeEnddate($ticket);
       
-      if ($ticket->fields['slas_id'] != 0) { // Have SLA
-         $sla = new SLA();
-         $sla->getFromDB($ticket->fields['slas_id']);
-         $totaltime = $sla->getActiveTimeBetween($ticket->fields['date'], $end);
-      } else {
-         $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
-         if ($calendars_id != 0) { // Ticket entity have calendar
-            $calendar = new Calendar();
-            $calendar->getFromDB($calendars_id);
-            $totaltime = $calendar->getActiveTimeBetween($ticket->fields['date'], $end);
-         } else { // No calendar
-            $totaltime = strtotime($end) - strtotime($ticket->fields['date']);
-         }
-      }
+      $totaltime = $a_data['totaltime'];
+      $end_date  = $a_data['end_date'];
       
-      $end_date = '';
-      if ($ticket->fields['status'] != 'closed') {
-         $end_date = strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['date']);
-      } else {
-         $end_date = strtotime($ticket->fields['closedate']) - strtotime($ticket->fields['date']);
-      }
       $params = array('totaltime' => $totaltime,
                         'end_date' => $end_date);
 
@@ -144,8 +122,8 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       $ptAssignUser->showTimeline($ticket, $params);
       echo "</table>";
       
-      $ptAssignGroup->ShowDetail($ticket);
-      $ptAssignUser->ShowDetail($ticket);
+      PluginTimelineticketToolbox::ShowDetail($ticket, 'group');
+      PluginTimelineticketToolbox::ShowDetail($ticket, 'user');
 
    }
    
@@ -175,6 +153,51 @@ class PluginTimelineticketDisplay extends CommonDBTM {
          }
       }
       return true;
+   }
+   
+   
+   
+   static function getTotaltimeEnddate(CommonGLPI $ticket) {
+      
+      $totaltime = 0;
+      
+      $ptState = new PluginTimelineticketState();
+      $a_states = $ptState->find("`tickets_id`='".$ticket->getField('id')."'", "date");
+      $last_date = '';
+      foreach ($a_states as $a_state) {
+         $totaltime += $a_state['delay'];
+         $last_date = $a_state['date'];
+      }
+      if ($ticket->fields['status'] != 'closed') {
+         $totaltime += PluginTimelineticketDisplay::getPeriodTime($ticket, 
+                                                                  $a_state['date'], 
+                                                                  date("Y-m-d H:i:s"));
+      }
+      $end_date = $totaltime;
+      
+      return array('totaltime' => $totaltime,
+                   'end_date'  => $end_date);
+   }
+   
+   
+   
+   static function getPeriodTime(CommonGLPI $ticket, $start, $end) {
+      $totaltime = 0;
+      if ($ticket->fields['slas_id'] != 0) { // Have SLA
+         $sla = new SLA();
+         $sla->getFromDB($ticket->fields['slas_id']);
+         $totaltime = $sla->getActiveTimeBetween($start, $end);
+      } else {
+         $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+         if ($calendars_id != 0) { // Ticket entity have calendar
+            $calendar = new Calendar();
+            $calendar->getFromDB($calendars_id);
+            $totaltime = $calendar->getActiveTimeBetween($start, $end);
+         } else { // No calendar
+            $totaltime = strtotime($end) - strtotime($start);
+         }
+      }      
+      return $totaltime;
    }
 }
 

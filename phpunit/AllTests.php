@@ -145,11 +145,14 @@ $_SESSION['glpiactiveprofile']['id'] = 4;
 $_SESSION['glpiactiveprofile']['interface'] = 'central';
 Session::changeProfile(4);
 
-
 require_once 'GLPIInstall/AllTests.php';
 require_once 'TimelineticketInstall/AllTests.php';
 require_once 'GLPIlogs/AllTests.php';
 require_once '2_Integration/ManageTicket.php';
+
+foreach (glob("../lib/pChart2.1.3/class/*.php") as $filename) {
+   require_once $filename;
+}
 
 class AllTests {
    public static function suite() {

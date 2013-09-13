@@ -62,7 +62,7 @@ $LANG['plugin_timelineticket']['config'][4] = "Warning : it may be that the reco
 $LANG['plugin_timelineticket']['config'][5] = "Service levels";
 $LANG['plugin_timelineticket']['config'][6] = "List of associated groups";
 $LANG['plugin_timelineticket']['config'][7] = "Options";
-$LANG['plugin_timelineticket']['config'][8] = "Don't input time on groups / users when ticket is waiting";
+$LANG['plugin_timelineticket']['config'][8] = "Input time on groups / users when ticket is waiting";
 
 $LANG['plugin_timelineticket']['profile'][0] = "Rights management";
 

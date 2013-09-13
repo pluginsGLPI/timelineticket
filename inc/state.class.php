@@ -118,18 +118,18 @@ class PluginTimelineticketState extends CommonDBTM {
          echo "<table class='tab_cadrehov' width='100%'>";
          echo "<tr>";
          echo "<th>".$LANG['common'][27]."</th>";
-         echo "<th>".$LANG['plugin_timelineticket'][5]."</th>";
-         echo "<th>".$LANG['plugin_timelineticket'][6]."</th>";
+         echo "<th>".$LANG['joblist'][0]."</th>";
          echo "<th>".$LANG['plugin_timelineticket'][4]."</th>";
          echo "</tr>";
 
          foreach ($req as $data) {
-            echo "<tr class='tab_bg_1'>";
-            echo "<td>".Html::convDateTime($data['date'])."</td>";
-            echo "<td>".Ticket::getStatus($data['old_status'])."</td>";
-            echo "<td>".Ticket::getStatus($data['new_status'])."</td>";
-            echo "<td class='right'>".Html::timestampToString($data['delay'], true)."</td>";
-            echo "</tr>";
+            if ($data['old_status'] != '') {
+               echo "<tr class='tab_bg_1'>";
+               echo "<td>".Html::convDateTime($data['date'])."</td>";
+               echo "<td>".Ticket::getStatus($data['old_status'])."</td>";
+               echo "<td class='right'>".Html::timestampToString($data['delay'], true)."</td>";
+               echo "</tr>";
+            }
          }
          
          echo "</table>";
