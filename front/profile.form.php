@@ -37,8 +37,7 @@
    ------------------------------------------------------------------------
  */
 
-define('GLPI_ROOT', '../../..');
-include (GLPI_ROOT."/inc/includes.php");
+include ('../../../inc/includes.php');
 
 Session::checkRight("profile","w");
 
@@ -46,8 +45,8 @@ $prof=new PluginTimelineticketProfile();
 
 //Save profile
 if (isset ($_POST['update'])) {
-	$prof->update($_POST);
-	Html::back();
+   $prof->update($_POST);
+   Html::back();
 }
 
 ?>

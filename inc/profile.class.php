@@ -43,26 +43,23 @@ if (!defined('GLPI_ROOT')) {
 
 class PluginTimelineticketProfile extends CommonDBTM {
    
-   static function getTypeName() {
-      global $LANG;
-
-      return $LANG['plugin_timelineticket']['profile'][0];
+   static function getTypeName($nb=0) {
+      return __('Rights management', 'timelineticket');
    }
    
-   function canCreate() {
+   static function canCreate() {
       return Session::haveRight('profile', 'w');
    }
 
-   function canView() {
+   static function canView() {
       return Session::haveRight('profile', 'r');
    }
    
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
-      global $LANG;
 
       if ($item->getType()=='Profile' 
             && $item->getField('interface')!='helpdesk') {
-            return $LANG['plugin_timelineticket'][1];
+            return PluginTimelineticketDisplay::getTypeName(2);
       }
       return '';
    }
@@ -139,7 +136,6 @@ class PluginTimelineticketProfile extends CommonDBTM {
 
    //profiles modification
    function showForm ($ID, $options=array()) {
-      global $LANG;
 
       if (!Session::haveRight("profile","r")) return false;
 
@@ -153,12 +149,11 @@ class PluginTimelineticketProfile extends CommonDBTM {
 
       echo "<tr class='tab_bg_2'>";
 
-      echo "<th colspan='4' class='center b'>".$LANG['plugin_timelineticket']['profile'][0]." ".
-               $prof->fields["name"]."</th>";
+      echo "<th colspan='4' class='center b'>".sprintf(__('%1$s - %2$s'), self::getTypeName(1))."</th>";
       echo "</tr>";
       
       echo "<tr class='tab_bg_2'>";
-      echo "<td>".$LANG['plugin_timelineticket'][1]." :</td><td>";
+      echo "<td>".PluginTimelineticketDisplay::getTypeName(2)."</td><td>";
       Profile::dropdownNoneReadWrite("timelineticket",$this->fields["timelineticket"],1,1,1);
       echo "</td>";
       echo "</tr>";

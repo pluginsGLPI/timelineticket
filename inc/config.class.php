@@ -44,7 +44,6 @@ if (!defined('GLPI_ROOT')){
 class PluginTimelineticketConfig extends CommonDBTM {
 
    function showReconstructForm() {
-      global $LANG;
       
       echo "<form method='POST' action=\"".$this->getFormURL()."\">";
        
@@ -52,17 +51,17 @@ class PluginTimelineticketConfig extends CommonDBTM {
       
       echo "<tr>";
       echo "<th>";
-      echo $LANG['common'][12];
-      echo "&nbsp;".$LANG['plugin_timelineticket']['config'][3];
+      _e('Setup');
+      echo "&nbsp;".__('(Can take many time if you have many tickets)', 'timelineticket');
       echo "</th>";
       echo "</tr>";
       
       echo "<tr class='tab_bg_1'>";
       echo "<td align='center'>";
       
-      echo "<br/><input type='submit' name='reconstructStates' class='submit' value=\"".$LANG['plugin_timelineticket']['config'][1]."\" >";
-      echo "<br/><br/><input type='submit' name='reconstructGroups' class='submit' value=\"".$LANG['plugin_timelineticket']['config'][2]."\" >";
-      echo "<br/><br/><div class='red'>".$LANG['plugin_timelineticket']['config'][4]."</div>";
+      echo "<br/><input type='submit' name='reconstructStates' class='submit' value=\""._sx('button', 'Reconstruct states timeline for all tickets', 'timelineticket')."\" >";
+      echo "<br/><br/><input type='submit' name='reconstructGroups' class='submit' value=\""._sx('button', 'Reconstruct groups timeline for all tickets', 'timelineticket')."\" >";
+      echo "<br/><br/><div class='red'>".__('Warning : it may be that the reconstruction of groups does not reflect reality because it concern only groups which have the Requester flag to No and Assigned flag to Yes', 'timelineticket')."</div>";
       
       echo "</td>";
       echo "</table>";
@@ -72,17 +71,16 @@ class PluginTimelineticketConfig extends CommonDBTM {
    
    
    function showForm() {
-      global $LANG;
       
       echo "<form method='POST' action=\"".$this->getFormURL()."\">";
        
       echo "<table class='tab_cadre_fixe'>";
       
       echo "<tr><th colspan='2'>";
-      echo $LANG['plugin_timelineticket']['config'][7];
+      _e('Flags');
       echo "</th></tr>";
       
-      echo "<tr class='tab_bg_1 top'><td>".$LANG['plugin_timelineticket']['config'][8]."</td>";
+      echo "<tr class='tab_bg_1 top'><td>".__('Input time on groups / users when ticket is waiting', 'timelineticket')."</td>";
       echo "<td>";
       Dropdown::showYesNo("add_waiting",$this->fields["add_waiting"]);
       echo "</td></tr>";
@@ -90,7 +88,7 @@ class PluginTimelineticketConfig extends CommonDBTM {
       echo "<tr><th colspan='2'>";
       echo "<input type='hidden' name='id' value='1'>";
       echo "<input type=\"submit\" name=\"update\" class=\"submit\"
-         value=\"".$LANG["buttons"][2]."\" ></th></tr>";
+         value=\""._sx('button', 'Save')."\" ></th></tr>";
       echo "</table>";
       Html::closeForm();
    }
@@ -109,5 +107,4 @@ class PluginTimelineticketConfig extends CommonDBTM {
    }
    
 }
-
 ?>

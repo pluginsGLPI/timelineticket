@@ -41,12 +41,10 @@
 $USEDBREPLICATE = 1;
 $DBCONNECTION_REQUIRED = 1;
 
-define('GLPI_ROOT', '../../../..');
-include (GLPI_ROOT . "/inc/includes.php");
+include ("../../../../inc/includes.php");
 
 // Instantiate Report with Name
-$report = new PluginReportsAutoReport();
-
+$report = new PluginReportsAutoReport(__("statSpentTimeByGroup_report_title", "timelineticket"));
 //Report's search criterias
 $dateYear = date("Y-m-d", mktime(0, 0, 0, date("m"), 1, date("Y") - 1));
 $lastday = cal_days_in_month(CAL_GREGORIAN, date("m"), date("Y"));
@@ -62,7 +60,7 @@ if (date("d") == $lastday) {
 $endDate = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d"), date("Y")));
 
 
-$date = new PluginReportsDateIntervalCriteria($report, '`glpi_tickets`.`closedate`', $LANG['reports'][61]);
+$date = new PluginReportsDateIntervalCriteria($report, '`glpi_tickets`.`closedate`', __('Closing date'));
 $date->setStartDate($dateMonthbegin);
 $date->setEndDate($dateMonthend);
 
@@ -82,7 +80,7 @@ $columns = array('closedate' => array('sorton' => 'closedate'),
                   'requesttypes_id' => array('sorton' => 'requesttypes_id')
     );
    
-$output_type = HTML_OUTPUT;
+$output_type = Search::HTML_OUTPUT;
 
 if (isset($_POST['list_limit'])) {
    $_SESSION['glpilist_limit'] = $_POST['list_limit'];
@@ -102,7 +100,7 @@ if (isset($_POST["display_type"])) {
       $limit = 0;
    }
 } //else {
-//   $output_type = HTML_OUTPUT;
+//   $output_type = Search::HTML_OUTPUT;
 //}
 //Report title
 $title = $report->getFullTitle();
@@ -110,7 +108,7 @@ $title = $report->getFullTitle();
 // SQL statement
 $query = "SELECT glpi_tickets.*  
                FROM `glpi_tickets`
-               WHERE `glpi_tickets`.`status` = 'closed'";
+               WHERE `glpi_tickets`.`status` = '".Ticket::CLOSED."'";
 $query .= getEntitiesRestrictRequest('AND',"glpi_tickets",'','',false);
 $query .= $date->getSqlCriteriasRestriction();
 $query .= getOrderBy('closedate', $columns);
@@ -134,12 +132,12 @@ if ($nbtot == 0) {
       Html::header($title, $_SERVER['PHP_SELF'], "utils", "report");
       Report::title();
    }
-   echo "<div class='center'><font class='red b'>" . $LANG['search'][15] . "</font></div>";
+   echo "<div class='center'><font class='red b'>" . __('No item found') . "</font></div>";
    Html::footer();
-} else if ($output_type == PDF_OUTPUT_PORTRAIT 
-               || $output_type == PDF_OUTPUT_LANDSCAPE) {
+} else if ($output_type == Search::PDF_OUTPUT_PORTRAIT 
+               || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
    include (GLPI_ROOT . "/lib/ezpdf/class.ezpdf.php");
-} else if ($output_type == HTML_OUTPUT) {
+} else if ($output_type == Search::HTML_OUTPUT) {
    if (!$HEADER_LOADED) {
       Html::header($title, $_SERVER['PHP_SELF'], "utils", "report");
       Report::title();
@@ -201,25 +199,25 @@ if ($res && $nbtot > 0) {
    echo Search::showHeader($output_type, $nbrows, $nbCols, false);
 
    echo Search::showNewLine($output_type);
-   showTitle($output_type, $num, $LANG['common'][2], 'id', true);
-   showTitle($output_type, $num, $LANG['entity'][0], 'entities_id', true);
-   showTitle($output_type, $num, $LANG['joblist'][0], 'status', false);
-   showTitle($output_type, $num, $LANG['reports'][60], 'date', true);
-   showTitle($output_type, $num, $LANG['common'][26], 'date_mod', true);
-   showTitle($output_type, $num, $LANG['joblist'][2], 'priority', true);
-   showTitle($output_type, $num, $LANG['job'][18], '', false);
-   showTitle($output_type, $num, $LANG['common'][17], 'type', true);
-   showTitle($output_type, $num, $LANG['common'][36], 'itilcategories_id', true);
-   showTitle($output_type, $num, $LANG['common'][57], 'name', true);
-   showTitle($output_type, $num, $LANG['reports'][61], 'closedate', true);
-   showTitle($output_type, $num, $LANG['job'][44], 'requesttypes_id', true);
+   showTitle($output_type, $num, __('id'), 'id', true);
+   showTitle($output_type, $num, __('Entity'), 'entities_id', true);
+   showTitle($output_type, $num, __('Status'), 'status', false);
+   showTitle($output_type, $num, __('Opening date'), 'date', true);
+   showTitle($output_type, $num, __('Last update'), 'date_mod', true);
+   showTitle($output_type, $num, __('Priority'), 'priority', true);
+   showTitle($output_type, $num, _n('Requester', 'Requesters', 2), '', false);
+   showTitle($output_type, $num, __('Type'), 'type', true);
+   showTitle($output_type, $num, __('Category'), 'itilcategories_id', true);
+   showTitle($output_type, $num, __('Title'), 'name', true);
+   showTitle($output_type, $num, __('Closing date'), 'closedate', true);
+   showTitle($output_type, $num, __('Request type'), 'requesttypes_id', true);
    if (!empty($mylevels)) {
       foreach ($mylevels as $key => $val) {
          showTitle($output_type, $num, $key, '', false);
-         showTitle($output_type, $num, $LANG['plugin_timelineticket']['statSpentTimeByGroup'][2]."&nbsp;".$key, '', false);
+         showTitle($output_type, $num, __('Duration by', 'timelineticket')."&nbsp;".$key, '', false);
       }
    }
-   showTitle($output_type, $num, $LANG['plugin_timelineticket']['statSpentTimeByGroup'][3], 'TOTAL', false);
+   showTitle($output_type, $num, __('Total duration of ticket', 'timelineticket'), 'TOTAL', false);
    echo Search::showEndLine($output_type);
 
    $row_num = 1;
@@ -231,13 +229,13 @@ if ($res && $nbtot > 0) {
       $ticket = new Ticket();
       $ticket->getFromDB($data['id']);
 
-      if ($ticket->countUsers(CommonITILObject::REQUESTER)) {
-         foreach ($ticket->getUsers(CommonITILObject::REQUESTER) as $d) {
+      if ($ticket->countUsers(CommonITILActor::REQUESTER)) {
+         foreach ($ticket->getUsers(CommonITILActor::REQUESTER) as $d) {
             $k = $d['users_id'];
             if ($k) {
                $userdata.= getUserName($k);
             }
-            if ($ticket->countUsers(CommonITILObject::REQUESTER) > 1) {
+            if ($ticket->countUsers(CommonITILActor::REQUESTER) > 1) {
                $userdata .= "<br>";
             }
          }
@@ -255,35 +253,35 @@ if ($res && $nbtot > 0) {
                if ($group["delay"] != null) {
                   $timegroups[$group["groups_id"]] += $group["delay"];
                } else {
-					$calendar = new Calendar();
-					$calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
-					if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
-						$delay = $calendar->getActiveTimeBetween ($group["date"], $data["closedate"]);
+                  $calendar = new Calendar();
+                  $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+                  if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
+                     $delay = $calendar->getActiveTimeBetween ($group["date"], $data["closedate"]);
 
-					} else {
-						$delay = strtotime($data["closedate"]) - strtotime($group["date"]);
-					}
+                  } else {
+                     $delay = strtotime($data["closedate"]) - strtotime($group["date"]);
+                  }
 
-				  if ($delay < 0) {
+               if ($delay < 0) {
                      $delay = 0;
                   }
-				  
+              
                   $timegroups[$group["groups_id"]] += $delay;
                }
             } else {
                if ($group["delay"] != null) {
                   $timegroups[$group["groups_id"]] = $group["delay"];
                } else {
-					$calendar = new Calendar();
-					$calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
-					if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
-						$delay = $calendar->getActiveTimeBetween ($group["date"], $data["closedate"]);
+                  $calendar = new Calendar();
+                  $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+                  if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
+                     $delay = $calendar->getActiveTimeBetween ($group["date"], $data["closedate"]);
 
-					} else {
-						$delay = strtotime($data["closedate"]) - strtotime($group["date"]);
-					}
-				 
-				  if ($delay < 0) {
+                  } else {
+                     $delay = strtotime($data["closedate"]) - strtotime($group["date"]);
+                  }
+             
+               if ($delay < 0) {
                      $delay = 0;
                   }
                   $timegroups[$group["groups_id"]] = $delay;
@@ -401,7 +399,7 @@ if ($res && $nbtot > 0) {
    echo Search::showFooter($output_type, $title);
 }
 
-if ($output_type == HTML_OUTPUT) {
+if ($output_type == Search::HTML_OUTPUT) {
    Html::footer();
 }
 
@@ -417,7 +415,7 @@ if ($output_type == HTML_OUTPUT) {
  */
 function showTitle($output_type, &$num, $title, $columnname, $sort = false) {
 
-   if ($output_type != HTML_OUTPUT || $sort == false) {
+   if ($output_type != Search::HTML_OUTPUT || $sort == false) {
       echo Search::showHeaderItem($output_type, $title, $num);
       return;
    }

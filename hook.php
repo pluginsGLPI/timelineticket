@@ -38,7 +38,7 @@
  */
 
 function plugin_timelineticket_install() {
-   global $DB, $LANG;
+   global $DB;
    
    include_once (GLPI_ROOT."/plugins/timelineticket/inc/profile.class.php");
    include_once (GLPI_ROOT."/plugins/timelineticket/inc/config.class.php");
@@ -124,6 +124,29 @@ function plugin_timelineticket_install() {
             ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
       $DB->query($query) or die($DB->error());
    }
+   
+   $status = array ('new'           => Ticket::INCOMING,
+                    'assign'        => Ticket::ASSIGNED,
+                    'plan'          => Ticket::PLANNED,
+                    'waiting'       => Ticket::WAITING,
+                    'solved'        => Ticket::SOLVED,
+                    'closed'        => Ticket::CLOSED);
+                    
+   // Update field in tables
+   foreach (array('glpi_plugin_timelineticket_states') as $table) {
+      // Migrate datas
+      foreach ($status as $old => $new) {
+         $query = "UPDATE `$table`
+                   SET `old_status` = '$new'
+                   WHERE `old_status` = '$old'";
+         $DB->queryOrDie($query, "0.84 status in $table $old to $new");
+         
+         $query = "UPDATE `$table`
+                   SET `new_status` = '$new'
+                   WHERE `new_status` = '$old'";
+         $DB->queryOrDie($query, "0.84 status in $table $old to $new");
+      }
+   }
 
    PluginTimelineticketConfig::createFirstConfig();
    
@@ -174,10 +197,10 @@ function plugin_timelineticket_ticket_add(Ticket $item) {
    // Instantiation of the object from the class PluginTimelineticketStates
    $followups = new PluginTimelineticketState();
 
-   $followups->createFollowup($item, $item->input['date'], '', 'new');
+   $followups->createFollowup($item, $item->input['date'], '', Ticket::INCOMING);
 
-   if ($item->input['status'] != 'new') {
-      $followups->createFollowup($item, $item->input['date'], 'new', $item->input['status']);
+   if ($item->input['status'] != Ticket::INCOMING) {
+      $followups->createFollowup($item, $item->input['date'], Ticket::INCOMING, $item->input['status']);
    }
 }
 
@@ -187,16 +210,15 @@ function plugin_timelineticket_ticket_purge(Ticket $item) {
    // Instantiation of the object from the class PluginTimelineticketStates
    $followups = new PluginTimelineticketState();
    // Deletion of the followups
-   $followups->cleanFollowup($item->getField("id"));
+   $followups->deleteByCriteria(array('tickets_id' => $item->getField("id")));
 }
 
 function plugin_timelineticket_getDropdown() {
-   global $LANG;
 
    $plugin = new Plugin();
 
    if ($plugin->isActivated("timelineticket"))
-      return array('PluginTimelineticketGrouplevel'=>$LANG['plugin_timelineticket']['config'][5]);
+      return array('PluginTimelineticketGrouplevel'=>PluginTimelineticketGrouplevel::getTypeName(2));
    else
       return array();
 }
@@ -213,19 +235,19 @@ function plugin_timelineticket_getDatabaseRelations() {
 }
 
 function plugin_timelineticket_giveItem($type,$ID,$data,$num) {
-	global $CFG_GLPI,$DB,$LANG;
+   global $CFG_GLPI,$DB;
 
-	$searchopt=&Search::getOptions($type);
-	$table=$searchopt[$ID]["table"];
-	$field=$searchopt[$ID]["field"];
+   $searchopt=&Search::getOptions($type);
+   $table=$searchopt[$ID]["table"];
+   $field=$searchopt[$ID]["field"];
 
-	switch ($table.'.'.$field) {
-		case "glpi_plugin_timelineticket_grouplevels.groups" :
-			if (empty($data["ITEM_$num"])) {
-				$out=$LANG['common'][49];
-			} else {
-				$out= "";
-				$groups = json_decode($data["ITEM_$num"], true);
+   switch ($table.'.'.$field) {
+      case "glpi_plugin_timelineticket_grouplevels.groups" :
+         if (empty($data["ITEM_$num"])) {
+            $out=__('None');
+         } else {
+            $out= "";
+            $groups = json_decode($data["ITEM_$num"], true);
             if (!empty($groups)) {
                foreach ($groups as $key => $val) {
                   $out .= Dropdown::getDropdownName("glpi_groups", $val)."<br>";
@@ -234,8 +256,8 @@ function plugin_timelineticket_giveItem($type,$ID,$data,$num) {
          }
          return $out;
          break;
-	}
-	return "";
+   }
+   return "";
 }
 
 ?>

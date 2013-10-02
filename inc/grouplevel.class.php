@@ -43,27 +43,25 @@ if (!defined('GLPI_ROOT')) {
 
 class PluginTimelineticketGrouplevel extends CommonDropdown {
 
-   static function getTypeName($nb=0) {
-      global $LANG;
+   public static function getTypeName($nb=0) {
 
-      return $LANG['plugin_timelineticket']['config'][5];
+      return _n('Service level', 'Service levels', $nb, 'timelineticket');
    }
    
    function getAdditionalFields() {
-      global $LANG;
 
       return array(array('name'  => 'rank',
-                         'label' => $LANG['rulesengine'][10],
+                         'label' => __('Position'),
                          'type'  => 'text',
                          'list'  => true),
                      array('name'  => 'groups',
-                         'label' => $LANG['plugin_timelineticket']['config'][6],
+                         'label' => __('List of associated groups', 'timelineticket'),
                          'type'  => 'groups',
                          'list'  => true));
    }
    
    function displaySpecificTypeField($ID, $field = array()) {
-      global $LANG, $CFG_GLPI;
+      global $CFG_GLPI;
       
       switch ($field['type']) {
          case 'groups' :
@@ -79,7 +77,7 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
                   echo "<td>";
                   Html::showSimpleForm(Toolbox::getItemTypeFormURL('PluginTimelineticketConfig'), 
                                        'delete_groups', 
-                                       $LANG['buttons'][6], 
+                                       _sx('button', 'Delete permanently'), 
                                        array('delete_groups' => 'delete_groups',
                                               'id' => $ID,
                                               '_groups_id_assign' => $val
@@ -92,27 +90,26 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
                
                echo "</table>";
             } else {
-               echo $LANG['common'][49];
+               _e('None');
             }
             break;
       }
    }
    
    function getSearchOptions() {
-      global $LANG;
 
       $tab                          = parent::getSearchOptions();
 
       $tab[11]['table']             = 'glpi_plugin_timelineticket_grouplevels';
       $tab[11]['field']             = 'rank';
-      $tab[11]['name']              = $LANG['rulesengine'][10];
+      $tab[11]['name']              = __('Position');
       $tab[11]['massiveaction']     = false;
       
-      $tab[12]['table']           = 'glpi_plugin_timelineticket_grouplevels';
-      $tab[12]['field']           = 'groups';
-      $tab[12]['name']            = $LANG['plugin_timelineticket']['config'][6];
-      $tab[12]['massiveaction']   = false;
-      $tab[12]['nosearch']        = true;
+      $tab[12]['table']             = 'glpi_plugin_timelineticket_grouplevels';
+      $tab[12]['field']             = 'groups';
+      $tab[12]['name']              = __('List of associated groups', 'timelineticket');
+      $tab[12]['massiveaction']     = false;
+      $tab[12]['nosearch']          = true;
       return $tab;
    }
    
@@ -122,7 +119,6 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
     * @param $options array
    **/
    function defineTabs($options=array()) {
-      global $LANG;
 
       $ong = array();
       $this->addStandardTab(__CLASS__, $ong, $options);
@@ -132,7 +128,6 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
 
 
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
-      global $LANG;
 
       if (!$withtemplate) {
          if ($item->getType()==$this->getType()) {
@@ -152,27 +147,27 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
    }
    
    static function showAddGroup($item) {
-      global $LANG;
 
       echo "<form action='" .Toolbox::getItemTypeFormURL('PluginTimelineticketConfig')."' method='post'>";
       echo "<table class='tab_cadre_fixe' cellpadding='5'>";
       echo "<tr class='tab_bg_1 center'>";
-      echo "<th>" . $LANG['common'][35] . "</th>";
+      echo "<th>" . __('Group') . "</th>";
       echo "<th>&nbsp;</th>";
       echo "</tr>";
       echo "<tr class='tab_bg_1 center'>";
       echo "<td>";
       
       $used = json_decode($item->fields["groups"], true);
+      
+      Group::dropdown(array('name'      => '_groups_id_assign',
+                            'used' => $used,
+                            'entity'    => $item->fields['entities_id'],
+                            'entity_sons' => $item->fields["is_recursive"],
+                            'condition' => '`is_assign`'));
 
-      Dropdown::show('Group', array('name' => '_groups_id_assign',
-                                     'entity' => $item->fields["entities_id"],
-                                     'condition' => '`is_assign`',
-                                     'entity_sons' => $item->fields["is_recursive"],
-                                     'used' => $used));
       echo "</td>";
       echo "<td><input type='hidden' name='id' value='".$item->getID()."'>";
-      echo "<input type='submit' name='add_groups' value='" . $LANG["buttons"][8] . "' class='submit' ></td>";
+      echo "<input type='submit' class='submit' name='add_groups' value='" . _sx('button', 'Add') . "'></td>";
       echo "</tr>";
       echo "</table>";
       Html::closeForm();
@@ -262,5 +257,4 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
       return $input;
    }
 }
-
 ?>

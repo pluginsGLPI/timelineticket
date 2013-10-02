@@ -42,16 +42,21 @@ if (!defined('GLPI_ROOT')){
 }
 
 class PluginTimelineticketDisplay extends CommonDBTM {
+   
+   public static function getTypeName($nb=0) {
 
+      return _n('Timeline of ticket', 'Timeline of tickets', $nb, 'timelineticket');
+   }
+   
    static function showForTicket (Ticket $ticket) {
-      global $DB, $LANG, $CFG_GLPI;
+      global $DB, $CFG_GLPI;
 
       echo "<table class='tab_cadre_fixe'>";
-      echo "<tr><th>".$LANG['job'][37]."</th></tr>";
+      echo "<tr><th>".__('Summary')."</th></tr>";
 
-      echo "<tr class='tab_bg_1 center'><td>".$LANG['calendar'][10]."&nbsp;: ";
+      echo "<tr class='tab_bg_1 center'><td>"._n('Time range', 'Time ranges', 2)."&nbsp;: ";
       $calendar = new Calendar();
-      $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+      $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
       if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
          echo $calendar->getLink();
       } else {
@@ -66,7 +71,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
               && (strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['due_date'])) > 0) {
 
          $calendar = new Calendar();
-         $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+         $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
 
          if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
             if ($ticket->fields['closedate']) {
@@ -85,7 +90,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
             }
          }
          echo "<tr>";
-         echo "<th>".$LANG['job'][17]."</th>";
+         echo "<th>".__('Late')."</th>";
          echo "</tr>";
          echo "<tr>";
          echo "<td align='center' class='tab_bg_2_2'>".
@@ -97,7 +102,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       
       echo "<table class='tab_cadre_fixe'>";
       echo "<tr>";
-      echo "<th colspan='2'>".$LANG['joblist'][0]."</th>";
+      echo "<th colspan='2'>".__('Status')."</th>";
       echo "</tr>";
       
       /* pChart library inclusions */
@@ -130,12 +135,11 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
 
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
-      global $LANG;
       
       if ($item->getType() == 'Ticket') {
          if ($item->getField('id')>0 
             && plugin_timelineticket_haveRight('timelineticket','r')) {
-            return array(1 => $LANG['plugin_timelineticket'][15]);
+            return array(1 => __('Timeline', 'timelineticket'));
          }
       }
       return '';
@@ -146,7 +150,6 @@ class PluginTimelineticketDisplay extends CommonDBTM {
    static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
 
       if ($item->getType() == 'Ticket') {
-         $prof = new self();
          if ($item->getField('id')>0 
             && plugin_timelineticket_haveRight('timelineticket','r')) {
             self::showForTicket($item);
@@ -168,7 +171,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
          $totaltime += $a_state['delay'];
          $last_date = $a_state['date'];
       }
-      if ($ticket->fields['status'] != 'closed') {
+      if ($ticket->fields['status'] != Ticket::CLOSED) {
          $totaltime += PluginTimelineticketDisplay::getPeriodTime($ticket, 
                                                                   $a_state['date'], 
                                                                   date("Y-m-d H:i:s"));
@@ -188,7 +191,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
          $sla->getFromDB($ticket->fields['slas_id']);
          $totaltime = $sla->getActiveTimeBetween($start, $end);
       } else {
-         $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+         $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
          if ($calendars_id != 0) { // Ticket entity have calendar
             $calendar = new Calendar();
             $calendar->getFromDB($calendars_id);

@@ -44,18 +44,6 @@ if (!defined('GLPI_ROOT')){
 class PluginTimelineticketState extends CommonDBTM {
 
 
-   // Method permitting to delete occurences [if the tracking is deleted]
-   function cleanFollowup($ticket) {
-      global $DB;
-
-      $query = "DELETE
-                FROM `".$this->getTable()."`
-                WHERE `tickets_id` = '$ticket' ";
-      $DB->query($query);
-   }
-
-   
-
    // Method permitting to save the current status
    function createFollowup(Ticket $ticket, $date, $old_status, $new_status) {
       global $DB;
@@ -78,7 +66,7 @@ class PluginTimelineticketState extends CommonDBTM {
          $datefin = $date;
 
          $calendar = new Calendar();
-         $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+         $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
 
          if (!$datedebut) {
             $delay = 0;
@@ -100,7 +88,7 @@ class PluginTimelineticketState extends CommonDBTM {
    
    
    static function showHistory (Ticket $ticket) {
-      global $DB, $LANG;
+      global $DB;
       
       $query = "SELECT *
                 FROM `glpi_plugin_timelineticket_states`
@@ -109,17 +97,17 @@ class PluginTimelineticketState extends CommonDBTM {
 
       $req = $DB->request($query);
       if (!$req->numrows()) {
-         echo "<tr class='tab_bg_1 center'><td>".$LANG['search'][15]."</td></tr>";
+         echo "<tr class='tab_bg_1 center'><td>".__('No item found')."</td></tr>";
       } else {
 
-         echo "<tr><th>".$LANG['rulesengine'][82]."</th></tr>";
+         echo "<tr><th>".__('Result details')."</th></tr>";
          echo "<tr class='tab_bg_2'><td>";
          
          echo "<table class='tab_cadrehov' width='100%'>";
          echo "<tr>";
-         echo "<th>".$LANG['common'][27]."</th>";
-         echo "<th>".$LANG['joblist'][0]."</th>";
-         echo "<th>".$LANG['plugin_timelineticket'][4]."</th>";
+         echo "<th>".__('Date')."</th>";
+         echo "<th>".__('Status')."</th>";
+         echo "<th>".__('Delay', 'timelineticket')."</th>";
          echo "</tr>";
 
          foreach ($req as $data) {
@@ -141,7 +129,7 @@ class PluginTimelineticketState extends CommonDBTM {
    
    
    function showTimeline (Ticket $ticket, $params = array()) {
-      global $DB, $LANG, $CFG_GLPI;
+      global $DB, $CFG_GLPI;
  
       /* Create and populate the pData object */
       $MyData = new pData();  
@@ -156,14 +144,19 @@ class PluginTimelineticketState extends CommonDBTM {
       /* Define the indicator sections */
       $IndicatorSections   = array();
 
-      $a_states = array('new', 'assign', 'plan', 'waiting', 'solved', 'closed');
+      $a_states = array(Ticket::INCOMING, 
+                        Ticket::ASSIGNED, 
+                        Ticket::PLANNED, 
+                        Ticket::WAITING, 
+                        Ticket::SOLVED, 
+                        Ticket::CLOSED);
       $a_status_color = array();
-      $a_status_color['new'] = array('R'=>197, 'G'=>204, 'B'=>79);
-      $a_status_color['assign'] = array('R'=>38, 'G'=>174, 'B'=>38);
-      $a_status_color['plan'] = array('R'=>255, 'G'=>102, 'B'=>0);
-      $a_status_color['waiting'] = array('R'=>229, 'G'=>184, 'B'=>0);
-      $a_status_color['solved'] = array('R'=>83, 'G'=>141, 'B'=>184);
-      $a_status_color['closed'] = array('R'=>51, 'G'=>51, 'B'=>51);
+      $a_status_color[Ticket::INCOMING] = array('R'=>197, 'G'=>204, 'B'=>79);
+      $a_status_color[Ticket::ASSIGNED] = array('R'=>38, 'G'=>174, 'B'=>38);
+      $a_status_color[Ticket::PLANNED] = array('R'=>255, 'G'=>102, 'B'=>0);
+      $a_status_color[Ticket::WAITING] = array('R'=>229, 'G'=>184, 'B'=>0);
+      $a_status_color[Ticket::SOLVED] = array('R'=>83, 'G'=>141, 'B'=>184);
+      $a_status_color[Ticket::CLOSED] = array('R'=>51, 'G'=>51, 'B'=>51);
       
       $delaystatus = array();
       
@@ -199,7 +192,7 @@ class PluginTimelineticketState extends CommonDBTM {
             }
             $begin += $data['delay'];
          }
-         if ($ticket->fields['status'] != 'closed') {
+         if ($ticket->fields['status'] != Ticket::CLOSED) {
             foreach ($a_states as $statusSection) { 
                $R = 235;
                $G = 235;
@@ -230,7 +223,7 @@ class PluginTimelineticketState extends CommonDBTM {
             echo "</td>";
             echo "<td>";
             
-            if ($ticket->fields['status'] != 'closed') {
+            if ($ticket->fields['status'] != Ticket::CLOSED) {
                $IndicatorSettings = array("Values"=>array(100,201),
                                           "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM, 
                                           "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT, 
@@ -270,7 +263,7 @@ class PluginTimelineticketState extends CommonDBTM {
               && (strtotime(date('Y-m-d H:i:s') - strtotime($ticket->fields['due_date'])) > 0)) {
 
          $calendar = new Calendar();
-         $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+         $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
 
          if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
             $duedate = $calendar->getActiveTimeBetween($ticket->fields['date'], 
@@ -293,15 +286,15 @@ class PluginTimelineticketState extends CommonDBTM {
          }
          echo "<tr class='tab_bg_2'>";
          echo "<td width='100' class='tab_bg_2_2'>";
-         echo $LANG['job'][17];
+         _e('Late');
          echo "<br/>(".round(($dateend * 100) / $params['totaltime'], 2)."%)";
          echo "</td>";
          echo "<td>";
          
          $calendar = new Calendar();
-         $calendars_id = EntityData::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+         $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
 
-         if ($ticket->fields['status'] != 'closed') {
+         if ($ticket->fields['status'] != Ticket::CLOSED) {
             
             $IndicatorSettings = array("Values"=>array(100,201),
                                        "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM, 
@@ -377,27 +370,36 @@ class PluginTimelineticketState extends CommonDBTM {
     * Function to reconstruct timeline for all tickets
     */
    function reconstructTimeline() {
-      global $DB, $LANG;
+      global $DB;
       
       $ticket = new Ticket();
       $query = "TRUNCATE `".$this->getTable()."`";
       $DB->query($query);
       
       $status_translation = array();
-      $status_translation[$LANG['joblist'][9]]  = 'new';
-      $status_translation[$LANG['joblist'][18]] = 'assign';
-      $status_translation[$LANG['joblist'][19]] = 'plan';
-      $status_translation[$LANG['joblist'][26]] = 'waiting';
-      $status_translation[$LANG['joblist'][32]] = 'solved';
-      $status_translation[$LANG['joblist'][33]] = 'closed';
+      //$status_translation[$LANG['joblist'][9]]  = 'new';
+      //$status_translation[$LANG['joblist'][18]] = 'assign';
+      //$status_translation[$LANG['joblist'][19]] = 'plan';
+      //$status_translation[$LANG['joblist'][26]] = 'waiting';
+      //$status_translation[$LANG['joblist'][32]] = 'solved';
+      //$status_translation[$LANG['joblist'][33]] = 'closed';
+      $status_translation[_x('ticket', 'New')]           = Ticket::INCOMING;
+      $status_translation[__('Processing (assigned)')]   = Ticket::ASSIGNED;
+      $status_translation[__('Processing (planned)')]    = Ticket::PLANNED;
+      $status_translation[__('Pending')]                 = Ticket::WAITING;
+      $status_translation[__('Solved')]                  = Ticket::SOLVED;
+      $status_translation[__('Closed')]                  = Ticket::CLOSED;
+      
       foreach (glob(GLPI_ROOT.'/locales/*.php') as $file) {
          include_once($file);
-         $status_translation[$LANG['joblist'][9]]  = 'new';
-         $status_translation[$LANG['joblist'][18]] = 'assign';
-         $status_translation[$LANG['joblist'][19]] = 'plan';
-         $status_translation[$LANG['joblist'][26]] = 'waiting';
-         $status_translation[$LANG['joblist'][32]] = 'solved';
-         $status_translation[$LANG['joblist'][33]] = 'closed';
+
+         $status_translation[_x('ticket', 'New')]           = Ticket::INCOMING;
+         $status_translation[__('Processing (assigned)')]   = Ticket::ASSIGNED;
+         $status_translation[__('Processing (planned)')]    = Ticket::PLANNED;
+         $status_translation[__('Pending')]                 = Ticket::WAITING;
+         $status_translation[__('Solved')]                  = Ticket::SOLVED;
+         $status_translation[__('Closed')]                  = Ticket::CLOSED;
+         
       }
       //echo "<pre>";print_r($status_translation);
       
@@ -406,7 +408,7 @@ class PluginTimelineticketState extends CommonDBTM {
       $result = $DB->query($query);
       while ($data = $DB->fetch_array($result)) {
          $ticket->getFromDB($data['id']);
-         $this->createFollowup($ticket, $data['date'], '', 'new');
+         $this->createFollowup($ticket, $data['date'], '', Ticket::INCOMING);
          
          $queryl = "SELECT * FROM `glpi_logs`
             WHERE `itemtype`='Ticket'
@@ -417,9 +419,12 @@ class PluginTimelineticketState extends CommonDBTM {
          $first = 0;
          while ($datal = $DB->fetch_array($resultl)) {
             
-            if ($first == 0) {               
-               if ($datal['old_value'] != 'new') {
-                  $this->createFollowup($ticket, $data['date'], 'new', $status_translation[$datal['old_value']]);
+            if ($first == 0) {
+               if ($datal['old_value'] != Ticket::INCOMING 
+                     || $datal['old_value'] != 'new'
+                        || $datal['old_value'] != _x('ticket', 'New')) {
+                  
+                  $this->createFollowup($ticket, $data['date'], Ticket::INCOMING, $status_translation[$datal['old_value']]);
                }
             } 
             $this->createFollowup($ticket, $datal['date_mod'],
