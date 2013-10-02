@@ -52,7 +52,7 @@ $LANG['plugin_timelineticket'][12] = "Closing";
 $LANG['plugin_timelineticket'][13] = "Total before resolution";
 $LANG['plugin_timelineticket'][14] = "Before recognition";
 $LANG['plugin_timelineticket'][15] = "Timeline";
-$LANG['plugin_timelineticket'][16] = "Technicians in charge of this ticket"; 
+$LANG['plugin_timelineticket'][16] = "Technicians in charge of the ticket"; 
 $LANG['plugin_timelineticket'][17] = "Groups in charge of the ticket";
 
 $LANG['plugin_timelineticket']['config'][1] = "Reconstruct states timeline for all tickets";

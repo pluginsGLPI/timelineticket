@@ -192,7 +192,7 @@ class PluginTimelineticketToolbox {
             } else if ($mem == 0
                     && $gbegin < $delay) {
                if ($withblank
-                       && $gbegin != $last_statedelay) {                  
+                       && $gbegin != $last_statedelay) {
                   $a_itemsections[$a_dbitem[$items_id]][] = array(
                       'Start' => $last_statedelay,
                       'End'   => $gbegin,
@@ -236,7 +236,7 @@ class PluginTimelineticketToolbox {
                       "G"=>$color_G,
                       "B"=>$color_B
                   );
-                  $mem = 2;              
+                  $mem = 2;
                }
             }
             $old_delay = $delay;
@@ -253,7 +253,7 @@ class PluginTimelineticketToolbox {
             $statusname = '';
             $a_end = end($data_f);
             $last = $a_end['End'];
-            if ($ticket->fields['status'] != 'closed'
+            if ($ticket->fields['status'] != Ticket::CLOSED
                     && $last == $verylastdelayStateDB) {
                $R = $a_end['R'];
                $G = $a_end['G'];
@@ -285,7 +285,6 @@ class PluginTimelineticketToolbox {
     * @param Ticket $ticket
     */
    static function ShowDetail(Ticket $ticket, $type) {
-      global $LANG;
 
       $ptState = new PluginTimelineticketState();
       
@@ -314,14 +313,14 @@ class PluginTimelineticketToolbox {
       
       $a_groups = $ptItem->find("`tickets_id`='".$ticket->getField('id')."'", "`date`");
 
-      echo "<table class='tab_cadrehov' width='100%'>";
+      echo "<table class='tab_cadre_fixe' width='100%'>";
       echo "<tr class='tab_bg_1'>";
       echo "<th colspan='".(count($list_status) + 1)."'>";
-      echo $LANG['rulesengine'][82];
+      _e('Result details');
       if ($type == 'group') {
-         echo " (".$LANG['plugin_timelineticket'][17].")";
+         echo " (".__('Groups in charge of the ticket', 'timelineticket').")";
       } else if ($type == 'user') {
-         echo " (".$LANG['plugin_timelineticket'][16].")";
+         echo " (".__('Technicians in charge of the ticket', 'timelineticket').")";
       }  
       echo "</th>";
       echo "</tr>";
@@ -365,7 +364,7 @@ class PluginTimelineticketToolbox {
          }
          echo "</tr>";
       }
-      echo "</table>";      
+      echo "</table>";
    }
    
 }

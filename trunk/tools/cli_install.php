@@ -74,7 +74,6 @@ if (!$DB->connected) {
 class CliMigration extends Migration {
 
    function __construct($ver) {
-      global $LANG;
 
       $this->deb     = time();
       $this->version = $ver;
@@ -157,7 +156,7 @@ $plugin->load("timelineticket");
 
 if (in_array('--optimize', $_SERVER['argv'])) {
 
-   $migration->displayTitle($LANG['update'][139]);
+   $migration->displayTitle("Optimizing tables");
    DBmysql::optimize_tables($migration);
 
    $migration->displayWarning("Optimize done.");

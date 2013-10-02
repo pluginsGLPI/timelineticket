@@ -37,13 +37,12 @@
    ------------------------------------------------------------------------
  */
 
-define ("PLUGIN_TIMELINETICKET_VERSION","0.83+1.2");
+define ("PLUGIN_TIMELINETICKET_VERSION","0.84+1.0");
 
 function plugin_version_timelineticket() {
-   global $LANG;
 
-   return array('name'           => $LANG['plugin_timelineticket'][1],
-                'minGlpiVersion' => '0.83.3',
+   return array('name'           => _n('Timeline of ticket', 'Timeline of tickets', 2, 'timelineticket'),
+                'minGlpiVersion' => '0.84',
                 'version'        => PLUGIN_TIMELINETICKET_VERSION,
                 'homepage'       => 'https://forge.indepnet.net/projects/timelineticket',
                 'license'        => 'AGPLv3+',
@@ -53,7 +52,7 @@ function plugin_version_timelineticket() {
 
 
 function plugin_init_timelineticket() {
-   global $PLUGIN_HOOKS, $LANG;
+   global $PLUGIN_HOOKS;
 
    $PLUGIN_HOOKS['csrf_compliant']['timelineticket'] = true;
    $PLUGIN_HOOKS['change_profile']['timelineticket'] = array('PluginTimelineticketProfile', 'changeProfile');
@@ -91,9 +90,9 @@ function plugin_init_timelineticket() {
 function plugin_timelineticket_check_prerequisites() {
 
    // Checking of the GLPI version
-   if (version_compare(GLPI_VERSION,'0.83.3','lt') 
-         || version_compare(GLPI_VERSION,'0.84','ge')) {
-      echo "This plugin requires GLPI >= 0.83.3";
+   if (version_compare(GLPI_VERSION,'0.84','lt') 
+         || version_compare(GLPI_VERSION,'0.85','ge')) {
+      _e('This plugin requires GLPI >= 0.84', 'timelineticket');
       return false;
    }
    return true;

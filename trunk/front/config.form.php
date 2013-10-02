@@ -37,14 +37,12 @@
    ------------------------------------------------------------------------
  */
 
-define('GLPI_ROOT', '../../..');
+include ('../../../inc/includes.php');
 
-include (GLPI_ROOT . "/inc/includes.php");
-
-Html::header($LANG['plugin_timelineticket'][1], $_SERVER["PHP_SELF"], "plugins", "timelineticket");
+Html::header(PluginTimelineticketDisplay::getTypeName(2), $_SERVER["PHP_SELF"], "plugins", "timelineticket");
 
 if (Session::haveRight("config", "r") 
-      || Session::haveRight("profile", "w")) {
+      || plugin_timelineticket_haveRight('timelineticket','w')) {
 
    $ptConfig = new PluginTimelineticketConfig();
    $grplevel = new PluginTimelineticketGroupLevel();

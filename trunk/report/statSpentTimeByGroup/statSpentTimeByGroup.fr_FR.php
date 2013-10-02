@@ -37,7 +37,7 @@
    ------------------------------------------------------------------------
  */
 
-$LANG['plugin_timelineticket']['statSpentTimeByGroup'][1] = "Temps passés en heures par les niveaux de support sur les tickets clos";
+$LANG['plugin_timelineticket']['statSpentTimeByGroup'] = "Temps passés en heures par les niveaux de support sur les tickets clos";
 $LANG['plugin_timelineticket']['statSpentTimeByGroup'][2] = "Temps passé au";
 $LANG['plugin_timelineticket']['statSpentTimeByGroup'][3] = "Temps total du ticket";
 
