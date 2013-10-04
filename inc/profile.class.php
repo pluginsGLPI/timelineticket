@@ -123,14 +123,15 @@ class PluginTimelineticketProfile extends CommonDBTM {
    }
    
    static function changeProfile() {
-      
-      $prof = new self();
-      if (isset($_SESSION['glpiactiveprofile'])
-              && $prof->getFromDBByProfile($_SESSION['glpiactiveprofile']['id'])) {
-         $_SESSION["glpi_plugin_timelineticket_profile"]=$prof->fields;
+      if (isset($_SESSION['glpiactiveprofile']['id'])) {
+         $prof = new self();
+         if (isset($_SESSION['glpiactiveprofile'])
+                 && $prof->getFromDBByProfile($_SESSION['glpiactiveprofile']['id'])) {
+            $_SESSION["glpi_plugin_timelineticket_profile"]=$prof->fields;
 
-      } else {
-         unset($_SESSION["glpi_plugin_timelineticket_profile"]);
+         } else {
+            unset($_SESSION["glpi_plugin_timelineticket_profile"]);
+         }
       }
    }
 
