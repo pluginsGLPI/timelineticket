@@ -377,32 +377,34 @@ class PluginTimelineticketState extends CommonDBTM {
       $DB->query($query);
       
       $status_translation = array();
-      //$status_translation[$LANG['joblist'][9]]  = 'new';
-      //$status_translation[$LANG['joblist'][18]] = 'assign';
-      //$status_translation[$LANG['joblist'][19]] = 'plan';
-      //$status_translation[$LANG['joblist'][26]] = 'waiting';
-      //$status_translation[$LANG['joblist'][32]] = 'solved';
-      //$status_translation[$LANG['joblist'][33]] = 'closed';
-      $status_translation[_x('ticket', 'New')]           = Ticket::INCOMING;
-      $status_translation[__('Processing (assigned)')]   = Ticket::ASSIGNED;
-      $status_translation[__('Processing (planned)')]    = Ticket::PLANNED;
-      $status_translation[__('Pending')]                 = Ticket::WAITING;
-      $status_translation[__('Solved')]                  = Ticket::SOLVED;
-      $status_translation[__('Closed')]                  = Ticket::CLOSED;
-      
-      foreach (glob(GLPI_ROOT.'/locales/*.php') as $file) {
-         include_once($file);
 
-         $status_translation[_x('ticket', 'New')]           = Ticket::INCOMING;
-         $status_translation[__('Processing (assigned)')]   = Ticket::ASSIGNED;
-         $status_translation[__('Processing (planned)')]    = Ticket::PLANNED;
-         $status_translation[__('Pending')]                 = Ticket::WAITING;
-         $status_translation[__('Solved')]                  = Ticket::SOLVED;
-         $status_translation[__('Closed')]                  = Ticket::CLOSED;
-         
-      }
-      //echo "<pre>";print_r($status_translation);
+      // Get the new 0.84 interger status
+      $status_translation[Ticket::INCOMING] = Ticket::INCOMING;
+      $status_translation[Ticket::ASSIGNED] = Ticket::ASSIGNED;
+      $status_translation[Ticket::PLANNED]  = Ticket::PLANNED;
+      $status_translation[Ticket::WAITING]  = Ticket::WAITING;
+      $status_translation[Ticket::SOLVED]   = Ticket::SOLVED;
+      $status_translation[Ticket::CLOSED]   = Ticket::CLOSED;
       
+      // Unset plugin session to avoid loadLanguage on plugin 
+      $save_plugin_session = $_SESSION['glpi_plugins'];
+      unset($_SESSION['glpi_plugins']);
+      
+      // Get all existing languages status
+      foreach (glob(GLPI_ROOT.'/locales/*.po') as $file) {
+         $locale = basename($file, '.po');
+         Session::loadLanguage($locale);
+         
+         $status_translation[_x('ticket', 'New')]                 = Ticket::INCOMING;
+         $status_translation[__('Processing (assigned)', 'glpi')] = Ticket::ASSIGNED;
+         $status_translation[__('Processing (planned)', 'glpi')]  = Ticket::PLANNED;
+         $status_translation[__('Pending', 'glpi')]               = Ticket::WAITING;
+         $status_translation[__('Solved', 'glpi')]                = Ticket::SOLVED;
+         $status_translation[__('Closed', 'glpi')]                = Ticket::CLOSED;
+      }
+      
+      $_SESSION['glpi_plugins'] = $save_plugin_session;
+
       $query = "SELECT * FROM `glpi_tickets`
          ORDER BY `date`";
       $result = $DB->query($query);
@@ -435,5 +437,6 @@ class PluginTimelineticketState extends CommonDBTM {
          }
       }      
    }
+
 }
 ?>

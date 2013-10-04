@@ -144,12 +144,13 @@ class PluginTimelineticketProfile extends CommonDBTM {
          $this->getFromDBByProfile($ID);
          $prof->getFromDB($ID);
       }
-      $options['colspan'] = 2;
+      $options['colspan'] = 1;
       $this->showFormHeader($options);
 
       echo "<tr class='tab_bg_2'>";
 
-      echo "<th colspan='4' class='center b'>".sprintf(__('%1$s - %2$s'), self::getTypeName(1))."</th>";
+      echo "<th colspan='2' class='center b'>".sprintf(__('%1$s - %2$s'),self::getTypeName(1),
+         $prof->fields["name"])."</th>";
       echo "</tr>";
       
       echo "<tr class='tab_bg_2'>";

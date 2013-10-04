@@ -171,7 +171,8 @@ class PluginTimelineticketDisplay extends CommonDBTM {
          $totaltime += $a_state['delay'];
          $last_date = $a_state['date'];
       }
-      if ($ticket->fields['status'] != Ticket::CLOSED) {
+      if ($ticket->fields['status'] != Ticket::CLOSED
+            && isset($a_state['date'])) {
          $totaltime += PluginTimelineticketDisplay::getPeriodTime($ticket, 
                                                                   $a_state['date'], 
                                                                   date("Y-m-d H:i:s"));

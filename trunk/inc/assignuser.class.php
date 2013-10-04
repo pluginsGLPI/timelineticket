@@ -220,8 +220,8 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
       if ($ok && in_array("status", $ticket->updates)
             && isset($ticket->oldvalues["status"])
                && $ticket->oldvalues["status"] == Ticket::WAITING) {
-         if ($ticket->countUsers(CommonITILObject::ASSIGNED)) {
-            foreach ($ticket->getUsers(CommonITILObject::ASSIGNED) as $d) {
+         if ($ticket->countUsers(CommonITILActor::ASSIGNED)) {
+            foreach ($ticket->getUsers(CommonITILActor::ASSIGNED) as $d) {
                $ptAssignUser = new PluginTimelineticketAssignUser();
                $calendar = new Calendar();
                $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
@@ -244,8 +244,8 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
       } else if ($ok && in_array("status", $ticket->updates) 
             && isset($ticket->fields["status"])
                && $ticket->fields["status"] == Ticket::WAITING) {
-         if ($ticket->countUsers(CommonITILObject::ASSIGNED)) {
-            foreach ($ticket->getUsers(CommonITILObject::ASSIGNED) as $d) {
+         if ($ticket->countUsers(CommonITILActor::ASSIGNED)) {
+            foreach ($ticket->getUsers(CommonITILActor::ASSIGNED) as $d) {
                
                $calendar = new Calendar();
                $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);

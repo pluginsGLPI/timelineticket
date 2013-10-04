@@ -210,7 +210,7 @@ if ($res && $nbtot > 0) {
    showTitle($output_type, $num, __('Category'), 'itilcategories_id', true);
    showTitle($output_type, $num, __('Title'), 'name', true);
    showTitle($output_type, $num, __('Closing date'), 'closedate', true);
-   showTitle($output_type, $num, __('Request type'), 'requesttypes_id', true);
+   showTitle($output_type, $num, __('Request source'), 'requesttypes_id', true);
    if (!empty($mylevels)) {
       foreach ($mylevels as $key => $val) {
          showTitle($output_type, $num, $key, '', false);
@@ -388,12 +388,31 @@ if ($res && $nbtot > 0) {
             } else {
                $timetask = 0;
             }
-            echo Search::showItem($output_type, Html::formatNumber($timetask / 3600, true, 5), $num, $row_num);
-            echo Search::showItem($output_type, Html::formatNumber($time / 3600, true, 5), $num, $row_num);
+            if ($output_type == Search::HTML_OUTPUT
+                  || $output_type == Search::PDF_OUTPUT_PORTRAIT 
+               || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
+               echo Search::showItem($output_type, Html::timestampToString($timetask), $num, $row_num);
+            } else {
+               echo Search::showItem($output_type, Html::formatNumber($timetask / 3600, true, 5), $num, $row_num);
+            }
+            
+            if ($output_type == Search::HTML_OUTPUT
+                  || $output_type == Search::PDF_OUTPUT_PORTRAIT 
+               || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
+               echo Search::showItem($output_type, Html::timestampToString($time), $num, $row_num);
+            } else {
+               echo Search::showItem($output_type, Html::formatNumber($time / 3600, true, 5), $num, $row_num);
+            }
          }
       }
-      $total = strtotime($ticket->fields["closedate"]) - strtotime($ticket->fields["date"]);
-      echo Search::showItem($output_type, Html::formatNumber($total / 3600, 5), $num, $row_num);
+      $total = $ticket->fields["close_delay_stat"];
+      if ($output_type == Search::HTML_OUTPUT
+                  || $output_type == Search::PDF_OUTPUT_PORTRAIT 
+               || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
+         echo Search::showItem($output_type, Html::timestampToString($total), $num, $row_num);
+      } else {
+         echo Search::showItem($output_type, Html::formatNumber($total / 3600, 5), $num, $row_num);
+      }
       echo Search::showEndLine($output_type);
    }
    echo Search::showFooter($output_type, $title);
