@@ -41,7 +41,7 @@ define ("PLUGIN_TIMELINETICKET_VERSION","0.84+1.0");
 
 function plugin_version_timelineticket() {
 
-   return array('name'           => _n('Timeline of ticket', 'Timeline of tickets', 2, 'timelineticket'),
+   return array('name'           => 'Timeline of ticket',
                 'minGlpiVersion' => '0.84',
                 'version'        => PLUGIN_TIMELINETICKET_VERSION,
                 'homepage'       => 'https://forge.indepnet.net/projects/timelineticket',
@@ -55,33 +55,38 @@ function plugin_init_timelineticket() {
    global $PLUGIN_HOOKS;
 
    $PLUGIN_HOOKS['csrf_compliant']['timelineticket'] = true;
-   $PLUGIN_HOOKS['change_profile']['timelineticket'] = array('PluginTimelineticketProfile', 'changeProfile');
    
-   Plugin::registerClass('PluginTimelineticketProfile', array('addtabon' => 'Profile'));
+   $Plugin = new Plugin();
+   if ($Plugin->isActivated('timelineticket')) { // check if plugin is active
    
-   Plugin::registerClass('PluginTimelineticketDisplay',
-                          array('addtabon' => array('Ticket')));
+      $PLUGIN_HOOKS['change_profile']['timelineticket'] = array('PluginTimelineticketProfile', 'changeProfile');
 
-   $PLUGIN_HOOKS['item_purge']['timelineticket']     =  array(
-         'Ticket'       => 'plugin_timelineticket_ticket_purge',
-         'Group_Ticket' => array('PluginTimelineticketAssignGroup', 'deleteGroupTicket'),
-         'Ticket_User'  => array('PluginTimelineticketAssignUser', 'deleteUserTicket')
-       );
+      Plugin::registerClass('PluginTimelineticketProfile', array('addtabon' => 'Profile'));
 
-   $PLUGIN_HOOKS['item_add']['timelineticket']       = array(
-         'Ticket'=>'plugin_timelineticket_ticket_add',
-         'Group_Ticket' => array('PluginTimelineticketAssignGroup', 'addGroupTicket'),
-         'Ticket_User'  => array('PluginTimelineticketAssignUser', 'addUserTicket')
-       );
-   $PLUGIN_HOOKS['item_update']['timelineticket']    = array(
-         'Ticket' => 'plugin_timelineticket_ticket_update'
-       );
-   
-   $PLUGIN_HOOKS['pre_item_purge']['timelineticket'] = array('Profile' => array('PluginTimelineticketProfile', 'purgeProfiles'));
-   
-   if (Session::haveRight("config", "w") 
-         || plugin_timelineticket_haveRight('timelineticket','w')) {// Config page
-      $PLUGIN_HOOKS['config_page']['timelineticket'] = 'front/config.form.php';
+      Plugin::registerClass('PluginTimelineticketDisplay',
+                             array('addtabon' => array('Ticket')));
+
+      $PLUGIN_HOOKS['item_purge']['timelineticket']     =  array(
+            'Ticket'       => 'plugin_timelineticket_ticket_purge',
+            'Group_Ticket' => array('PluginTimelineticketAssignGroup', 'deleteGroupTicket'),
+            'Ticket_User'  => array('PluginTimelineticketAssignUser', 'deleteUserTicket')
+          );
+
+      $PLUGIN_HOOKS['item_add']['timelineticket']       = array(
+            'Ticket'=>'plugin_timelineticket_ticket_add',
+            'Group_Ticket' => array('PluginTimelineticketAssignGroup', 'addGroupTicket'),
+            'Ticket_User'  => array('PluginTimelineticketAssignUser', 'addUserTicket')
+          );
+      $PLUGIN_HOOKS['item_update']['timelineticket']    = array(
+            'Ticket' => 'plugin_timelineticket_ticket_update'
+          );
+
+      $PLUGIN_HOOKS['pre_item_purge']['timelineticket'] = array('Profile' => array('PluginTimelineticketProfile', 'purgeProfiles'));
+
+      if (Session::haveRight("config", "w") 
+            || plugin_timelineticket_haveRight('timelineticket','w')) {// Config page
+         $PLUGIN_HOOKS['config_page']['timelineticket'] = 'front/config.form.php';
+      }
    }
 }
 
@@ -92,7 +97,7 @@ function plugin_timelineticket_check_prerequisites() {
    // Checking of the GLPI version
    if (version_compare(GLPI_VERSION,'0.84','lt') 
          || version_compare(GLPI_VERSION,'0.85','ge')) {
-      _e('This plugin requires GLPI >= 0.84', 'timelineticket');
+      echo 'This plugin requires GLPI >= 0.84';
       return false;
    }
    return true;
