@@ -148,6 +148,13 @@ $_SESSION['glpiactiveprofile']['monitor'] = 'w';
 $_SESSION['glpiactiveprofile']['printer'] = 'w';
 $_SESSION['glpiactiveprofile']['peripheral'] = 'w';
 $_SESSION['glpiactiveprofile']['networking'] = 'w';
+$_SESSION['glpiactiveprofile']['user'] = 'w';
+$_SESSION['glpiactiveprofile']['group'] = 'w';
+$_SESSION['glpiactiveprofile']['update_ticket'] = 'w';
+$_SESSION['glpiactiveprofile']['create_ticket'] = 'w';
+$_SESSION['glpiactiveprofile']['delete_ticket'] = 'w';
+$_SESSION['glpiactiveprofile']['update_priority'] = 'w';
+$_SESSION['glpiactiveprofile']['assign_ticket'] = 'w';
 
 $_SESSION["glpi_plugin_fusioninventory_profile"]['unknowndevice'] = 'w';
 
