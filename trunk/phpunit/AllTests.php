@@ -39,7 +39,7 @@
 
 
 if (!defined('GLPI_ROOT')) {   
-   define('GLPI_ROOT', '../../..');
+   define('GLPI_ROOT', realpath('../../..'));
    
    include_once (GLPI_ROOT . "/inc/autoload.function.php");
    spl_autoload_register('glpi_autoload');
@@ -74,7 +74,7 @@ if (!defined('GLPI_ROOT')) {
 
       // empty classname or non concerted plugin
       if (empty($classname) || is_numeric($classname)) {
-         return false;
+         return FALSE;
       }
 
       $dir=GLPI_ROOT . "/inc/";
@@ -89,42 +89,43 @@ if (!defined('GLPI_ROOT')) {
             $plugin = new Plugin();
             if (count($plugin->find("directory='$plugname' AND state=".Plugin::ACTIVATED)) == 0) {
                // Plugin does not exists or not activated
-               return false;
+               return FALSE;
             }
          } else {
             // Standard use of GLPI
-            if (!in_array($plugname,$_SESSION['glpi_plugins'])) {
+            if (!in_array($plugname, $_SESSION['glpi_plugins'])) {
                // Plugin not activated
-               return false;
+               return FALSE;
             }
          }
       } else {
          // Is ezComponent class ?
-         if (preg_match('/^ezc([A-Z][a-z]+)/',$classname,$matches)) {
+         $matches = array();
+         if (preg_match('/^ezc([A-Z][a-z]+)/', $classname, $matches)) {
             include_once(GLPI_EZC_BASE);
             ezcBase::autoload($classname);
-            return true;
+            return TRUE;
          } else {
             $item=strtolower($classname);
          }
       }
 
       // No errors for missing classes due to implementation
-      if (!isset($CFG_GLPI['missingclasses']) 
-              OR !in_array($item,$CFG_GLPI['missingclasses'])){
+      if (!isset($CFG_GLPI['missingclasses'])
+              OR !in_array($item, $CFG_GLPI['missingclasses'])){
          if (file_exists("$dir$item.class.php")) {
             include_once ("$dir$item.class.php");
             if ($_SESSION['glpi_use_mode']==Session::DEBUG_MODE) {
                $DEBUG_AUTOLOAD[]=$classname;
             }
 
-         } else if (!isset($notfound["x$classname"])) {
+         } else if (!isset($notfound["$classname"])) {
             // trigger an error to get a backtrace, but only once (use prefix 'x' to handle empty case)
-            //Toolbox::logInFile('debug',"file $dir$item.class.php not founded trying to load class $classname\n");
+            //Toolbox::logInFile('debug', "file $dir$item.class.php not founded trying to load class $classname\n");
             trigger_error("GLPI autoload : file $dir$item.class.php not founded trying to load class '$classname'");
-            $notfound["x$classname"] = true;
+            $notfound["$classname"] = TRUE;
          }
-      } 
+      }
    }
       
    spl_autoload_register('glpiautoload');
@@ -134,16 +135,23 @@ if (!defined('GLPI_ROOT')) {
    restore_error_handler();
 
    error_reporting(E_ALL | E_STRICT);
-   ini_set('display_errors','On');
+   ini_set('display_errors', 'On');
 }
 ini_set("memory_limit", "-1");
 ini_set("max_execution_time", "0");
 
-$_SESSION["glpiID"] = 2;
-$_SESSION['glpiprofiles'][4]['entities'] = array(0 => array ('id' => 0, 'name'=> '', 'is_recursive' => 1));
-$_SESSION['glpiactiveprofile']['id'] = 4;
+$_SESSION['glpiactiveprofile'] = array();
 $_SESSION['glpiactiveprofile']['interface'] = 'central';
-Session::changeProfile(4);
+$_SESSION['glpiactiveprofile']['internet'] = 'w';
+$_SESSION['glpiactiveprofile']['computer'] = 'w';
+$_SESSION['glpiactiveprofile']['monitor'] = 'w';
+$_SESSION['glpiactiveprofile']['printer'] = 'w';
+$_SESSION['glpiactiveprofile']['peripheral'] = 'w';
+$_SESSION['glpiactiveprofile']['networking'] = 'w';
+
+$_SESSION["glpi_plugin_fusioninventory_profile"]['unknowndevice'] = 'w';
+
+$_SESSION['glpiactiveentities'] = array(0, 1);
 
 require_once 'GLPIInstall/AllTests.php';
 require_once 'TimelineticketInstall/AllTests.php';
