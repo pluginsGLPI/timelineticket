@@ -152,7 +152,7 @@ $_SESSION['glpiactiveprofile']['networking'] = 'w';
 $_SESSION["glpi_plugin_fusioninventory_profile"]['unknowndevice'] = 'w';
 
 $_SESSION['glpiactiveentities'] = array(0, 1);
-
+        
 require_once 'GLPIInstall/AllTests.php';
 require_once 'TimelineticketInstall/AllTests.php';
 require_once 'GLPIlogs/AllTests.php';
