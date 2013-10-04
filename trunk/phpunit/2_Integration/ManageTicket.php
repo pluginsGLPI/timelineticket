@@ -191,7 +191,7 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       $a_storedate[5] = $_SESSION["glpi_currenttime"];
       $input = array();
       $input['id'] = $tickets_id;
-      $input['status'] = 'waiting';
+      $input['status'] = Ticket::WAITING;
       $ticket->update($input);
       
       $GLPIlog->testSQLlogs('05/');
@@ -260,7 +260,7 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       $a_storedate[11] = $_SESSION["glpi_currenttime"];
       $input = array();
       $input['id'] = $tickets_id;
-      $input['status'] = 'waiting';
+      $input['status'] = Ticket::WAITING;
       $ticket->update($input);
       
       $input = array();
@@ -326,7 +326,7 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       $a_storedate[16] = $_SESSION["glpi_currenttime"];
       $input = array();
       $input['id'] = $tickets_id;
-      $input['status'] = 'assign';
+      $input['status'] = Ticket::ASSIGNED;
       $ticket->update($input);
       
       $GLPIlog->testSQLlogs('16/');
@@ -394,7 +394,7 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
           'tickets_id'   => '1',
           'date'        => $a_storedate_temp[1],
           'old_status'  => '',
-          'new_status'  => 'new',
+          'new_status'  => Ticket::INCOMING,
           'delay'       => '0'
       );      
       $this->assertEquals($a_ref, $a_states[1], '(01/)Status New');
@@ -403,8 +403,8 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
           'id'          => '2',
           'tickets_id'   => '1',
           'date'        => $a_storedate_temp[3],
-          'old_status'  => 'new',
-          'new_status'  => 'assign',
+          'old_status'  => Ticket::INCOMING,
+          'new_status'  => Ticket::ASSIGNED,
           'delay'       => (strtotime($a_storedate_temp[3]) - strtotime($a_storedate_temp[1]))
       );      
       $this->assertEquals($a_ref, $a_states[2], '(03/)Status Assign');
@@ -413,8 +413,8 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
           'id'          => '3',
           'tickets_id'   => '1',
           'date'        => $a_storedate_temp[5],
-          'old_status'  => 'assign',
-          'new_status'  => 'waiting',
+          'old_status'  => Ticket::ASSIGNED,
+          'new_status'  => Ticket::WAITING,
           'delay'       => (strtotime($a_storedate_temp[5]) - strtotime($a_storedate_temp[3]))
       );      
       $this->assertEquals($a_ref, $a_states[3], '(05/)Status Waiting');
@@ -423,8 +423,8 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
           'id'          => '4',
           'tickets_id'   => '1',
           'date'        => $a_storedate_temp[7],
-          'old_status'  => 'waiting',
-          'new_status'  => 'new',
+          'old_status'  => Ticket::WAITING,
+          'new_status'  => Ticket::INCOMING,
           'delay'       => (strtotime($a_storedate_temp[7]) - strtotime($a_storedate_temp[5]))
       );      
       $this->assertEquals($a_ref, $a_states[4], '(07/)Status New');
@@ -433,8 +433,8 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
           'id'          => '5',
           'tickets_id'   => '1',
           'date'        => $a_storedate_temp[9],
-          'old_status'  => 'new',
-          'new_status'  => 'assign',
+          'old_status'  => Ticket::INCOMING,
+          'new_status'  => Ticket::ASSIGNED,
           'delay'       => (strtotime($a_storedate_temp[9]) - strtotime($a_storedate_temp[7]))
       );      
       $this->assertEquals($a_ref, $a_states[5], '(09/)Status Assign');
@@ -443,8 +443,8 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
           'id'          => '6',
           'tickets_id'   => '1',
           'date'        => $a_storedate_temp[11],
-          'old_status'  => 'assign',
-          'new_status'  => 'waiting',
+          'old_status'  => Ticket::ASSIGNED,
+          'new_status'  => Ticket::WAITING,
           'delay'       => (strtotime($a_storedate_temp[11]) - strtotime($a_storedate_temp[9]))
       );      
       $this->assertEquals($a_ref, $a_states[6], '(11/)Status Waiting');
@@ -453,8 +453,8 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
           'id'          => '7',
           'tickets_id'   => '1',
           'date'        => $a_storedate_temp[16],
-          'old_status'  => 'waiting',
-          'new_status'  => 'assign',
+          'old_status'  => Ticket::WAITING,
+          'new_status'  => Ticket::ASSIGNED,
           'delay'       => (strtotime($a_storedate_temp[16]) - strtotime($a_storedate_temp[11]))
       );      
       $this->assertEquals($a_ref, $a_states[7], '(16/)Status Assign');
@@ -463,8 +463,8 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
           'id'          => '8',
           'tickets_id'   => '1',
           'date'        => $a_storedate_temp[18],
-          'old_status'  => 'assign',
-          'new_status'  => 'solved',
+          'old_status'  => Ticket::ASSIGNED,
+          'new_status'  => Ticket::SOLVED,
           'delay'       => (strtotime($a_storedate_temp[18]) - strtotime($a_storedate_temp[16]))
       );      
       $this->assertEquals($a_ref, $a_states[8], '(18/)Status Solved');
@@ -474,8 +474,8 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
              'id'          => '9',
              'tickets_id'   => '1',
              'date'        => $a_storedate_temp[20],
-             'old_status'  => 'solved',
-             'new_status'  => 'closed',
+             'old_status'  => Ticket::SOLVED,
+             'new_status'  => Ticket::CLOSED,
              'delay'       => (strtotime($a_storedate_temp[20]) - strtotime($a_storedate_temp[18]))
          );      
          $this->assertEquals($a_ref, $a_states[9], '(20/)Status Closed');     
@@ -616,28 +616,28 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
                                                                     $a_storedate_temp[3]),
               'End'   => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
                                                                     $a_storedate_temp[5]),
-              'Status'=> 'assign'
+              'Status'=> Ticket::ASSIGNED
           ),
           array(
               'Start' => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
                                                                     $a_storedate_temp[5]),
               'End'   => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
                                                                     $a_storedate_temp[7]),
-              'Status'=> 'waiting'
+              'Status'=> Ticket::WAITING
           ),
           array(
               'Start' => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
                                                                     $a_storedate_temp[13]),
               'End'   => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
                                                                     $a_storedate_temp[16]),
-              'Status'=> 'waiting'
+              'Status'=> Ticket::WAITING
           ),
           array(
               'Start' => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
                                                                     $a_storedate_temp[16]),
               'End'   => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
                                                                     $a_storedate_temp[18]),
-              'Status'=> 'assign'
+              'Status'=> Ticket::ASSIGNED
           )
       );
       if ($closed) {
@@ -647,7 +647,7 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
                                                                     $a_storedate_temp[18]),
               'End'   => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
                                                                     $a_storedate_temp[20]),
-              'Status'=> 'solved'
+              'Status'=> Ticket::SOLVED
           );
       }
       
@@ -657,14 +657,14 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
                                                                     $a_storedate_temp[9]),
               'End'   => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
                                                                     $a_storedate_temp[11]),
-              'Status'=> 'assign'
+              'Status'=> Ticket::ASSIGNED
           ),     
           array(
               'Start' => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
                                                                     $a_storedate_temp[11]),
               'End'   => PluginTimelineticketDisplay::getPeriodTime($ticket, $ticket_date,
                                                                     $a_storedate_temp[13]),
-              'Status'=> 'waiting'
+              'Status'=> Ticket::WAITING
           )
       );
       $this->assertEquals($a_ref, $a_data, 'Data used to display groups in graph');
