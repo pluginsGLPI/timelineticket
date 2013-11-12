@@ -77,7 +77,7 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
                   echo "<td>";
                   Html::showSimpleForm(Toolbox::getItemTypeFormURL('PluginTimelineticketConfig'), 
                                        'delete_groups', 
-                                       _sx('button', 'Delete permanently'), 
+                                       _x('button', 'Delete permanently'),
                                        array('delete_groups' => 'delete_groups',
                                               'id' => $ID,
                                               '_groups_id_assign' => $val
