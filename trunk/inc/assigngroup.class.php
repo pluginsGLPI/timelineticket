@@ -43,14 +43,14 @@ if (!defined('GLPI_ROOT')){
 
 class PluginTimelineticketAssignGroup extends CommonDBTM {
 
-   
+
    /*
     * type = new or delete
     */
    function createGroup(Ticket $ticket, $date, $groups_id, $type) {
 
       $calendar = new Calendar();
-      
+
       if ($type == 'new') {
          $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
          if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
@@ -59,12 +59,12 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
             // cas 24/24 - 7/7
             $begin = strtotime($date)-strtotime($ticket->fields['date']);
          }
-         
+
          $this->add(array('tickets_id'  => $ticket->getField("id"),
                           'date'        => $date,
                           'groups_id'   => $groups_id,
                           'begin'       => $begin));
-         
+
       } else if ($type == 'delete') {
          $a_dbentry = $this->find("`tickets_id`='".$ticket->getField("id")."'
             AND `groups_id`='".$groups_id."'
@@ -79,17 +79,17 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
                $input['delay'] = strtotime($date)-strtotime($input['date']);
             }
             $this->update($input);
-         }         
+         }
       }
    }
-   
-   
-   
+
+
+
    function showTimeline(CommonGLPI $ticket, $params = array()) {
       global $CFG_GLPI;
 
       /* Create and populate the pData object */
-      $MyData = new pData();  
+      $MyData = new pData();
       /* Create the pChart object */
       $myPicture = new pImage(820,29,$MyData);
       /* Create the pIndicator object */
@@ -104,7 +104,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       $IndicatorSections = PluginTimelineticketToolbox::getDetails($ticket, 'group');
       foreach ($IndicatorSections as $groups_id=>$data) {
          $a_groups_list[$groups_id] = $groups_id;
-         
+
          $a_end = end($data);
          if ($a_end['R'] == 235
                  && $a_end['G'] == 235
@@ -124,7 +124,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       }
       echo "</th>";
       echo "</tr>";
-      
+
       $mylevels = array();
       $restrict = getEntitiesRestrictRequest('',"glpi_plugin_timelineticket_grouplevels",'','',true);
       $restrict .= " ORDER BY rank";
@@ -148,7 +148,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       }
       //No levels
       if (sizeof($ticketlevels)  == 0) {
-         
+
          foreach ($IndicatorSections as $groups_id => $array) {
             $ticketlevels[0][] = $groups_id;
          }
@@ -163,7 +163,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
             echo "</tr>";
          }
          foreach ($IndicatorSections as $groups_id => $array) {
-            
+
             if (in_array($groups_id,$groups)) {
                echo "<tr class='tab_bg_2'>";
                echo "<td width='100'>";
@@ -174,28 +174,28 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
                        && $_groupsfinished[$groups_id] === false) {
 
                   $IndicatorSettings = array("Values"=>array(100,201),
-                                             "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM, 
-                                             "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT, 
-                                             "CaptionR"=>0, 
+                                             "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM,
+                                             "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT,
+                                             "CaptionR"=>0,
                                              "CaptionG"=>0,
                                              "CaptionB"=>0,
                                              "DrawLeftHead"=>false,
-                                             "DrawRightHead"=>true, 
+                                             "DrawRightHead"=>true,
                                              "ValueDisplay"=>false,
-                                             "IndicatorSections"=>$array, 
+                                             "IndicatorSections"=>$array,
                                              "SectionsMargin" => 0);
                   $Indicator->draw(2,2,805,25,$IndicatorSettings);
                } else {
                   $IndicatorSettings = array("Values"=>array(100,201),
-                                             "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM, 
-                                             "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT, 
-                                             "CaptionR"=>0, 
+                                             "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM,
+                                             "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT,
+                                             "CaptionR"=>0,
                                              "CaptionG"=>0,
                                              "CaptionB"=>0,
-                                             "DrawLeftHead"=>false, 
-                                             "DrawRightHead"=>false, 
-                                             "ValueDisplay"=>false, 
-                                             "IndicatorSections"=>$array, 
+                                             "DrawLeftHead"=>false,
+                                             "DrawRightHead"=>false,
+                                             "ValueDisplay"=>false,
+                                             "IndicatorSections"=>$array,
                                              "SectionsMargin" => 0);
                   $Indicator->draw(2,2,814,25,$IndicatorSettings);
                }
@@ -210,15 +210,15 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
             }
          }
       }
-      
+
       // Return list for unit tests
       return $IndicatorSections;
    }
-   
-   
-   
+
+
+
    static function addGroupTicket(Group_Ticket $item) {
-   
+
       if ($item->fields['type'] == 2) {
          $ptAssignGroup = new PluginTimelineticketAssignGroup();
          $ticket = new Ticket();
@@ -233,7 +233,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
             $delay = strtotime($_SESSION["glpi_currenttime"])-strtotime($datedebut);
          }
          $ok = 1;
-         
+
          $ptConfig = new PluginTimelineticketConfig();
          $ptConfig->getFromDB(1);
          if ($ptConfig->fields["add_waiting"] == 0
@@ -250,19 +250,19 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
          }
       }
    }
-   
-   
-   
+
+
+
    static function checkAssignGroup(Ticket $ticket) {
       global $DB;
-      
+
       $ok = 0;
       $ptConfig = new PluginTimelineticketConfig();
       $ptConfig->getFromDB(1);
       if ($ptConfig->fields["add_waiting"] == 0) {
          $ok = 1;
       }
- 
+
       if ($ok && in_array("status", $ticket->updates)
             && isset($ticket->oldvalues["status"])
                && $ticket->oldvalues["status"] == Ticket::WAITING) {
@@ -278,7 +278,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
                   // cas 24/24 - 7/7
                   $delay = strtotime($_SESSION["glpi_currenttime"])-strtotime($datedebut);
                }
-   
+
                $input = array();
                $input['tickets_id'] = $ticket->getID();
                $input['groups_id'] = $d["groups_id"];
@@ -287,18 +287,18 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
                $ptAssignGroup->add($input);
             }
          }
-      } else if ($ok && in_array("status", $ticket->updates) 
+      } else if ($ok && in_array("status", $ticket->updates)
             && isset($ticket->fields["status"])
                && $ticket->fields["status"] == Ticket::WAITING) {
          if ($ticket->countGroups(CommonITILActor::ASSIGN)) {
             foreach ($ticket->getGroups(CommonITILActor::ASSIGN) as $d) {
-               
+
                $calendar = new Calendar();
                $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
                $ptAssignGroup = new PluginTimelineticketAssignGroup();
                $query = "SELECT MAX(`date`) AS datedebut, id
                          FROM `".$ptAssignGroup->getTable()."`
-                         WHERE `tickets_id` = '".$ticket->getID()."' 
+                         WHERE `tickets_id` = '".$ticket->getID()."'
                            AND `groups_id`='".$d["groups_id"]."'
                            AND `delay` IS NULL";
 
@@ -311,7 +311,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
                } else {
                   return;
                }
-               
+
                if (!$datedebut) {
                   $delay = 0;
                // Utilisation calendrier
@@ -328,23 +328,23 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
          }
       }
    }
-   
-   
-   
+
+
+
    static function deleteGroupTicket(Group_Ticket $item) {
       global $DB;
-      
+
       $ticket = new Ticket();
       $ptAssignGroup = new PluginTimelineticketAssignGroup();
-      
+
       $ticket->getFromDB($item->fields['tickets_id']);
-      
+
       $calendar = new Calendar();
       $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
 
       $query = "SELECT MAX(`date`) AS datedebut, id
                 FROM `".$ptAssignGroup->getTable()."`
-                WHERE `tickets_id` = '".$item->fields['tickets_id']."' 
+                WHERE `tickets_id` = '".$item->fields['tickets_id']."'
                   AND `groups_id`='".$item->fields['groups_id']."'
                   AND `delay` IS NULL";
 
@@ -357,7 +357,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       } else {
          return;
       }
-      
+
       if (!$datedebut) {
          $delay = 0;
       // Utilisation calendrier
@@ -370,11 +370,11 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
 
       $input['delay'] = $delay;
       $ptAssignGroup->update($input);
-      
+
    }
-   
-   
-   
+
+
+
    /*
    * Function to reconstruct timeline for all tickets
    */
@@ -382,16 +382,16 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
    function reconstrucTimeline() {
       global $DB;
 
-      
+
       $query = "TRUNCATE `" . $this->getTable() . "`";
       $DB->query($query);
 
-      $query = "SELECT id 
+      $query = "SELECT id
                FROM `glpi_tickets`";
       $result = $DB->query($query);
-      
+
       while ($data = $DB->fetch_array($result)) {
-         
+
          $queryGroup = "SELECT * FROM `glpi_logs`";
          $queryGroup .= " WHERE `itemtype_link` = 'Group'";
          $queryGroup .= " AND `items_id` = " . $data['id'];
@@ -399,7 +399,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
          $queryGroup .= " ORDER BY date_mod ASC";
 
          $resultGroup = $DB->query($queryGroup);
-         
+
          if($resultGroup) {
             while ($dataGroup = $DB->fetch_array($resultGroup)) {
                if($dataGroup['new_value'] != null) {
@@ -410,13 +410,13 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
 
                   $group = new Group();
                   if($group->getFromDB($groups_id)) {
-                     if($group->fields['is_requester'] == 0 
+                     if($group->fields['is_requester'] == 0
                            && $group->fields['is_assign'] == 1) {
-                        
+
                         $ticket = new Ticket();
                         $ticket->getFromDB($data['id']);
-                        $this->createGroup($ticket, $dataGroup['date_mod'], $groups_id, 'new');       
-                     } 
+                        $this->createGroup($ticket, $dataGroup['date_mod'], $groups_id, 'new');
+                     }
                   }
                } else if ($dataGroup['old_value'] != null) {
                   $start = Toolbox::strpos($dataGroup['old_value'], "(");
@@ -426,17 +426,17 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
 
                   $group = new Group();
                   if($group->getFromDB($groups_id)) {
-                     if($group->fields['is_requester'] == 0 
+                     if($group->fields['is_requester'] == 0
                            && $group->fields['is_assign'] == 1) {
                         $ticket = new Ticket();
                         $ticket->getFromDB($data['id']);
-                        $this->createGroup($ticket, $dataGroup['date_mod'], $groups_id, 'delete');      
-                     } 
+                        $this->createGroup($ticket, $dataGroup['date_mod'], $groups_id, 'delete');
+                     }
                   }
                }
             }
          }
       }
-   }   
+   }
 }
 ?>

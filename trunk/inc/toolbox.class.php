@@ -46,15 +46,15 @@ class PluginTimelineticketToolbox {
 
    /**
     * Return array with all data
-    * 
+    *
     * @param Ticket $ticket
     * @param type $type 'user' or 'group'
     * @param type $withblank option to fill blank zones
-    * 
+    *
     * @return type
     */
    static function getDetails(Ticket $ticket, $type, $withblank=1) {
-      
+
       if ($type == 'group') {
          $palette = array(
                array('250', '151', '186'),
@@ -97,39 +97,45 @@ class PluginTimelineticketToolbox {
             array('245', '229', '195')
           );
       }
-      
+
       $ptState = new PluginTimelineticketState();
-      
+
       $a_ret = PluginTimelineticketDisplay::getTotaltimeEnddate($ticket);
       $totaltime = $a_ret['totaltime'];
-      
+
       if ($type == 'group') {
          $ptItem = new PluginTimelineticketAssignGroup();
       } else if ($type == 'user') {
          $ptItem = new PluginTimelineticketAssignUser();
-      }      
-      
+      }
+
       $a_states = array();
       $a_item_palette = array();
       $a_dbstates = $ptState->find("`tickets_id`='".$ticket->getField('id')."'", "date");
       $end_previous = 0;
       foreach ($a_dbstates as $a_dbstate) {
          $end_previous += $a_dbstate['delay'];
-         if ($a_dbstate['old_status'] != '') {
-            $a_states[$end_previous] = $a_dbstate['old_status'];
-         }         
+         if ($a_dbstate['old_status'] == '') {
+            $a_dbstate['old_status'] = 0;
+         }
+         if (isset($a_states[$end_previous])) {
+            $end_previous++;
+         }
+         $a_states[$end_previous] = $a_dbstate['old_status'];
       }
-         
+      if ($a_dbstate['new_status'] != Ticket::CLOSED) {
+         $a_states[$totaltime] = $a_dbstate['new_status'];
+      }
       $a_itemsections = array();
       $a_dbitems = $ptItem->find("`tickets_id`='".$ticket->getField('id')."'", "`date`");
       foreach ($a_dbitems as $a_dbitem) {
-         
+
          if ($type == 'group') {
             $items_id = 'groups_id';
          } else if ($type == 'user') {
             $items_id = 'users_id';
          }
-            
+
          if (!isset($a_itemsections[$a_dbitem[$items_id]])) {
             $a_itemsections[$a_dbitem[$items_id]] = array();
             $last_statedelay = 0;
@@ -144,7 +150,7 @@ class PluginTimelineticketToolbox {
          $color_R = $a_item_palette[$a_dbitem[$items_id]][0];
          $color_G = $a_item_palette[$a_dbitem[$items_id]][1];
          $color_B = $a_item_palette[$a_dbitem[$items_id]][2];
-         
+
          $gbegin = $a_dbitem['begin'];
          if ($a_dbitem['delay'] == '') {
             $gdelay = $totaltime;
@@ -155,7 +161,7 @@ class PluginTimelineticketToolbox {
          $old_delay = 0;
          foreach ($a_states as $delay=>$statusname) {
             if ($mem == 1) {
-               if ($gdelay > $delay) { // all time of the state 
+               if ($gdelay > $delay) { // all time of the state
                   $a_itemsections[$a_dbitem[$items_id]][] = array(
                       'Start' => $gbegin,
                       'End'   => $delay,
@@ -187,7 +193,7 @@ class PluginTimelineticketToolbox {
                       "G"=>$color_G,
                       "B"=>$color_B
                   );
-                  $mem = 2;               
+                  $mem = 2;
                }
             } else if ($mem == 0
                     && $gbegin < $delay) {
@@ -203,7 +209,7 @@ class PluginTimelineticketToolbox {
                       "B"=>235
                   );
                }
-               if ($gdelay > $delay) { // all time of the state 
+               if ($gdelay > $delay) { // all time of the state
                   $a_itemsections[$a_dbitem[$items_id]][] = array(
                       'Start' => $gbegin,
                       'End'   => $delay,
@@ -240,68 +246,68 @@ class PluginTimelineticketToolbox {
                }
             }
             $old_delay = $delay;
-         }         
-      }    
+         }
+      }
       if ($withblank) {
          end($a_states);
          $verylastdelayStateDB = key($a_states);
          foreach ($a_itemsections as $items_id=>$data_f) {
-            $last = 0;
-            $R = 235;
-            $G = 235;
-            $B = 235;
-            $statusname = '';
+               $last = 0;
+               $R = 235;
+               $G = 235;
+               $B = 235;
+               $statusname = '';
             $a_end = end($data_f);
-            $last = $a_end['End'];
-            if ($ticket->fields['status'] != Ticket::CLOSED
-                    && $last == $verylastdelayStateDB) {
-               $R = $a_end['R'];
-               $G = $a_end['G'];
-               $B = $a_end['B'];
-               $statusname = $a_end['Status'];
-            }
-            if ($last < $totaltime) {
-               $a_itemsections[$items_id][] = array(
-                   'Start' => $last,
-                   'End'   => $totaltime,
-                   "Caption"=>"",
-                   "Status" => $statusname,
-                   "R"=>$R,
-                   "G"=>$G,
-                   "B"=>$B
-               );
+               $last = $a_end['End'];
+               if ($ticket->fields['status'] != Ticket::CLOSED
+                       && $last == $verylastdelayStateDB) {
+                  $R = $a_end['R'];
+                  $G = $a_end['G'];
+                  $B = $a_end['B'];
+                  $statusname = $a_end['Status'];
+               }
+               if ($last < $totaltime) {
+                  $a_itemsections[$items_id][] = array(
+                      'Start' => $last,
+                      'End'   => $totaltime,
+                      "Caption"=>"",
+                      "Status" => $statusname,
+                      "R"=>$R,
+                      "G"=>$G,
+                      "B"=>$B
+                  );
+               }
             }
          }
-      }
       return $a_itemsections;
    }
-   
-   
-   
+
+
+
   /**
     * Used to display each status time used for each group/user
-    * 
-    * 
+    *
+    *
     * @param Ticket $ticket
     */
    static function ShowDetail(Ticket $ticket, $type) {
 
       $ptState = new PluginTimelineticketState();
-      
+
       if ($type == 'group') {
          $ptItem = new PluginTimelineticketAssignGroup();
       } else if ($type == 'user') {
          $ptItem = new PluginTimelineticketAssignUser();
-      }   
-      
+      }
+
       $a_states = $ptState->find("`tickets_id`='".$ticket->getField('id')."'", "`date`");
-      
+
       $a_state_delays = array();
       $a_state_num = array();
       $delay = 0;
-      
+
       $list_status = Ticket::getAllStatusArray();
-      
+
       $status = "new";
       foreach ($a_states as $array) {
          $delay += $array['delay'];
@@ -310,7 +316,7 @@ class PluginTimelineticketToolbox {
       }
       $a_state_num[] = $delay;
       $last_delay = $delay;
-      
+
       $a_groups = $ptItem->find("`tickets_id`='".$ticket->getField('id')."'", "`date`");
 
       echo "<table class='tab_cadre_fixe' width='100%'>";
@@ -321,10 +327,10 @@ class PluginTimelineticketToolbox {
          echo " (".__('Groups in charge of the ticket', 'timelineticket').")";
       } else if ($type == 'user') {
          echo " (".__('Technicians in charge of the ticket', 'timelineticket').")";
-      }  
+      }
       echo "</th>";
       echo "</tr>";
-      
+
       echo "</tr>";
       echo "<th>";
       echo "</th>";
@@ -332,14 +338,14 @@ class PluginTimelineticketToolbox {
          echo "<th>";
          echo $name;
          echo "</th>";
-      }      
+      }
       echo "</tr>";
-     
+
       if ($type == 'group') {
          $a_details = PluginTimelineticketToolbox::getDetails($ticket, 'group', false);
       } else if ($type == 'user') {
          $a_details = PluginTimelineticketToolbox::getDetails($ticket, 'user', false);
-      } 
+      }
 
       foreach ($a_details as $items_id=>$a_detail) {
          $a_status = array();
@@ -354,7 +360,7 @@ class PluginTimelineticketToolbox {
             echo "<td>".Dropdown::getDropdownName("glpi_groups", $items_id)."</td>";
          } else if ($type == 'user') {
             echo "<td>".Dropdown::getDropdownName("glpi_users", $items_id)."</td>";
-         }  
+         }
          foreach ($list_status as $status=>$name) {
             echo "<td>";
             if (isset($a_status[$status])) {
@@ -366,6 +372,6 @@ class PluginTimelineticketToolbox {
       }
       echo "</table>";
    }
-   
+
 }
 ?>
