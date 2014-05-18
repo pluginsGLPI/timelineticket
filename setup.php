@@ -37,7 +37,7 @@
    ------------------------------------------------------------------------
  */
 
-define ("PLUGIN_TIMELINETICKET_VERSION","0.84+1.0");
+define ("PLUGIN_TIMELINETICKET_VERSION","0.84+1.1");
 
 function plugin_version_timelineticket() {
 
@@ -55,10 +55,10 @@ function plugin_init_timelineticket() {
    global $PLUGIN_HOOKS;
 
    $PLUGIN_HOOKS['csrf_compliant']['timelineticket'] = true;
-   
+
    $Plugin = new Plugin();
    if ($Plugin->isActivated('timelineticket')) { // check if plugin is active
-   
+
       $PLUGIN_HOOKS['change_profile']['timelineticket'] = array('PluginTimelineticketProfile', 'changeProfile');
 
       Plugin::registerClass('PluginTimelineticketProfile', array('addtabon' => 'Profile'));
@@ -83,7 +83,7 @@ function plugin_init_timelineticket() {
 
       $PLUGIN_HOOKS['pre_item_purge']['timelineticket'] = array('Profile' => array('PluginTimelineticketProfile', 'purgeProfiles'));
 
-      if (Session::haveRight("config", "w") 
+      if (Session::haveRight("config", "w")
             || plugin_timelineticket_haveRight('timelineticket','w')) {// Config page
          $PLUGIN_HOOKS['config_page']['timelineticket'] = 'front/config.form.php';
       }
@@ -95,7 +95,7 @@ function plugin_init_timelineticket() {
 function plugin_timelineticket_check_prerequisites() {
 
    // Checking of the GLPI version
-   if (version_compare(GLPI_VERSION,'0.84','lt') 
+   if (version_compare(GLPI_VERSION,'0.84','lt')
          || version_compare(GLPI_VERSION,'0.85','ge')) {
       echo 'This plugin requires GLPI >= 0.84';
       return false;
@@ -124,8 +124,8 @@ function plugin_timelineticket_haveRight($module, $right) {
       return true;
    else
       return false;
-   
-   
+
+
 }
 
 ?>
