@@ -37,9 +37,26 @@
    ------------------------------------------------------------------------
  */
 
+function plugin_timelineticket_getAddSearchOptions($itemtype) {
+
+   $sopt = array();
+   if ($itemtype == 'Ticket') {
+
+         $sopt[11001]['table']     = 'glpi_plugin_timelineticket_assigngroups';
+         $sopt[11001]['field']     = 'groups_id';
+         $sopt[11001]['name']      = __('Group');
+//         $sopt[11001]['datatype']  = 'itemtype';
+//         $sopt[11001]['itemlink_type'] = 'PluginFusioninventoryInventoryComputerLib';
+         $sopt[11001]['massiveaction'] = FALSE;
+         $sopt[11001]['forcegroupby']  = TRUE;
+         $sopt[11001]['splititems']    = TRUE;
+
+   }
+   return $sopt;
+}
 function plugin_timelineticket_install() {
    global $DB;
-   
+
    include_once (GLPI_ROOT."/plugins/timelineticket/inc/profile.class.php");
    include_once (GLPI_ROOT."/plugins/timelineticket/inc/config.class.php");
    $migration = new Migration(160);
@@ -90,7 +107,7 @@ function plugin_timelineticket_install() {
 
      $DB->query($query) or die($DB->error());
    }
-   
+
    if (!TableExists("glpi_plugin_timelineticket_grouplevels")) {
       $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_grouplevels` (
                `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -104,7 +121,7 @@ function plugin_timelineticket_install() {
              ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
       $DB->query($query) or die($DB->error());
    }
-   
+
    if (!TableExists("glpi_plugin_timelineticket_profiles")) {
       $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_profiles` (
               `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -115,7 +132,7 @@ function plugin_timelineticket_install() {
             ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
       $DB->query($query) or die($DB->error());
    }
-   
+
    if (!TableExists("glpi_plugin_timelineticket_configs")) {
       $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_configs` (
               `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -124,14 +141,14 @@ function plugin_timelineticket_install() {
             ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
       $DB->query($query) or die($DB->error());
    }
-   
+
    $status = array ('new'           => Ticket::INCOMING,
                     'assign'        => Ticket::ASSIGNED,
                     'plan'          => Ticket::PLANNED,
                     'waiting'       => Ticket::WAITING,
                     'solved'        => Ticket::SOLVED,
                     'closed'        => Ticket::CLOSED);
-                    
+
    // Update field in tables
    foreach (array('glpi_plugin_timelineticket_states') as $table) {
       // Migrate datas
@@ -140,7 +157,7 @@ function plugin_timelineticket_install() {
                    SET `old_status` = '$new'
                    WHERE `old_status` = '$old'";
          $DB->queryOrDie($query, "0.84 status in $table $old to $new");
-         
+
          $query = "UPDATE `$table`
                    SET `new_status` = '$new'
                    WHERE `new_status` = '$old'";
@@ -149,11 +166,11 @@ function plugin_timelineticket_install() {
    }
 
    PluginTimelineticketConfig::createFirstConfig();
-   
+
    if (isset($_SESSION['glpiactiveprofile'])
            && isset($_SESSION['glpiactiveprofile']['id'])) {
       PluginTimelineticketProfile::createFirstAccess($_SESSION['glpiactiveprofile']['id']);
-   } 
+   }
    return true;
 }
 
@@ -174,15 +191,15 @@ function plugin_timelineticket_uninstall() {
 }
 
 function plugin_timelineticket_ticket_update(Ticket $item) {
-   
+
    if (in_array('status',$item->updates)) {
       // Instantiation of the object from the class PluginTimelineticketStates
       $ptState = new PluginTimelineticketState();
 
       // Insertion the changement in the database
-      $ptState->createFollowup($item, 
+      $ptState->createFollowup($item,
                                $_SESSION["glpi_currenttime"],
-                               $item->oldvalues['status'], 
+                               $item->oldvalues['status'],
                                $item->fields['status']);
       // calcul du délai + insertion dans la table
    }
@@ -256,6 +273,76 @@ function plugin_timelineticket_giveItem($type,$ID,$data,$num) {
          }
          return $out;
          break;
+
+      case "glpi_plugin_timelineticket_assigngroups.groups_id" :
+         $ptAssignGroup = new PluginTimelineticketAssignGroup();
+         $group = new Group();
+         $ticket = new Ticket();
+         $out = "";
+         $a_out = array();
+         $a_groupname = array();
+         if (!strstr($data["ITEM_$num"], '$$')) {
+            return "";
+         }
+         $splitg = explode("$$$$", $data["ITEM_$num"]);
+         foreach ($splitg as $datag) {
+            $split = explode("$$", $datag);
+            $group->getFromDB($split[0]);
+            $ptAssignGroup->getFromDB($split[1]);
+            $time = $ptAssignGroup->fields['delay'];
+            if ($ptAssignGroup->fields['delay'] === NULL) {
+               $ticket->getFromDB($data["ITEM_0"]);
+
+               $calendar = new Calendar();
+               $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+               $datedebut = $ptAssignGroup->fields['date'];
+               $enddate = $_SESSION["glpi_currenttime"];
+               if ($ticket->fields['status'] == Ticket::CLOSED) {
+                  $enddate = $ticket->fields['closedate'];
+               }
+
+               if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
+                  $time = $calendar->getActiveTimeBetween ($datedebut, $enddate);
+               } else {
+                  // cas 24/24 - 7/7
+                  $time = strtotime($enddate)-strtotime($datedebut);
+               }
+            } else if ($ptAssignGroup->fields['delay'] == 0) {
+               $time = 0;
+            }
+            $a_groupname[$group->fields['id']] = $group->getLink();
+            if (isset($a_out[$group->fields['id']])) {
+               $a_out[$group->fields['id']] += $time;
+            } else {
+               $a_out[$group->fields['id']] = $time;
+            }
+         }
+         $a_out_comp = array();
+         foreach ($a_out as $groups_id => $time) {
+            $a_out_comp[] = $a_groupname[$groups_id]." : ".Html::timestampToString($time, TRUE, FALSE);
+         }
+
+         $out = implode("<hr/>", $a_out_comp);
+         return $out;
+         break;
+
+   }
+   return "";
+}
+
+
+function plugin_timelineticket_addLeftJoin($itemtype, $ref_table, $new_table, $linkfield,
+                                            &$already_link_tables) {
+   switch ($itemtype) {
+
+      case 'Ticket':
+            if ($new_table.".".$linkfield ==
+                    "glpi_plugin_timelineticket_assigngroups.plugin_timelineticket_assigngroups_id") {
+               return " LEFT JOIN `glpi_plugin_timelineticket_assigngroups` "
+               . " ON (`glpi_tickets`.`id` = `glpi_plugin_timelineticket_assigngroups`.`tickets_id` )  ";
+            }
+         break;
+
    }
    return "";
 }
