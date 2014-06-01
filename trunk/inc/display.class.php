@@ -48,6 +48,25 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       return _n('Timeline of ticket', 'Timeline of tickets', $nb, 'timelineticket');
    }
 
+
+   
+   function getSearchOptions() {
+
+      $tab = array();
+
+      $tab['common'] = __('Timeline', 'timelineticket');
+
+      $tab[1]['table']     = 'glpi_plugin_timelineticket_assigngroups';
+      $tab[1]['field']     = 'groups_id';
+      $tab[1]['linkfield'] = 'tickets_id';
+      $tab[1]['name']      = __('Group');
+      $tab[1]['datatype']  = 'itemlink';
+      $tab[1]['forcegroupby'] = TRUE;
+
+      return $tab;
+   }
+
+
    static function showForTicket (Ticket $ticket) {
       global $DB, $CFG_GLPI;
 
