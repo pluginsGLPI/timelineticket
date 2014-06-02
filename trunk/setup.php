@@ -37,7 +37,7 @@
    ------------------------------------------------------------------------
  */
 
-define ("PLUGIN_TIMELINETICKET_VERSION","0.84+1.1");
+define ("PLUGIN_TIMELINETICKET_VERSION","0.84+1.2");
 
 function plugin_version_timelineticket() {
 
