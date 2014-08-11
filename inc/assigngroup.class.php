@@ -94,7 +94,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       $myPicture = new pImage(820,29,$MyData);
       /* Create the pIndicator object */
       $Indicator = new pIndicator($myPicture);
-      $myPicture->setFontProperties(array("FontName"=>GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/fonts/pf_arma_five.ttf",
+      $myPicture->setFontProperties(array("FontName"=>GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.4/fonts/pf_arma_five.ttf",
                                        "FontSize"=>6));
       /* Define the indicator sections */
       $IndicatorSections = array();
