@@ -37,7 +37,7 @@
    ------------------------------------------------------------------------
  */
 
-define ("PLUGIN_TIMELINETICKET_VERSION","0.84+1.2");
+define ("PLUGIN_TIMELINETICKET_VERSION","0.85+1.0");
 
 function plugin_version_timelineticket() {
 
@@ -95,9 +95,9 @@ function plugin_init_timelineticket() {
 function plugin_timelineticket_check_prerequisites() {
 
    // Checking of the GLPI version
-   if (version_compare(GLPI_VERSION,'0.84','lt')
-         || version_compare(GLPI_VERSION,'0.85','ge')) {
-      echo 'This plugin requires GLPI >= 0.84';
+   if (version_compare(GLPI_VERSION,'0.85','lt')
+         || version_compare(GLPI_VERSION,'0.86','ge')) {
+      echo 'This plugin requires GLPI >= 0.85';
       return false;
    }
    return true;
