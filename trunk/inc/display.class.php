@@ -125,10 +125,10 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       echo "</tr>";
 
       /* pChart library inclusions */
-      include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pData.class.php");
-      include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pDraw.class.php");
-      include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pImage.class.php");
-      include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.3/class/pIndicator.class.php");
+      include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.4/class/pData.class.php");
+      include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.4/class/pDraw.class.php");
+      include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.4/class/pImage.class.php");
+      include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.4/class/pIndicator.class.php");
 
       $a_data = PluginTimelineticketDisplay::getTotaltimeEnddate($ticket);
 
