@@ -42,7 +42,7 @@ define ("PLUGIN_TIMELINETICKET_VERSION","0.85+1.0");
 function plugin_version_timelineticket() {
 
    return array('name'           => 'Timeline of ticket',
-                'minGlpiVersion' => '0.84',
+                'minGlpiVersion' => '0.85',
                 'version'        => PLUGIN_TIMELINETICKET_VERSION,
                 'homepage'       => 'https://forge.indepnet.net/projects/timelineticket',
                 'license'        => 'AGPLv3+',
@@ -83,8 +83,8 @@ function plugin_init_timelineticket() {
 
       $PLUGIN_HOOKS['pre_item_purge']['timelineticket'] = array('Profile' => array('PluginTimelineticketProfile', 'purgeProfiles'));
 
-      if (Session::haveRight("config", "w")
-            || plugin_timelineticket_haveRight('timelineticket','w')) {// Config page
+      if (Session::haveRight("config", UPDATE)
+            || Session::haveRight('plugin_timelineticket_ticket', UPDATE)) {// Config page
          $PLUGIN_HOOKS['config_page']['timelineticket'] = 'front/config.form.php';
       }
    }
@@ -107,25 +107,6 @@ function plugin_timelineticket_check_prerequisites() {
 
 function plugin_timelineticket_check_config() {
    return true;
-}
-
-//general right
-function plugin_timelineticket_haveRight($module, $right) {
-
-   $matches = array(
-       "" => array("", "r", "w"), // ne doit pas arriver normalement
-       "r" => array("r", "w"),
-       "w" => array("w"),
-       "1" => array("1"),
-       "0" => array("0", "1"), // ne doit pas arriver non plus
-   );
-   if (isset($_SESSION["glpi_plugin_timelineticket_profile"][$module]) &&
-           in_array($_SESSION["glpi_plugin_timelineticket_profile"][$module], $matches[$right]))
-      return true;
-   else
-      return false;
-
-
 }
 
 ?>
