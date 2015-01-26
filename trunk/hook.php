@@ -250,9 +250,13 @@ function plugin_timelineticket_ticket_add(Ticket $item) {
 function plugin_timelineticket_ticket_purge(Ticket $item) {
 
    // Instantiation of the object from the class PluginTimelineticketStates
-   $followups = new PluginTimelineticketState();
-   // Deletion of the followups
-   $followups->deleteByCriteria(array('tickets_id' => $item->getField("id")));
+   $ticketstate = new PluginTimelineticketState();
+   $user = new PluginTimelineticketAssignUser();
+   $group = new PluginTimelineticketAssignUser();
+
+   $ticketstate->deleteByCriteria(array('tickets_id' => $item->getField("id")));
+   $user->deleteByCriteria(array('tickets_id' => $item->getField("id")));
+   $group->deleteByCriteria(array('tickets_id' => $item->getField("id")));
 }
 
 function plugin_timelineticket_getDropdown() {

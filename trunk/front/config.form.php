@@ -41,45 +41,45 @@ include ('../../../inc/includes.php');
 
 Html::header(PluginTimelineticketDisplay::getTypeName(2), $_SERVER["PHP_SELF"], "plugins", "timelineticket");
 
-if (Session::haveRight("config", "r") 
-      || plugin_timelineticket_haveRight('timelineticket','w')) {
+if (Session::haveRight("config", READ)
+      || Session::haveRight("plugin_timelineticket_ticket", UPDATE)) {
 
    $ptConfig = new PluginTimelineticketConfig();
    $grplevel = new PluginTimelineticketGroupLevel();
-   
+
    if (isset($_POST["reconstructStates"])) {
       ini_set("max_execution_time", "0");
       ini_set("memory_limit", "-1");
       $ptState = new PluginTimelineticketState();
       $ptState->reconstructTimeline();
       Html::back();
-      
+
    } else if (isset($_POST["reconstructGroups"])) {
       ini_set("max_execution_time", "0");
       ini_set("memory_limit", "-1");
       $ptGroup = new PluginTimelineticketAssignGroup();
       $ptGroup->reconstrucTimeline();
       Html::back();
-      
-   } else if (isset($_POST["add_groups"]) 
+
+   } else if (isset($_POST["add_groups"])
                || isset($_POST["delete_groups"])) {
 
       $grplevel->update($_POST);
       Html::back();
-      
+
    } else if (isset($_POST["update"])) {
 
       $ptConfig->update($_POST);
       Html::back();
-      
+
    } else {
-   
+
       $ptConfig->showReconstructForm();
 
       $ptConfig->getFromDB(1);
       $ptConfig->showForm();
       Html::footer();
-      
+
    }
 }
 

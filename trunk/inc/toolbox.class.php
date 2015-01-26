@@ -123,7 +123,8 @@ class PluginTimelineticketToolbox {
          }
          $a_states[$end_previous] = $a_dbstate['old_status'];
       }
-      if ($a_dbstate['new_status'] != Ticket::CLOSED) {
+      if (isset($a_dbstate['new_status'])
+              && $a_dbstate['new_status'] != Ticket::CLOSED) {
          $a_states[$totaltime] = $a_dbstate['new_status'];
       }
       $a_itemsections = array();
