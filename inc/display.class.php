@@ -87,6 +87,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
       // Display ticket have Due date
       if ($ticket->fields['due_date']
+            && $ticket->fields['status'] != CommonITILObject::WAITING
               && (strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['due_date'])) > 0) {
 
          $calendar = new Calendar();
