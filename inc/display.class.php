@@ -171,7 +171,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
       if ($item->getType() == 'Ticket') {
          if ($item->getField('id')>0
-            && plugin_timelineticket_haveRight('timelineticket','r')) {
+            && Session::haveRight('plugin_timelineticket_ticket', READ)) {
             self::showForTicket($item);
          }
       }
