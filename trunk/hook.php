@@ -310,7 +310,8 @@ function plugin_timelineticket_giveItem($type,$ID,$data,$num) {
          $out = "";
          $a_out = array();
          $a_groupname = array();
-         if (!strstr($data["ITEM_$num"], '$$')) {
+         if (!isset($data["ITEM_$num"])
+                 or !strstr($data["ITEM_$num"], '$$')) {
             return "";
          }
          $splitg = explode("$$$$", $data["ITEM_$num"]);
