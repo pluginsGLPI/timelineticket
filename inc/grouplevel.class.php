@@ -121,30 +121,12 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
    function defineTabs($options=array()) {
 
       $ong = array();
-      $this->addStandardTab(__CLASS__, $ong, $options);
+      $this->addDefaultFormTab($ong);
+      $this->addStandardTab("PluginTimelineticketConfig", $ong, $options);
 
       return $ong;
    }
 
-
-   function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
-
-      if (!$withtemplate) {
-         if ($item->getType()==$this->getType()) {
-            return $this->getTypeName();
-         }
-      }
-      return '';
-   }
-
-
-   static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
-
-      if ($item->getType()==__CLASS__) {
-         self::showAddGroup($item);
-      }
-      return true;
-   }
    
    static function showAddGroup($item) {
 
