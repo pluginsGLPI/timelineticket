@@ -106,5 +106,21 @@ class PluginTimelineticketConfig extends CommonDBTM {
       }
    }
    
+   function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
+
+      // can exists for template
+      if ($item->getType() == 'PluginTimelineticketGrouplevel') {
+         return _sx('button', 'Add an item');
+      }
+      return '';
+   }
+
+
+   static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
+
+      PluginTimelineticketGrouplevel::showAddGroup($item);
+      return true;
+   }
+   
 }
 ?>
