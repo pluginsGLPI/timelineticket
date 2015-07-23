@@ -77,7 +77,9 @@ $columns = array('closedate' => array('sorton' => 'closedate'),
                   'type' => array('sorton' => 'type'),
                   'itilcategories_id' => array('sorton' => 'itilcategories_id'),
                   'name' => array('sorton' => 'name'),
-                  'requesttypes_id' => array('sorton' => 'requesttypes_id')
+                  'requesttypes_id' => array('sorton' => 'requesttypes_id'),
+                  'takeintoaccount_delay_stat' => array('sorton' => 'takeintoaccount_delay_stat'),
+                  'slas_id' => array('sorton' => 'slas_id')
     );
    
 $output_type = Search::HTML_OUTPUT;
@@ -211,6 +213,9 @@ if ($res && $nbtot > 0) {
    showTitle($output_type, $num, __('Title'), 'name', true);
    showTitle($output_type, $num, __('Closing date'), 'closedate', true);
    showTitle($output_type, $num, __('Request source'), 'requesttypes_id', true);
+   showTitle($output_type, $num, __('Take into account time'), 'takeintoaccount_delay_stat', true);
+   showTitle($output_type, $num, __('SLA'), 'slas_id', true);
+
    if (!empty($mylevels)) {
       foreach ($mylevels as $key => $val) {
          showTitle($output_type, $num, $key, '', false);
@@ -349,16 +354,6 @@ if ($res && $nbtot > 0) {
          }
       }
       
-      //echo "<pre>";
-      //print_r($mylevels);
-      //echo "</pre>";
-      //echo "<pre>";
-      //print_r($timegroups);
-      //echo "</pre>";
-      //echo "<pre>";
-      //print_r($tasklevels);
-      //echo "</pre>";
-      
       $row_num++;
       $num = 1;
       echo Search::showNewLine($output_type);
@@ -375,6 +370,16 @@ if ($res && $nbtot > 0) {
       echo Search::showItem($output_type, $out, $num, $row_num);
       echo Search::showItem($output_type, Html::convDateTime($data['closedate']), $num, $row_num);
       echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_requesttypes', $data["requesttypes_id"]), $num, $row_num);
+
+      if ($output_type == Search::HTML_OUTPUT
+            || $output_type == Search::PDF_OUTPUT_PORTRAIT 
+               || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
+         echo Search::showItem($output_type, Html::timestampToString($data["takeintoaccount_delay_stat"]), $num, $row_num);
+      } else {
+         echo Search::showItem($output_type, Html::formatNumber($data["takeintoaccount_delay_stat"] / 3600, false, 5), $num, $row_num);
+      }
+      echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_slas', $data["slas_id"]), $num, $row_num);
+
       $time = 0;
       if (!empty($mylevels)) {
          foreach ($mylevels as $key => $val) {
@@ -393,7 +398,7 @@ if ($res && $nbtot > 0) {
                || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
                echo Search::showItem($output_type, Html::timestampToString($timetask), $num, $row_num);
             } else {
-               echo Search::showItem($output_type, Html::formatNumber($timetask / 3600, true, 5), $num, $row_num);
+               echo Search::showItem($output_type, Html::formatNumber($timetask / 3600, false, 5), $num, $row_num);
             }
             
             if ($output_type == Search::HTML_OUTPUT
@@ -401,7 +406,7 @@ if ($res && $nbtot > 0) {
                || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
                echo Search::showItem($output_type, Html::timestampToString($time), $num, $row_num);
             } else {
-               echo Search::showItem($output_type, Html::formatNumber($time / 3600, true, 5), $num, $row_num);
+               echo Search::showItem($output_type, Html::formatNumber($time / 3600, false, 5), $num, $row_num);
             }
          }
       }
@@ -411,7 +416,7 @@ if ($res && $nbtot > 0) {
                || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
          echo Search::showItem($output_type, Html::timestampToString($total), $num, $row_num);
       } else {
-         echo Search::showItem($output_type, Html::formatNumber($total / 3600, 5), $num, $row_num);
+         echo Search::showItem($output_type, Html::formatNumber($total / 3600,false, 5), $num, $row_num);
       }
       echo Search::showEndLine($output_type);
    }
