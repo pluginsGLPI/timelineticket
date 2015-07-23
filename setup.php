@@ -41,7 +41,7 @@ define ("PLUGIN_TIMELINETICKET_VERSION","0.85+1.0");
 
 function plugin_version_timelineticket() {
 
-   return array('name'           => 'Timeline of ticket',
+   return array('name'           => _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket"),
                 'minGlpiVersion' => '0.85',
                 'version'        => PLUGIN_TIMELINETICKET_VERSION,
                 'homepage'       => 'https://forge.indepnet.net/projects/timelineticket',
