@@ -37,14 +37,14 @@
    ------------------------------------------------------------------------
  */
 
-define ("PLUGIN_TIMELINETICKET_VERSION","0.85+1.0");
+define ("PLUGIN_TIMELINETICKET_VERSION","0.90+1.0");
 
 function plugin_version_timelineticket() {
 
    return array('name'           => _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket"),
                 'minGlpiVersion' => '0.85',
                 'version'        => PLUGIN_TIMELINETICKET_VERSION,
-                'homepage'       => 'https://forge.indepnet.net/projects/timelineticket',
+                'homepage'       => 'https://github.com/pluginsGLPI/timelineticket',
                 'license'        => 'AGPLv3+',
                 'author'         => 'Nelly Mahu-Lasson && David Durieux && Xavier Caillaud');
 }
@@ -96,7 +96,7 @@ function plugin_timelineticket_check_prerequisites() {
 
    // Checking of the GLPI version
    if (version_compare(GLPI_VERSION,'0.85','lt')
-         || version_compare(GLPI_VERSION,'0.86','ge')) {
+         || version_compare(GLPI_VERSION,'0.92','ge')) {
       echo 'This plugin requires GLPI >= 0.85';
       return false;
    }
