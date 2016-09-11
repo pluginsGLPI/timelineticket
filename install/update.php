@@ -3,9 +3,9 @@
 /*
    ------------------------------------------------------------------------
    TimelineTicket
-   Copyright (C) 2013-2013 by the TimelineTicket Development Team.
+   Copyright (C) 2013-2016 by the TimelineTicket Development Team.
 
-   https://forge.indepnet.net/projects/timelineticket
+   https://github.com/pluginsGLPI/timelineticket
    ------------------------------------------------------------------------
 
    LICENSE
@@ -28,10 +28,10 @@
    ------------------------------------------------------------------------
 
    @package   TimelineTicket plugin
-   @copyright Copyright (c) 2013-2013 TimelineTicket team
+   @copyright Copyright (c) 2013-2016 TimelineTicket team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
-   @link      https://forge.indepnet.net/projects/timelineticket
+   @link      https://github.com/pluginsGLPI/timelineticket
    @since     2013
 
    ------------------------------------------------------------------------

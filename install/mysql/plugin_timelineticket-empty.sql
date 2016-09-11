@@ -58,19 +58,6 @@ CREATE TABLE `glpi_plugin_timelineticket_grouplevels` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
 
-
-DROP TABLE IF EXISTS `glpi_plugin_timelineticket_profiles`;
-
-CREATE TABLE `glpi_plugin_timelineticket_profiles` (
-   `id` int(11) NOT NULL AUTO_INCREMENT,
-   `profiles_id` int(11) NOT NULL DEFAULT '0' COMMENT 'RELATION to glpi_profiles (id)',
-   `timelineticket` char(1) COLLATE utf8_unicode_ci DEFAULT NULL,
-   PRIMARY KEY (`id`),
-   KEY `profiles_id` (`profiles_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
-
-
-
 DROP TABLE IF EXISTS `glpi_plugin_timelineticket_configs`;
 
 CREATE TABLE `glpi_plugin_timelineticket_configs` (

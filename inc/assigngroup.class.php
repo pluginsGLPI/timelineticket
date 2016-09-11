@@ -3,9 +3,9 @@
 /*
    ------------------------------------------------------------------------
    TimelineTicket
-   Copyright (C) 2013-2013 by the TimelineTicket Development Team.
+   Copyright (C) 2013-2016 by the TimelineTicket Development Team.
 
-   https://forge.indepnet.net/projects/timelineticket
+   https://github.com/pluginsGLPI/timelineticket
    ------------------------------------------------------------------------
 
    LICENSE
@@ -28,10 +28,10 @@
    ------------------------------------------------------------------------
 
    @package   TimelineTicket plugin
-   @copyright Copyright (c) 2013-2013 TimelineTicket team
+   @copyright Copyright (c) 2013-2016 TimelineTicket team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
-   @link      https://forge.indepnet.net/projects/timelineticket
+   @link      https://github.com/pluginsGLPI/timelineticket
    @since     2013
 
    ------------------------------------------------------------------------
@@ -290,6 +290,46 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       } else if ($ok && in_array("status", $ticket->updates)
             && isset($ticket->fields["status"])
                && $ticket->fields["status"] == Ticket::WAITING) {
+         if ($ticket->countGroups(CommonITILActor::ASSIGN)) {
+            foreach ($ticket->getGroups(CommonITILActor::ASSIGN) as $d) {
+
+               $calendar = new Calendar();
+               $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+               $ptAssignGroup = new PluginTimelineticketAssignGroup();
+               $query = "SELECT MAX(`date`) AS datedebut, id
+                         FROM `".$ptAssignGroup->getTable()."`
+                         WHERE `tickets_id` = '".$ticket->getID()."'
+                           AND `groups_id`='".$d["groups_id"]."'
+                           AND `delay` IS NULL";
+
+               $result    = $DB->query($query);
+               $datedebut = '';
+               $input = array();
+               if ($result && $DB->numrows($result)) {
+                  $datedebut = $DB->result($result, 0, 'datedebut');
+                  $input['id'] = $DB->result($result, 0, 'id');
+               } else {
+                  return;
+               }
+
+               if (!$datedebut) {
+                  $delay = 0;
+               // Utilisation calendrier
+               } else if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
+                  $delay = $calendar->getActiveTimeBetween ($datedebut, $_SESSION["glpi_currenttime"]);
+               } else {
+                  // cas 24/24 - 7/7
+                  $delay = strtotime($_SESSION["glpi_currenttime"])-strtotime($datedebut);
+               }
+
+               $input['delay'] = $delay;
+               $ptAssignGroup->update($input);
+            }
+         }
+      } else if (in_array("status", $ticket->updates)
+            && isset($ticket->input["status"])
+               && ($ticket->input["status"] == Ticket::SOLVED 
+                     || $ticket->input["status"] == Ticket::CLOSED)) {
          if ($ticket->countGroups(CommonITILActor::ASSIGN)) {
             foreach ($ticket->getGroups(CommonITILActor::ASSIGN) as $d) {
 

@@ -3,9 +3,9 @@
 /*
    ------------------------------------------------------------------------
    TimelineTicket
-   Copyright (C) 2013-2013 by the TimelineTicket Development Team.
+   Copyright (C) 2013-2016 by the TimelineTicket Development Team.
 
-   https://forge.indepnet.net/projects/timelineticket
+   https://github.com/pluginsGLPI/timelineticket
    ------------------------------------------------------------------------
 
    LICENSE
@@ -28,10 +28,10 @@
    ------------------------------------------------------------------------
 
    @package   TimelineTicket plugin
-   @copyright Copyright (c) 2013-2013 TimelineTicket team
+   @copyright Copyright (c) 2013-2016 TimelineTicket team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
-   @link      https://forge.indepnet.net/projects/timelineticket
+   @link      https://github.com/pluginsGLPI/timelineticket
    @since     2013
 
    ------------------------------------------------------------------------
@@ -42,7 +42,7 @@ define ("PLUGIN_TIMELINETICKET_VERSION","0.90+1.0");
 function plugin_version_timelineticket() {
 
    return array('name'           => _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket"),
-                'minGlpiVersion' => '0.85',
+                'minGlpiVersion' => '0.90',
                 'version'        => PLUGIN_TIMELINETICKET_VERSION,
                 'homepage'       => 'https://github.com/pluginsGLPI/timelineticket',
                 'license'        => 'AGPLv3+',
@@ -59,13 +59,15 @@ function plugin_init_timelineticket() {
    $Plugin = new Plugin();
    if ($Plugin->isActivated('timelineticket')) { // check if plugin is active
 
-      $PLUGIN_HOOKS['change_profile']['timelineticket'] = array('PluginTimelineticketProfile', 'changeProfile');
-
+      $PLUGIN_HOOKS['change_profile']['timelineticket'] = array('PluginTimelineticketProfile', 'initProfile');
+      
       Plugin::registerClass('PluginTimelineticketProfile', array('addtabon' => 'Profile'));
-
-      Plugin::registerClass('PluginTimelineticketDisplay',
+      
+      if(Session::haveRightsOr('plugin_timelineticket_ticket', array(READ, UPDATE))) {
+      
+         Plugin::registerClass('PluginTimelineticketDisplay',
                              array('addtabon' => array('Ticket')));
-
+      }
       $PLUGIN_HOOKS['item_purge']['timelineticket']     =  array(
             'Ticket'       => 'plugin_timelineticket_ticket_purge',
             'Group_Ticket' => array('PluginTimelineticketAssignGroup', 'deleteGroupTicket'),
@@ -81,8 +83,6 @@ function plugin_init_timelineticket() {
             'Ticket' => 'plugin_timelineticket_ticket_update'
           );
 
-      $PLUGIN_HOOKS['pre_item_purge']['timelineticket'] = array('Profile' => array('PluginTimelineticketProfile', 'purgeProfiles'));
-
       if (Session::haveRight("config", UPDATE)
             || Session::haveRight('plugin_timelineticket_ticket', UPDATE)) {// Config page
          $PLUGIN_HOOKS['config_page']['timelineticket'] = 'front/config.form.php';
@@ -95,9 +95,9 @@ function plugin_init_timelineticket() {
 function plugin_timelineticket_check_prerequisites() {
 
    // Checking of the GLPI version
-   if (version_compare(GLPI_VERSION,'0.85','lt')
-         || version_compare(GLPI_VERSION,'0.92','ge')) {
-      echo 'This plugin requires GLPI >= 0.85';
+   if (version_compare(GLPI_VERSION,'0.90','lt')
+         || version_compare(GLPI_VERSION,'9.2','ge')) {
+      echo 'This plugin requires GLPI >= 0.90';
       return false;
    }
    return true;

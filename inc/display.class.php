@@ -3,9 +3,9 @@
 /*
    ------------------------------------------------------------------------
    TimelineTicket
-   Copyright (C) 2013-2013 by the TimelineTicket Development Team.
+   Copyright (C) 2013-2016 by the TimelineTicket Development Team.
 
-   https://forge.indepnet.net/projects/timelineticket
+   https://github.com/pluginsGLPI/timelineticket
    ------------------------------------------------------------------------
 
    LICENSE
@@ -28,10 +28,10 @@
    ------------------------------------------------------------------------
 
    @package   TimelineTicket plugin
-   @copyright Copyright (c) 2013-2013 TimelineTicket team
+   @copyright Copyright (c) 2013-2016 TimelineTicket team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
-   @link      https://forge.indepnet.net/projects/timelineticket
+   @link      https://github.com/pluginsGLPI/timelineticket
    @since     2013
 
    ------------------------------------------------------------------------
@@ -149,7 +149,68 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
       PluginTimelineticketToolbox::ShowDetail($ticket, 'group');
       PluginTimelineticketToolbox::ShowDetail($ticket, 'user');
+      
+      if ($_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
+         echo "<br><table class='tab_cadre_fixe'>";
+         echo "<tr>";
+         echo "<th colspan='5'>".__('DEBUG')." ".__('Group')."</th>";
+         echo "</tr>";
+         
+         echo "<tr>";
+         echo "<th>".__('ID')."</th>";
+         echo "<th>".__('Date')."</th>";
+         echo "<th>".__('Group')."</th>";
+         echo "<th>".__('Begin')."</th>";
+         echo "<th>".__('Delay', 'timelineticket')."</th>";
+         echo "</tr>";
+         $query = "SELECT *
+                         FROM `glpi_plugin_timelineticket_assigngroups`
+                         WHERE `tickets_id` = '".$ticket->getID()."'";
 
+         $result    = $DB->query($query);
+         while ($data = $DB->fetch_assoc($result)) {
+
+            echo "<tr class='tab_bg_1'>";
+            echo "<td>".$data['id']."</td>";
+            echo "<td>".Html::convDateTime($data['date'])."</td>";
+            echo "<td>".Dropdown::getDropdownName("glpi_groups", $data['groups_id'])."</td>";
+            echo "<td>".Html::timestampToString($data['begin'])."</td>";
+            echo "<td>".Html::timestampToString($data['delay'])."</td>";
+            echo "</tr>";
+
+         }
+         echo "</table>";
+         
+         echo "<br><table class='tab_cadre_fixe'>";
+         echo "<tr>";
+         echo "<th colspan='5'>".__('DEBUG')." ".__('Technician')."</th>";
+         echo "</tr>";
+         
+         echo "<tr>";
+         echo "<th>".__('ID')."</th>";
+         echo "<th>".__('Date')."</th>";
+         echo "<th>".__('Technician')."</th>";
+         echo "<th>".__('Begin')."</th>";
+         echo "<th>".__('Delay', 'timelineticket')."</th>";
+         echo "</tr>";
+         $query = "SELECT *
+                         FROM `glpi_plugin_timelineticket_assignusers`
+                         WHERE `tickets_id` = '".$ticket->getID()."'";
+
+         $result    = $DB->query($query);
+         while ($data = $DB->fetch_assoc($result)) {
+
+            echo "<tr class='tab_bg_1'>";
+            echo "<td>".$data['id']."</td>";
+            echo "<td>".Html::convDateTime($data['date'])."</td>";
+            echo "<td>".getUserName($data['users_id'])."</td>";
+            echo "<td>".Html::timestampToString($data['begin'])."</td>";
+            echo "<td>".Html::timestampToString($data['delay'])."</td>";
+            echo "</tr>";
+
+         }
+         echo "</table>";
+      }
    }
 
 
@@ -157,10 +218,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
 
       if ($item->getType() == 'Ticket') {
-         if ($item->getField('id')>0
-            && Session::haveRight('plugin_timelineticket_ticket', READ)) {
-            return array(1 => __('Timeline', 'timelineticket'));
-         }
+         return __('Timeline', 'timelineticket');
       }
       return '';
    }
@@ -170,10 +228,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
    static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
 
       if ($item->getType() == 'Ticket') {
-         if ($item->getField('id')>0
-            && Session::haveRight('plugin_timelineticket_ticket', READ)) {
-            self::showForTicket($item);
-         }
+         self::showForTicket($item);
       }
       return true;
    }
@@ -191,6 +246,10 @@ class PluginTimelineticketDisplay extends CommonDBTM {
          $totaltime += $a_state['delay'];
          $last_date = $a_state['date'];
       }
+      //if ($a_state['delay'] == 0) {
+      //   $actual = strtotime(date('Y-m-d H:i:s'))-strtotime($a_state['date']);
+      //   $totaltime += $actual;
+      //}
       if ($ticket->fields['status'] != Ticket::CLOSED
             && isset($a_state['date'])) {
          $totaltime += PluginTimelineticketDisplay::getPeriodTime($ticket,

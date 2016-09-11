@@ -3,9 +3,9 @@
 /*
    ------------------------------------------------------------------------
    TimelineTicket
-   Copyright (C) 2013-2013 by the TimelineTicket Development Team.
+   Copyright (C) 2013-2016 by the TimelineTicket Development Team.
 
-   https://forge.indepnet.net/projects/timelineticket
+   https://github.com/pluginsGLPI/timelineticket
    ------------------------------------------------------------------------
 
    LICENSE
@@ -28,10 +28,10 @@
    ------------------------------------------------------------------------
 
    @package   TimelineTicket plugin
-   @copyright Copyright (c) 2013-2013 TimelineTicket team
+   @copyright Copyright (c) 2013-2016 TimelineTicket team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
-   @link      https://forge.indepnet.net/projects/timelineticket
+   @link      https://github.com/pluginsGLPI/timelineticket
    @since     2013
 
    ------------------------------------------------------------------------
@@ -147,17 +147,6 @@ function plugin_timelineticket_install() {
       $DB->query($query) or die($DB->error());
    }
 
-   if (!TableExists("glpi_plugin_timelineticket_profiles")) {
-      $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_profiles` (
-              `id` int(11) NOT NULL AUTO_INCREMENT,
-              `profiles_id` int(11) NOT NULL DEFAULT '0' COMMENT 'RELATION to glpi_profiles (id)',
-              `timelineticket` char(1) collate utf8_unicode_ci default NULL,
-              PRIMARY KEY  (`id`),
-              KEY `profiles_id` (`profiles_id`)
-            ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
-      $DB->query($query) or die($DB->error());
-   }
-
    if (!TableExists("glpi_plugin_timelineticket_configs")) {
       $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_configs` (
               `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -196,6 +185,9 @@ function plugin_timelineticket_install() {
            && isset($_SESSION['glpiactiveprofile']['id'])) {
       PluginTimelineticketProfile::createFirstAccess($_SESSION['glpiactiveprofile']['id']);
    }
+   
+   $migration = new Migration("0.90+1.0");
+   $migration->dropTable('glpi_plugin_timelineticket_profiles');
    return true;
 }
 
@@ -274,8 +266,7 @@ function plugin_timelineticket_getDatabaseRelations() {
 
    $plugin = new Plugin();
    if ($plugin->isActivated("timelineticket"))
-      return array("glpi_profiles" => array("glpi_plugin_timelineticket_profiles" => "profiles_id"),
-                     "glpi_entities" => array("glpi_plugin_timelineticket_grouplevels" => "entities_id"));
+      return array("glpi_entities" => array("glpi_plugin_timelineticket_grouplevels" => "entities_id"));
    else
       return array();
 }
