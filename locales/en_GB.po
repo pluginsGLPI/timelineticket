@@ -1,22 +1,21 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Timelineticket Development Team
 # This file is distributed under the same license as the PACKAGE package.
-#
+# 
 # Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-30 12:29+0200\n"
-"PO-Revision-Date: 2013-09-30 14:47+0100\n"
+"POT-Creation-Date: 2016-09-11 12:56+0200\n"
+"PO-Revision-Date: 2016-09-11 10:57+0000\n"
 "Last-Translator: Xavier CAILLAUD <tsmr@thetsmr.fr>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language-Team: English (United Kingdom) (http://www.transifex.com/tsmr/GLPI_timelineticket/language/en_GB/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: en_GB\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.5.7\n"
 
 #: setup.php:44 inc/display.class.php:48
 msgid "Timeline of ticket"
@@ -24,15 +23,11 @@ msgid_plural "Timeline of tickets"
 msgstr[0] "Timeline of ticket"
 msgstr[1] "Timeline of tickets"
 
-#: setup.php:95
-msgid "This plugin requires GLPI >= 0.84"
-msgstr "This plugin requires GLPI >= 0.84"
-
-#: inc/assigngroup.class.php:121 inc/toolbox.class.php:321
+#: inc/assigngroup.class.php:121 inc/toolbox.class.php:328
 msgid "Groups in charge of the ticket"
 msgstr "Groups in charge of the ticket"
 
-#: inc/assignuser.class.php:119 inc/toolbox.class.php:323
+#: inc/assignuser.class.php:119 inc/toolbox.class.php:330
 msgid "Technicians in charge of the ticket"
 msgstr "Technicians in charge of the ticket"
 
@@ -55,18 +50,19 @@ msgid ""
 "Warning : it may be that the reconstruction of groups does not reflect "
 "reality because it concern only groups which have the Requester flag to No "
 "and Assigned flag to Yes"
-msgstr ""
-"Warning : it may be that the reconstruction of groups does not reflect "
-"reality because it concern only groups which have the Requester flag to No "
-"and Assigned flag to Yes"
+msgstr "Warning : it may be that the reconstruction of groups does not reflect reality because it concern only groups which have the Requester flag to No and Assigned flag to Yes"
 
 #: inc/config.class.php:83
 msgid "Input time on groups / users when ticket is waiting"
 msgstr "Input time on groups / users when ticket is waiting"
 
-#: inc/display.class.php:142
+#: inc/display.class.php:57 inc/display.class.php:221
 msgid "Timeline"
 msgstr "Timeline"
+
+#: inc/display.class.php:164 inc/display.class.php:194 inc/state.class.php:110
+msgid "Delay"
+msgstr "Delay"
 
 #: inc/grouplevel.class.php:48
 msgid "Service level"
@@ -78,22 +74,18 @@ msgstr[1] "Service levels"
 msgid "List of associated groups"
 msgstr "List of associated groups"
 
-#: inc/profile.class.php:47
-msgid "Rights management"
-msgstr "Rights management"
-
-#: inc/state.class.php:110
-msgid "Delay"
-msgstr "Delay"
+#: inc/profile.class.php:93
+msgid "General"
+msgstr "General"
 
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:47
 msgid "statSpentTimeByGroup_report_title"
 msgstr "statSpentTimeByGroup_report_title"
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:217
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:222
 msgid "Duration by"
 msgstr "Duration by"
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:220
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:225
 msgid "Total duration of ticket"
 msgstr "Total duration of ticket"
