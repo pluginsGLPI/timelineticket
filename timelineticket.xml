@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+   <name>Timelineticket</name>
+   <key>timelineticket</key>
+   <state>stable</state>
+   <logo></logo>
+   <description>
+      <short>
+         <fr><![CDATA[Ce plugin permet ]]></fr>
+         <en><![CDATA[This plugin enables you to ]]></en>
+      </short>
+      <long>
+         <fr><![CDATA[Ce plugin permet de ]]></fr>
+         <en><![CDATA[This plugin enables you to ]]></en>
+      </long>
+   </description>
+   <homepage>https://github.com/pluginsGLPI/timelineticket</homepage>
+   <download>https://github.com/pluginsGLPI/timelineticket/releases</download>
+   <issues>https://github.com/pluginsGLPI/timelineticket/issues</issues>
+   <readme>https://raw.githubusercontent.com/pluginsGLPI/timelineticket/master/README.md</readme>
+   <authors>
+      <author>David DURIEUX</author>
+      <author>Xavier CAILLAUD</author>
+   </authors>
+   <versions>
+      <version>
+          <num>0.85+1.0</num>
+          <compatibility>0.85</compatibility>
+      </version>
+      <version>
+          <num>0.84+1.2</num>
+          <compatibility>0.84</compatibility>
+      </version>
+      <version>
+          <num>0.84+1.1</num>
+          <compatibility>0.84</compatibility>
+      </version>
+      <version>
+          <num>0.84+1.0</num>
+          <compatibility>0.84</compatibility>
+      </version>
+      <version>
+          <num>0.83+1.1</num>
+          <compatibility>0.83</compatibility>
+      </version>
+      <version>
+          <num>0.83+1.0</num>
+          <compatibility>0.83</compatibility>
+      </version>
+   </versions>
+   <langs>
+      <lang>fr_FR</lang>
+      <lang>en_GB</lang>
+   </langs>
+   <license><![CDATA[AGPL v3]]></license>
+   <tags>
+         <fr>
+            <tag>Ticket</tag>
+            <tag>Chronologie</tag>
+            <tag>Statistiques</tag>
+         </fr>
+         <en>
+            <tag>Ticket</tag>
+            <tag>Timeline</tag>
+            <tag>Statistics</tag>
+         </en>
+   </tags>
+   <screenshots>
+      <screenshot></screenshot>
+   </screenshots>
+</root>
