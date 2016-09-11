@@ -408,11 +408,11 @@ class PluginTimelineticketState extends CommonDBTM {
          Session::loadLanguage($locale);
 
          $status_translation[_x('ticket', 'New')]                 = Ticket::INCOMING;
-         $status_translation[__('Processing (assigned)', 'glpi')] = Ticket::ASSIGNED;
-         $status_translation[__('Processing (planned)', 'glpi')]  = Ticket::PLANNED;
-         $status_translation[__('Pending', 'glpi')]               = Ticket::WAITING;
-         $status_translation[__('Solved', 'glpi')]                = Ticket::SOLVED;
-         $status_translation[__('Closed', 'glpi')]                = Ticket::CLOSED;
+         $status_translation[__('Processing (assigned)')]         = Ticket::ASSIGNED;
+         $status_translation[__('Processing (planned)')]          = Ticket::PLANNED;
+         $status_translation[__('Pending')]                       = Ticket::WAITING;
+         $status_translation[__('Solved')]                        = Ticket::SOLVED;
+         $status_translation[__('Closed')]                        = Ticket::CLOSED;
       }
 
       $_SESSION['glpi_plugins'] = $save_plugin_session;
