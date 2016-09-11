@@ -139,7 +139,7 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
       echo "<tr class='tab_bg_1 center'>";
       echo "<td>";
       
-      $used = json_decode($item->fields["groups"], true);
+      $used = ($item->fields["groups"] == 'NULL' ? json_decode($item->fields["groups"], true) : array());
       
       Group::dropdown(array('name'      => '_groups_id_assign',
                             'used' => $used,

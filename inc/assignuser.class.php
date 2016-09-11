@@ -130,7 +130,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
          echo "</td>";
          echo "<td>";
          if ($ticket->fields['status'] != Ticket::CLOSED
-                 && $_usersfinished[$users_id] === false) {
+                 && $_usersfinished[$users_id] != 0) {
 
             $IndicatorSettings = array("Values"=>array(100,201),
                                        "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM,

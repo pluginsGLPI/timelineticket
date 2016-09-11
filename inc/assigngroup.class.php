@@ -171,7 +171,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
                echo "</td>";
                echo "<td>";
                if ($ticket->fields['status'] != Ticket::CLOSED
-                       && $_groupsfinished[$groups_id] === false) {
+                       && $_groupsfinished[$groups_id] != 0) {
 
                   $IndicatorSettings = array("Values"=>array(100,201),
                                              "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM,
