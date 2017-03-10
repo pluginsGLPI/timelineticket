@@ -218,7 +218,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
 
       if ($item->getType() == 'Ticket'
-          && $item->getField('interface') == 'central') {
+          && $_SESSION['glpiactiveprofile']['interface'] == 'central') {
          return __('Timeline', 'timelineticket');
       }
       return '';
