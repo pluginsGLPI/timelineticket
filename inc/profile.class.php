@@ -52,7 +52,8 @@ class PluginTimelineticketProfile extends Profile {
        */
 
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
-      if ($item->fields['interface'] == 'central') {
+      if ($item->getType() == 'Profile'
+          && $item->fields['interface'] == 'central') {
          return self::createTabEntry('TimelineTicket');
       }
    }
@@ -112,7 +113,7 @@ class PluginTimelineticketProfile extends Profile {
       }
    }
 
-   function getRightsGeneral() {
+   static function getRightsGeneral() {
       $rights = array(
           array('rights'    => array(READ => __('Read'), UPDATE => __('Update')),
                 'label'     => __('Ticket'),

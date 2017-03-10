@@ -186,13 +186,15 @@ function plugin_timelineticket_install() {
       PluginTimelineticketProfile::createFirstAccess($_SESSION['glpiactiveprofile']['id']);
    }
    
-   $migration = new Migration("0.90+1.0");
+   $migration = new Migration("9.1+1.0");
    $migration->dropTable('glpi_plugin_timelineticket_profiles');
    return true;
 }
 
 function plugin_timelineticket_uninstall() {
    global $DB;
+
+   include_once(GLPI_ROOT . "/plugins/timelineticket/inc/profile.class.php");
 
    $tables = array("glpi_plugin_timelineticket_states",
        "glpi_plugin_timelineticket_assigngroups",
@@ -205,6 +207,14 @@ function plugin_timelineticket_uninstall() {
       $query = "DROP TABLE IF EXISTS `$table`;";
       $DB->query($query) or die($DB->error());
    }
+
+   //Delete rights associated with the plugin
+   $profileRight = new ProfileRight();
+   foreach (PluginTimelineticketProfile::getRightsGeneral() as $right) {
+      $profileRight->deleteByCriteria(array('name' => $right['field']));
+   }
+
+   PluginTimelineticketProfile::removeRightsFromSession();
 }
 
 function plugin_timelineticket_ticket_update(Ticket $item) {
