@@ -303,9 +303,6 @@ class PluginTimelineticketState extends CommonDBTM {
          echo "</td>";
          echo "<td>";
 
-         $calendar = new Calendar();
-         $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
-
          if ($ticket->fields['status'] != Ticket::CLOSED) {
 
             $IndicatorSettings = array("Values"=>array(100,201),

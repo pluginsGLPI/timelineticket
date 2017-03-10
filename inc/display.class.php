@@ -265,15 +265,16 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
 
    static function getPeriodTime(CommonGLPI $ticket, $start, $end) {
-      $totaltime = 0;
-      if ($ticket->fields['slas_id'] != 0) { // Have SLA
-         $sla = new SLA();
-         $sla->getFromDB($ticket->fields['slas_id']);
-         $totaltime = $sla->getActiveTimeBetween($start, $end);
+
+      $calendar = new Calendar();
+      if ($ticket->fields['slts_ttr_id'] != 0) { // Have SLT
+         $slt = new SLT();
+         $slt->getFromDB($ticket->fields['slts_ttr_id']);
+         $totaltime = $slt->getActiveTimeBetween($start, $end);
       } else {
          $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
          if ($calendars_id != 0) { // Ticket entity have calendar
-            $calendar = new Calendar();
+
             $calendar->getFromDB($calendars_id);
             $totaltime = $calendar->getActiveTimeBetween($start, $end);
          } else { // No calendar

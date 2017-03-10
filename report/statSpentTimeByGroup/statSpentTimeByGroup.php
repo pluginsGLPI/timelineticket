@@ -79,7 +79,7 @@ $columns = array('closedate' => array('sorton' => 'closedate'),
                   'name' => array('sorton' => 'name'),
                   'requesttypes_id' => array('sorton' => 'requesttypes_id'),
                   'takeintoaccount_delay_stat' => array('sorton' => 'takeintoaccount_delay_stat'),
-                  'slas_id' => array('sorton' => 'slas_id')
+                  'slts_ttr_id' => array('sorton' => 'slts_ttr_id')
     );
    
 $output_type = Search::HTML_OUTPUT;
@@ -214,7 +214,7 @@ if ($res && $nbtot > 0) {
    showTitle($output_type, $num, __('Closing date'), 'closedate', true);
    showTitle($output_type, $num, __('Request source'), 'requesttypes_id', true);
    showTitle($output_type, $num, __('Take into account time'), 'takeintoaccount_delay_stat', true);
-   showTitle($output_type, $num, __('SLA'), 'slas_id', true);
+   showTitle($output_type, $num, __('SLT'), 'slts_ttr_id', true);
 
    if (!empty($mylevels)) {
       foreach ($mylevels as $key => $val) {
@@ -378,7 +378,7 @@ if ($res && $nbtot > 0) {
       } else {
          echo Search::showItem($output_type, Html::formatNumber($data["takeintoaccount_delay_stat"] / 3600, false, 5), $num, $row_num);
       }
-      echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_slas', $data["slas_id"]), $num, $row_num);
+      echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_slts', $data["slts_ttr_id"]), $num, $row_num);
 
       $time = 0;
       if (!empty($mylevels)) {
