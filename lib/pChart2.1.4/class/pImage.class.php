@@ -101,7 +101,7 @@
       }
      else
       {
-       $C_White = $this->AllocateColor($this->Picture,255,255,255);
+       $C_White = $this->allocateColor($this->Picture,255,255,255);
        imagefilledrectangle($this->Picture,0,0,$XSize,$YSize,$C_White);
       }
     }
@@ -171,9 +171,9 @@
    function autoOutput($FileName="output.png")
     {
      if (php_sapi_name() == "cli")
-      $this->Render($FileName);
+      $this->render($FileName);
      else
-      $this->Stroke();
+      $this->stroke();
     }
 
    /* Return the length between two points */

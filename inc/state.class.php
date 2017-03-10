@@ -141,7 +141,7 @@ class PluginTimelineticketState extends CommonDBTM {
 
 
    function showTimeline (Ticket $ticket, $params = array()) {
-      global $DB, $CFG_GLPI;
+      global $CFG_GLPI;
 
       /* Create and populate the pData object */
       $MyData = new pData();

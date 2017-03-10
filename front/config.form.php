@@ -45,7 +45,7 @@ if (Session::haveRight("config", READ)
       || Session::haveRight("plugin_timelineticket_ticket", UPDATE)) {
 
    $ptConfig = new PluginTimelineticketConfig();
-   $grplevel = new PluginTimelineticketGroupLevel();
+   $grplevel = new PluginTimelineticketGrouplevel();
 
    if (isset($_POST["reconstructStates"])) {
       ini_set("max_execution_time", "0");

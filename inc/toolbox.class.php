@@ -49,8 +49,7 @@ class PluginTimelineticketToolbox {
     *
     * @param Ticket $ticket
     * @param type $type 'user' or 'group'
-    * @param type $withblank option to fill blank zones
-    *
+    * @param int|type $withblank option to fill blank zones
     * @return type
     */
    static function getDetails(Ticket $ticket, $type, $withblank=1) {
@@ -284,12 +283,12 @@ class PluginTimelineticketToolbox {
    }
 
 
-
-  /**
+   /**
     * Used to display each status time used for each group/user
     *
     *
     * @param Ticket $ticket
+    * @param $type
     */
    static function ShowDetail(Ticket $ticket, $type) {
 
@@ -360,7 +359,7 @@ class PluginTimelineticketToolbox {
          if ($type == 'group') {
             echo "<td>".Dropdown::getDropdownName("glpi_groups", $items_id)."</td>";
          } else if ($type == 'user') {
-            echo "<td>".Dropdown::getDropdownName("glpi_users", $items_id)."</td>";
+            echo "<td>".getUserName($items_id)."</td>";
          }
          foreach ($list_status as $status=>$name) {
             echo "<td>";

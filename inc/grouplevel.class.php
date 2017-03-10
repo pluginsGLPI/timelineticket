@@ -112,12 +112,14 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
       $tab[12]['nosearch']          = true;
       return $tab;
    }
-   
+
    /**
     * Define tabs to display
     *
     * @param $options array
-   **/
+    *
+    * @return array
+    */
    function defineTabs($options=array()) {
 
       $ong = array();

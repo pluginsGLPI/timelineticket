@@ -66,15 +66,16 @@ class PluginTimelineticketProfile extends Profile {
    }
 
 
-
-    /**
+   /**
     * Show profile form
     *
-    * @param $items_id integer id of the profile
-    * @param $target value url of target
-    *
+    * @param int $profiles_id
+    * @param bool $openform
+    * @param bool $closeform
     * @return nothing
-    **/
+    * @internal param int $items_id id of the profile
+    * @internal param value $target url of target
+    */
    function showForm($profiles_id=0, $openform=TRUE, $closeform=TRUE) {
 
       echo "<div class='firstbloc'>";
@@ -138,7 +139,8 @@ class PluginTimelineticketProfile extends Profile {
    }
 
    /**
-    * @param $ID  integer
+    * @param $profiles_id
+    * @internal param int $ID
     */
    static function createFirstAccess($profiles_id) {
       include_once(GLPI_ROOT."/plugins/timelineticket/inc/profile.class.php");
@@ -161,7 +163,7 @@ class PluginTimelineticketProfile extends Profile {
    }
 
    static function migrateProfiles() {
-      global $DB;
+
       //Get all rights from the old table
       $profiles = getAllDatasFromTable(getTableForItemType(__CLASS__));
 

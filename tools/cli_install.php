@@ -53,7 +53,7 @@ include (GLPI_ROOT . "/inc/includes.php");
 $_SESSION['glpi_use_mode'] = Session::DEBUG_MODE;
 $_SESSION['glpilanguage']  = "en_GB";
 
-Session::LoadLanguage();
+Session::loadLanguage();
 
 // Only show errors
 $CFG_GLPI["debug_sql"]        = $CFG_GLPI["debug_vars"] = 0;
@@ -72,6 +72,8 @@ if (!$DB->connected) {
  * Extends class Migration to redefine display mode
 **/
 class CliMigration extends Migration {
+
+   private   $deb;
 
    function __construct($ver) {
 

@@ -68,7 +68,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
 
    static function showForTicket (Ticket $ticket) {
-      global $DB, $CFG_GLPI;
+      global $DB;
 
       echo "<table class='tab_cadre_fixe'>";
       echo "<tr><th>".__('Summary')."</th></tr>";

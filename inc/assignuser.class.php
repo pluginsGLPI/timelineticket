@@ -126,7 +126,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
       foreach ($IndicatorSections as $users_id =>$array) {
          echo "<tr class='tab_bg_2'>";
          echo "<td width='100'>";
-         echo getUsername($users_id);
+         echo getUserName($users_id);
          echo "</td>";
          echo "<td>";
          if ($ticket->fields['status'] != Ticket::CLOSED

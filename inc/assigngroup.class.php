@@ -102,7 +102,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
 
       $a_groups_list = array();
       $IndicatorSections = PluginTimelineticketToolbox::getDetails($ticket, 'group');
-      foreach ($IndicatorSections as $groups_id=>$data) {
+      foreach ($IndicatorSections as $groups_id =>$data) {
          $a_groups_list[$groups_id] = $groups_id;
 
          $a_end = end($data);

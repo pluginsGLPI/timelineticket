@@ -272,7 +272,6 @@ function plugin_timelineticket_getDatabaseRelations() {
 }
 
 function plugin_timelineticket_giveItem($type,$ID,$data,$num) {
-   global $CFG_GLPI,$DB;
 
    $searchopt=&Search::getOptions($type);
    $table=$searchopt[$ID]["table"];

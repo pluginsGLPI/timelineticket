@@ -134,7 +134,7 @@ if ($nbtot == 0) {
       Html::header($title, $_SERVER['PHP_SELF'], "utils", "report");
       Report::title();
    }
-   echo "<div class='center'><font class='red b'>" . __('No item found') . "</font></div>";
+   echo "<div class='center red b'>" . __('No item found') . "</div>";
    Html::footer();
 } else if ($output_type == Search::PDF_OUTPUT_PORTRAIT 
                || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
@@ -469,6 +469,7 @@ function showTitle($output_type, &$num, $title, $columnname, $sort = false) {
  * Build the ORDER BY clause
  *
  * @param $default string, name of the column used by default
+ * @param $columns
  * @return string
  */
 function getOrderBy($default, $columns) {
@@ -490,6 +491,7 @@ function getOrderBy($default, $columns) {
  *
  * @param $default string, name of the column used by default
  *
+ * @param $columns
  * @return array of column names
  */
 function getOrderByFields($default, $columns) {

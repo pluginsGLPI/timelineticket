@@ -162,7 +162,7 @@
        $FillColor = $this->allocateColor($this->Picture,$R,$G,$B,$Alpha);
 
        if ( count($Points) >= 6 )
-        { ImageFilledPolygon($this->Picture,$Points,count($Points)/2,$FillColor); }
+        { imagefilledpolygon($this->Picture,$Points,count($Points)/2,$FillColor); }
       }
 
      if ( !$NoBorder )
@@ -1019,7 +1019,7 @@
        imagettftext($this->Picture,$FontSize,$Angle,$X+$this->ShadowX,$Y+$this->ShadowY,$C_ShadowColor,$FontName,$Text);
       }
 
-     $C_TextColor = $this->AllocateColor($this->Picture,$R,$G,$B,$Alpha);
+     $C_TextColor = $this->allocateColor($this->Picture,$R,$G,$B,$Alpha);
      imagettftext($this->Picture,$FontSize,$Angle,$X,$Y,$C_TextColor,$FontName,$Text);
 
      $this->Shadow = $Shadow;
@@ -1319,7 +1319,7 @@
      if ($Angle == 90 || $Angle == 270 ) { $Points[5] = $Points[3]; }
 
      $ArrowColor = $this->allocateColor($this->Picture,$FillR,$FillG,$FillB,$Alpha);
-     ImageFilledPolygon($this->Picture,$Points,4,$ArrowColor);
+     imagefilledpolygon($this->Picture,$Points,4,$ArrowColor);
 
      $this->drawLine($Points[0],$Points[1],$Points[2],$Points[3],array("R"=>$BorderR,"G"=>$BorderG,"B"=>$BorderB,"Alpha"=>$Alpha));
      $this->drawLine($Points[2],$Points[3],$Points[4],$Points[5],array("R"=>$BorderR,"G"=>$BorderG,"B"=>$BorderB,"Alpha"=>$Alpha));
@@ -1344,7 +1344,7 @@
        if ($Angle == 90 || $Angle == 270 ) { $Points[5] = $Points[3]; }
 
        $ArrowColor = $this->allocateColor($this->Picture,$FillR,$FillG,$FillB,$Alpha);
-       ImageFilledPolygon($this->Picture,$Points,4,$ArrowColor);
+       imagefilledpolygon($this->Picture,$Points,4,$ArrowColor);
 
        $this->drawLine($Points[0],$Points[1],$Points[2],$Points[3],array("R"=>$BorderR,"G"=>$BorderG,"B"=>$BorderB,"Alpha"=>$Alpha));
        $this->drawLine($Points[2],$Points[3],$Points[4],$Points[5],array("R"=>$BorderR,"G"=>$BorderG,"B"=>$BorderB,"Alpha"=>$Alpha));
