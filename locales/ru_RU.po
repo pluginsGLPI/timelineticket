@@ -3,97 +3,102 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
-# Amandine Manceau, 2017
-# Xavier CAILLAUD <thetsmr@gmail.com>, 2013,2016
+# Ilya Petrikov <patrick.ilia@gmail.com>, 2017
+# Nikolay <techobsl@yandex.ru>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-07-10 17:57+0200\n"
-"PO-Revision-Date: 2017-07-10 18:01+0200\n"
+"PO-Revision-Date: 2017-07-10 18:02+0200\n"
 "Last-Translator: Amandine Manceau\n"
-"Language-Team: French (France) (http://www.transifex.com/tsmr/GLPI_timelineticket/language/fr_FR/)\n"
+"Language-Team: Russian (Russia) (http://www.transifex.com/tsmr/GLPI_timelineticket/language/ru_RU/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr_FR\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Language: ru_RU\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : "
+"3);\n"
 "X-Generator: Poedit 1.8.12\n"
 
 #: setup.php:44 inc/display.class.php:48
 msgid "Timeline of ticket"
 msgid_plural "Timeline of tickets"
-msgstr[0] "Chronologie du ticket"
-msgstr[1] "Chronologie des tickets"
+msgstr[0] "Временная шкала заявки"
+msgstr[1] "Временные шкалы заявок"
+msgstr[2] "Временные шкалы заявок"
+msgstr[3] "Временные шкалы заявок"
 
 #: inc/assigngroup.class.php:121 inc/toolbox.class.php:327
 msgid "Groups in charge of the ticket"
-msgstr "Groupes chargés du ticket"
+msgstr "Группы ответственные за заявки"
 
 #: inc/assignuser.class.php:119 inc/toolbox.class.php:329
 msgid "Technicians in charge of the ticket"
-msgstr "Techniciens chargés du ticket"
+msgstr "Специалисты ответственные заявки"
 
 #: inc/config.class.php:55
 msgid "(Can take many time if you have many tickets)"
-msgstr "(Cela peut prendre du temps si vous avez beaucoup de tickets)"
+msgstr "(Может занять много времени, если у вас много заявок)"
 
 #: inc/config.class.php:62
 msgctxt "button"
 msgid "Reconstruct states timeline for all tickets"
-msgstr "Reconstruire la chronologie des statuts pour tous les tickets"
+msgstr "Перестроить состояния графика для всех заявок"
 
 #: inc/config.class.php:63
 msgctxt "button"
 msgid "Reconstruct groups timeline for all tickets"
-msgstr "Reconstruire la chronologie des groupes pour tous les tickets"
+msgstr "Перестроить график групп для всех заявок"
 
 #: inc/config.class.php:64
 msgid "Warning : it may be that the reconstruction of groups does not reflect reality because it concern only groups which have the Requester flag to No and Assigned flag to Yes"
-msgstr "Attention : il se peut que la reconstruction des groupes ne reflète pas la réalité car il concerne uniquement les groupes ayant le flag Demandeur à Non et le flag Attribué à Oui"
+msgstr "Предупреждение : перестроение группы не отражает реальности, потому что это касается только групп, которые имеют флаг \"инициатор запроса\" - нет и флаг \"присвоить\" - да"
 
 #: inc/config.class.php:83
 msgid "Input time on groups / users when ticket is waiting"
-msgstr "Inputer du temps au groupes / techniciens assignés quand le ticket est en En attente"
+msgstr "Время входа в группы / пользователи, когда заявка в ожидании"
 
 #: inc/display.class.php:57 inc/display.class.php:222
 msgid "Timeline"
-msgstr "Chronologie"
+msgstr "Временная шкала"
 
 #: inc/display.class.php:164 inc/display.class.php:194 inc/state.class.php:110
 msgid "Delay"
-msgstr "Délai"
+msgstr "Задержка"
 
 #: inc/grouplevel.class.php:48
 msgid "Service level"
 msgid_plural "Service levels"
-msgstr[0] "Niveau de support"
-msgstr[1] "Niveaux de support"
+msgstr[0] "Уровень обслуживания"
+msgstr[1] "Уровней обслуживания"
+msgstr[2] "Уровней обслуживания"
+msgstr[3] "Уровни обслуживания"
 
 #: inc/grouplevel.class.php:58 inc/grouplevel.class.php:110
 msgid "List of associated groups"
-msgstr "Liste des groupes associés"
+msgstr "Список связанных групп"
 
 #: inc/profile.class.php:95
 msgid "General"
-msgstr "Général"
+msgstr "Общее"
 
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:47
 msgid "statSpentTimeByGroup_report_title"
-msgstr "Temps passés en heures par les niveaux de support sur les tickets clos"
+msgstr "статистикаОтработанногоВремениГруппы_заглавление_отчета"
 
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:222
 msgid "Duration by"
-msgstr "Temps passé par"
+msgstr "Продолжительность"
 
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:225
 msgid "Total duration of ticket"
-msgstr "Temps total du ticket"
+msgstr "Общая продолжительность заявки"
 
 #: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:47
 msgid "statSpentTimeProcessingByGroup_report_title"
-msgstr "Temps passés \"en cours\" par les niveaux de support sur les tickets clos"
+msgstr ""
 
 #: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:218
 msgid "Duration by \"in progress\""
-msgstr "Temps passé \"en cours\""
+msgstr ""

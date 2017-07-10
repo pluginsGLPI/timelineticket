@@ -63,6 +63,9 @@
    <langs>
       <lang>fr_FR</lang>
       <lang>en_GB</lang>
+      <lang>lv_LV</lang>
+      <lang>pt_BR</lang>
+      <lang>ru_RU</lang>
    </langs>
    <license><![CDATA[AGPL v3]]></license>
    <tags>
