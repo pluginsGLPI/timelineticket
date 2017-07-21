@@ -112,8 +112,9 @@ $query = "SELECT glpi_tickets.*
 $query .= getEntitiesRestrictRequest('AND', "glpi_tickets", '', '', false);
 $query .= $date->getSqlCriteriasRestriction();
 $query .= $category->getSqlCriteriasRestriction();
-$query .= $requesttype->getSqlCriteriasRestriction();
-
+if (isset($_POST['requesttypes_id']) && $_POST['requesttypes_id'] > 0) {
+   $query .= $requesttype->getSqlCriteriasRestriction();
+}
 $query .= getOrderBy('closedate', $columns);
 
 $res   = $DB->query($query);
@@ -252,7 +253,10 @@ if ($res && $nbtot > 0) {
       $row_num++;
       $num = 1;
       echo Search::showNewLine($output_type);
-      echo Search::showItem($output_type, $data['id'], $num, $row_num);
+      
+      $link = "<a href='".$CFG_GLPI["root_doc"].
+                "/front/ticket.form.php?id=".$data["id"]."'>".$data['id']."</a>";
+      echo Search::showItem($output_type, $link, $num, $row_num);
       echo Search::showItem($output_type, Html::convDateTime($data['date']), $num, $row_num);
       echo Search::showItem($output_type, Html::convDateTime($data['closedate']), $num, $row_num);
       echo Search::showItem($output_type, Ticket::getPriorityName($data['priority']), $num, $row_num);
