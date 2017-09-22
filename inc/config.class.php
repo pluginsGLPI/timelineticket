@@ -51,7 +51,7 @@ class PluginTimelineticketConfig extends CommonDBTM {
       
       echo "<tr>";
       echo "<th>";
-      _e('Setup');
+      echo __('Setup');
       echo "&nbsp;".__('(Can take many time if you have many tickets)', 'timelineticket');
       echo "</th>";
       echo "</tr>";
@@ -77,7 +77,7 @@ class PluginTimelineticketConfig extends CommonDBTM {
       echo "<table class='tab_cadre_fixe'>";
       
       echo "<tr><th colspan='2'>";
-      _e('Flags');
+      echo __('Flags');
       echo "</th></tr>";
       
       echo "<tr class='tab_bg_1 top'><td>".__('Input time on groups / users when ticket is waiting', 'timelineticket')."</td>";

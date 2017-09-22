@@ -116,9 +116,9 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
       echo "<tr>";
       echo "<th colspan='2'>";
       if (count($a_users_list) > 1) {
-         _e('Technicians in charge of the ticket', 'timelineticket');
+         echo __('Technicians in charge of the ticket', 'timelineticket');
       } else {
-         _e('Technician in charge of the ticket');
+         echo __('Technician in charge of the ticket');
       }
       echo"</th>";
       echo "</tr>";

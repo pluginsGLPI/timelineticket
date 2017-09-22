@@ -322,7 +322,7 @@ class PluginTimelineticketToolbox {
       echo "<table class='tab_cadre_fixe' width='100%'>";
       echo "<tr class='tab_bg_1'>";
       echo "<th colspan='".(count($list_status) + 1)."'>";
-      _e('Result details');
+      echo __('Result details');
       if ($type == 'group') {
          echo " (".__('Groups in charge of the ticket', 'timelineticket').")";
       } else if ($type == 'user') {

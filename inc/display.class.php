@@ -86,27 +86,27 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       PluginTimelineticketState::showHistory($ticket);
 
       // Display ticket have Due date
-      if ($ticket->fields['due_date']
+      if ($ticket->fields['time_to_resolve']
             && $ticket->fields['status'] != CommonITILObject::WAITING
-              && (strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['due_date'])) > 0) {
+              && (strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['time_to_resolve'])) > 0) {
 
          $calendar = new Calendar();
          $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
 
          if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
             if ($ticket->fields['closedate']) {
-               $dateend = $calendar->getActiveTimeBetween($ticket->fields['due_date'],
+               $dateend = $calendar->getActiveTimeBetween($ticket->fields['time_to_resolve'],
                                                           $ticket->fields['closedate']);
             } else {
-               $dateend = $calendar->getActiveTimeBetween($ticket->fields['due_date'],
+               $dateend = $calendar->getActiveTimeBetween($ticket->fields['time_to_resolve'],
                                                           date('Y-m-d H:i:s'));
             }
          } else {
             // cas 24/24 - 7/7
             if ($ticket->fields['closedate']) {
-               $dateend = strtotime($ticket->fields['closedate'])-strtotime($ticket->fields['due_date']);
+               $dateend = strtotime($ticket->fields['closedate'])-strtotime($ticket->fields['time_to_resolve']);
             } else {
-               $dateend = strtotime(date('Y-m-d H:i:s'))-strtotime($ticket->fields['due_date']);
+               $dateend = strtotime(date('Y-m-d H:i:s'))-strtotime($ticket->fields['time_to_resolve']);
             }
          }
          echo "<tr>";

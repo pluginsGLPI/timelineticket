@@ -271,34 +271,34 @@ class PluginTimelineticketState extends CommonDBTM {
          }
       }
       // Display ticket have Due date
-      if ($ticket->fields['due_date']
-              && (strtotime(date('Y-m-d H:i:s') - strtotime($ticket->fields['due_date'])) > 0)) {
+      if ($ticket->fields['time_to_resolve']
+              && (strtotime(date('Y-m-d H:i:s') - strtotime($ticket->fields['time_to_resolve'])) > 0)) {
 
          $calendar = new Calendar();
          $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
 
          if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
             $duedate = $calendar->getActiveTimeBetween($ticket->fields['date'],
-                                                       $ticket->fields['due_date']);
+                                                       $ticket->fields['time_to_resolve']);
             if ($ticket->fields['closedate']) {
-               $dateend = $calendar->getActiveTimeBetween($ticket->fields['due_date'],
+               $dateend = $calendar->getActiveTimeBetween($ticket->fields['time_to_resolve'],
                                                           $ticket->fields['closedate']);
             } else {
-               $dateend = $calendar->getActiveTimeBetween($ticket->fields['due_date'],
+               $dateend = $calendar->getActiveTimeBetween($ticket->fields['time_to_resolve'],
                                                           date('Y-m-d H:i:s'));
             }
          } else {
             // cas 24/24 - 7/7
-            $duedate = strtotime($ticket->fields['due_date'])-strtotime($ticket->fields['date']);
+            $duedate = strtotime($ticket->fields['time_to_resolve'])-strtotime($ticket->fields['date']);
             if ($ticket->fields['closedate']) {
-               $dateend = strtotime($ticket->fields['closedate'])-strtotime($ticket->fields['due_date']);
+               $dateend = strtotime($ticket->fields['closedate'])-strtotime($ticket->fields['time_to_resolve']);
             } else {
-               $dateend = strtotime(date('Y-m-d H:i:s'))-strtotime($ticket->fields['due_date']);
+               $dateend = strtotime(date('Y-m-d H:i:s'))-strtotime($ticket->fields['time_to_resolve']);
             }
          }
          echo "<tr class='tab_bg_2'>";
          echo "<td width='100' class='tab_bg_2_2'>";
-         _e('Late');
+         echo __('Late');
          echo "<br/>(".round(($dateend * 100) / $params['totaltime'], 2)."%)";
          echo "</td>";
          echo "<td>";

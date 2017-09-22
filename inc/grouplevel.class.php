@@ -90,7 +90,7 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
                
                echo "</table>";
             } else {
-               _e('None');
+               echo __('None');
             }
             break;
       }

@@ -88,7 +88,7 @@ function plugin_timelineticket_install() {
 
    // installation
 
-   if (!TableExists("glpi_plugin_timelineticket_states")) {
+   if (!$DB->tableExists("glpi_plugin_timelineticket_states")) {
       $query = "CREATE TABLE `glpi_plugin_timelineticket_states` (
                   `id` int(11) NOT NULL AUTO_INCREMENT,
                   `tickets_id` int(11) NOT NULL DEFAULT '0',
@@ -102,7 +102,7 @@ function plugin_timelineticket_install() {
 
      $DB->query($query) or die($DB->error());
    }
-   if (!TableExists("glpi_plugin_timelineticket_assigngroups")) {
+   if (!$DB->tableExists("glpi_plugin_timelineticket_assigngroups")) {
       $query = "CREATE TABLE `glpi_plugin_timelineticket_assigngroups` (
                   `id` int(11) NOT NULL AUTO_INCREMENT,
                   `tickets_id` int(11) NOT NULL DEFAULT '0',
@@ -118,7 +118,7 @@ function plugin_timelineticket_install() {
 
    }
 
-   if (!TableExists("glpi_plugin_timelineticket_assignusers")) {
+   if (!$DB->tableExists("glpi_plugin_timelineticket_assignusers")) {
       $query = "CREATE TABLE `glpi_plugin_timelineticket_assignusers` (
                   `id` int(11) NOT NULL AUTO_INCREMENT,
                   `tickets_id` int(11) NOT NULL DEFAULT '0',
@@ -133,7 +133,7 @@ function plugin_timelineticket_install() {
      $DB->query($query) or die($DB->error());
    }
 
-   if (!TableExists("glpi_plugin_timelineticket_grouplevels")) {
+   if (!$DB->tableExists("glpi_plugin_timelineticket_grouplevels")) {
       $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_grouplevels` (
                `id` int(11) NOT NULL AUTO_INCREMENT,
                `entities_id` int(11) NOT NULL DEFAULT '0',
@@ -147,7 +147,7 @@ function plugin_timelineticket_install() {
       $DB->query($query) or die($DB->error());
    }
 
-   if (!TableExists("glpi_plugin_timelineticket_configs")) {
+   if (!$DB->tableExists("glpi_plugin_timelineticket_configs")) {
       $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_configs` (
               `id` int(11) NOT NULL AUTO_INCREMENT,
               `add_waiting` int(11) NOT NULL DEFAULT '1',

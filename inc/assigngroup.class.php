@@ -118,9 +118,9 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       echo "<tr>";
       echo "<th colspan='2'>";
       if (count($a_groups_list) > 1) {
-         _e('Groups in charge of the ticket', 'timelineticket');
+         echo __('Groups in charge of the ticket', 'timelineticket');
       } else {
-         _e('Group in charge of the ticket');
+         echo __('Group in charge of the ticket');
       }
       echo "</th>";
       echo "</tr>";

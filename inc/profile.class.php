@@ -126,7 +126,8 @@ class PluginTimelineticketProfile extends Profile {
    static function addDefaultProfileInfos($profiles_id, $rights) {
       $profileRight = new ProfileRight();
       foreach ($rights as $right => $value) {
-         if (!countElementsInTable('glpi_profilerights',
+         $dbutils = new DbUtils();
+         if (!$dbutils->countElementsInTable('glpi_profilerights',
                                    "`profiles_id`='$profiles_id' AND `name`='$right'")) {
             $myright['profiles_id'] = $profiles_id;
             $myright['name']        = $right;
@@ -166,7 +167,8 @@ class PluginTimelineticketProfile extends Profile {
    static function migrateProfiles() {
 
       //Get all rights from the old table
-      $profiles = getAllDatasFromTable(getTableForItemType(__CLASS__));
+      $dbu = new DbUtils();
+      $profiles = $dbu->getAllDatasFromTable($dbu->getTableForItemType(__CLASS__));
 
       //Load mapping of old rights to their new equivalent
 //      $oldrights = self::getOldRightsMappings();
@@ -185,6 +187,7 @@ class PluginTimelineticketProfile extends Profile {
                $value = 0;
                break;
          }
+         $oldrights = array();
          //Write in glpi_profilerights the new timelineticket right
          if (isset($oldrights[$profile['type']])) {
             //There's one new right corresponding to the old one
@@ -213,7 +216,8 @@ class PluginTimelineticketProfile extends Profile {
       $a_rights  = $pfProfile->getRightsGeneral();
 
       foreach ($a_rights as $data) {
-         if (countElementsInTable("glpi_profilerights", "`name` = '".$data['field']."'") == 0) {
+         $dbutils = new DbUtils();
+         if ($dbutils->countElementsInTable("glpi_profilerights", "`name` = '".$data['field']."'") == 0) {
             ProfileRight::addProfileRights(array($data['field']));
             $_SESSION['glpiactiveprofile'][$data['field']] = 0;
          }

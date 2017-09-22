@@ -42,7 +42,7 @@ define ("PLUGIN_TIMELINETICKET_VERSION","9.1+1.0");
 function plugin_version_timelineticket() {
 
    return array('name'           => _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket"),
-                'minGlpiVersion' => '9.1',
+                'minGlpiVersion' => '9.2',
                 'version'        => PLUGIN_TIMELINETICKET_VERSION,
                 'homepage'       => 'https://github.com/pluginsGLPI/timelineticket',
                 'license'        => 'AGPLv3+',
@@ -95,9 +95,9 @@ function plugin_init_timelineticket() {
 function plugin_timelineticket_check_prerequisites() {
 
    // Checking of the GLPI version
-   if (version_compare(GLPI_VERSION,'9.1','lt')
-         || version_compare(GLPI_VERSION,'9.2','ge')) {
-      echo 'This plugin requires GLPI >= 9.1';
+   if (version_compare(GLPI_VERSION,'9.2','lt')
+         || version_compare(GLPI_VERSION,'9.3','ge')) {
+      echo 'This plugin requires GLPI >= 9.2';
       return false;
    }
    return true;
