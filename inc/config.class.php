@@ -37,76 +37,74 @@
    ------------------------------------------------------------------------
  */
 
-if (!defined('GLPI_ROOT')){
+if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
 }
 
 class PluginTimelineticketConfig extends CommonDBTM {
 
    function showReconstructForm() {
-      
-      echo "<form method='POST' action=\"".$this->getFormURL()."\">";
-       
+
+      echo "<form method='POST' action=\"" . $this->getFormURL() . "\">";
+
       echo "<table class='tab_cadre_fixe'>";
-      
+
       echo "<tr>";
       echo "<th>";
       echo __('Setup');
-      echo "&nbsp;".__('(Can take many time if you have many tickets)', 'timelineticket');
+      echo "&nbsp;" . __('(Can take many time if you have many tickets)', 'timelineticket');
       echo "</th>";
       echo "</tr>";
-      
+
       echo "<tr class='tab_bg_1'>";
       echo "<td align='center'>";
-      
-      echo "<br/><input type='submit' name='reconstructStates' class='submit' value=\""._sx('button', 'Reconstruct states timeline for all tickets', 'timelineticket')."\" >";
-      echo "<br/><br/><input type='submit' name='reconstructGroups' class='submit' value=\""._sx('button', 'Reconstruct groups timeline for all tickets', 'timelineticket')."\" >";
-      echo "<br/><br/><div class='red'>".__('Warning : it may be that the reconstruction of groups does not reflect reality because it concern only groups which have the Requester flag to No and Assigned flag to Yes', 'timelineticket')."</div>";
-      
+
+      echo "<br/><input type='submit' name='reconstructStates' class='submit' value=\"" . _sx('button', 'Reconstruct states timeline for all tickets', 'timelineticket') . "\" >";
+      echo "<br/><br/><input type='submit' name='reconstructGroups' class='submit' value=\"" . _sx('button', 'Reconstruct groups timeline for all tickets', 'timelineticket') . "\" >";
+      echo "<br/><br/><div class='red'>" . __('Warning : it may be that the reconstruction of groups does not reflect reality because it concern only groups which have the Requester flag to No and Assigned flag to Yes', 'timelineticket') . "</div>";
+
       echo "</td>";
       echo "</table>";
       Html::closeForm();
    }
-   
-   
-   
+
+
    function showForm() {
-      
-      echo "<form method='POST' action=\"".$this->getFormURL()."\">";
-       
+
+      echo "<form method='POST' action=\"" . $this->getFormURL() . "\">";
+
       echo "<table class='tab_cadre_fixe'>";
-      
+
       echo "<tr><th colspan='2'>";
       echo __('Flags');
       echo "</th></tr>";
-      
-      echo "<tr class='tab_bg_1 top'><td>".__('Input time on groups / users when ticket is waiting', 'timelineticket')."</td>";
+
+      echo "<tr class='tab_bg_1 top'><td>" . __('Input time on groups / users when ticket is waiting', 'timelineticket') . "</td>";
       echo "<td>";
-      Dropdown::showYesNo("add_waiting",$this->fields["add_waiting"]);
+      Dropdown::showYesNo("add_waiting", $this->fields["add_waiting"]);
       echo "</td></tr>";
-      
+
       echo "<tr><th colspan='2'>";
       echo "<input type='hidden' name='id' value='1'>";
       echo "<input type=\"submit\" name=\"update\" class=\"submit\"
-         value=\""._sx('button', 'Save')."\" ></th></tr>";
+         value=\"" . _sx('button', 'Save') . "\" ></th></tr>";
       echo "</table>";
       Html::closeForm();
    }
-   
-   
-   
+
+
    static function createFirstConfig() {
-      
+
       $conf = new self();
       if (!$conf->getFromDB(1)) {
 
          $conf->add(array(
-            'id'          => 1,
-            'add_waiting' => 1));
+                       'id'          => 1,
+                       'add_waiting' => 1));
       }
    }
-   
-   function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
+
+   function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
 
       // can exists for template
       if ($item->getType() == 'PluginTimelineticketGrouplevel') {
@@ -116,11 +114,12 @@ class PluginTimelineticketConfig extends CommonDBTM {
    }
 
 
-   static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
+   static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
 
       PluginTimelineticketGrouplevel::showAddGroup($item);
       return true;
    }
-   
+
 }
+
 ?>

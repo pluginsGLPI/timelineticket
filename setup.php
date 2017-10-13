@@ -37,7 +37,7 @@
    ------------------------------------------------------------------------
  */
 
-define ("PLUGIN_TIMELINETICKET_VERSION","9.1+1.0");
+define("PLUGIN_TIMELINETICKET_VERSION", "9.1+1.0");
 
 function plugin_version_timelineticket() {
 
@@ -48,7 +48,6 @@ function plugin_version_timelineticket() {
                 'license'        => 'AGPLv3+',
                 'author'         => 'Nelly Mahu-Lasson && David Durieux && Xavier Caillaud');
 }
-
 
 
 function plugin_init_timelineticket() {
@@ -66,47 +65,45 @@ function plugin_init_timelineticket() {
       );
       */
       Plugin::registerClass('PluginTimelineticketProfile', array('addtabon' => 'Profile'));
-      
-      if(Session::haveRightsOr('plugin_timelineticket_ticket', array(READ, UPDATE))) {
-      
-         Plugin::registerClass('PluginTimelineticketDisplay',
-                             array('addtabon' => array('Ticket')));
-      }
-      $PLUGIN_HOOKS['item_purge']['timelineticket']     =  array(
-            'Ticket'       => 'plugin_timelineticket_ticket_purge',
-            'Group_Ticket' => array('PluginTimelineticketAssignGroup', 'deleteGroupTicket'),
-            'Ticket_User'  => array('PluginTimelineticketAssignUser', 'deleteUserTicket')
-          );
 
-      $PLUGIN_HOOKS['item_add']['timelineticket']       = array(
-            'Ticket'=>'plugin_timelineticket_ticket_add',
-            'Group_Ticket' => array('PluginTimelineticketAssignGroup', 'addGroupTicket'),
-            'Ticket_User'  => array('PluginTimelineticketAssignUser', 'addUserTicket')
-          );
-      $PLUGIN_HOOKS['item_update']['timelineticket']    = array(
-            'Ticket' => 'plugin_timelineticket_ticket_update'
-          );
+      if (Session::haveRightsOr('plugin_timelineticket_ticket', array(READ, UPDATE))) {
+
+         Plugin::registerClass('PluginTimelineticketDisplay',
+                               array('addtabon' => array('Ticket')));
+      }
+      $PLUGIN_HOOKS['item_purge']['timelineticket'] = array(
+         'Ticket'       => 'plugin_timelineticket_ticket_purge',
+         'Group_Ticket' => array('PluginTimelineticketAssignGroup', 'deleteGroupTicket'),
+         'Ticket_User'  => array('PluginTimelineticketAssignUser', 'deleteUserTicket')
+      );
+
+      $PLUGIN_HOOKS['item_add']['timelineticket']    = array(
+         'Ticket'       => 'plugin_timelineticket_ticket_add',
+         'Group_Ticket' => array('PluginTimelineticketAssignGroup', 'addGroupTicket'),
+         'Ticket_User'  => array('PluginTimelineticketAssignUser', 'addUserTicket')
+      );
+      $PLUGIN_HOOKS['item_update']['timelineticket'] = array(
+         'Ticket' => 'plugin_timelineticket_ticket_update'
+      );
 
       if (Session::haveRight("config", UPDATE)
-            || Session::haveRight('plugin_timelineticket_ticket', UPDATE)) {// Config page
+          || Session::haveRight('plugin_timelineticket_ticket', UPDATE)) {// Config page
          $PLUGIN_HOOKS['config_page']['timelineticket'] = 'front/config.form.php';
       }
    }
 }
 
 
-
 function plugin_timelineticket_check_prerequisites() {
 
    // Checking of the GLPI version
-   if (version_compare(GLPI_VERSION,'9.2','lt')
-         || version_compare(GLPI_VERSION,'9.3','ge')) {
+   if (version_compare(GLPI_VERSION, '9.2', 'lt')
+       || version_compare(GLPI_VERSION, '9.3', 'ge')) {
       echo 'This plugin requires GLPI >= 9.2';
       return false;
    }
    return true;
 }
-
 
 
 function plugin_timelineticket_check_config() {

@@ -43,15 +43,15 @@ if (!defined('GLPI_ROOT')) {
 
 class PluginTimelineticketProfile extends Profile {
 
-      static $rightname = "config";
+   static $rightname = "config";
 
-      /*
-       * Old profile names:
-       *
-       *    timelineticket
-       */
+   /*
+    * Old profile names:
+    *
+    *    timelineticket
+    */
 
-   function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
+   function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
       if ($item->getType() == 'Profile'
           && $item->fields['interface'] == 'central') {
          return self::createTabEntry('TimelineTicket');
@@ -59,8 +59,7 @@ class PluginTimelineticketProfile extends Profile {
    }
 
 
-
-   static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
+   static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
       $pfProfile = new self();
       $pfProfile->showForm($item->getID());
       return TRUE;
@@ -70,29 +69,30 @@ class PluginTimelineticketProfile extends Profile {
    /**
     * Show profile form
     *
-    * @param int $profiles_id
+    * @param int  $profiles_id
     * @param bool $openform
     * @param bool $closeform
+    *
     * @return nothing
     * @internal param int $items_id id of the profile
     * @internal param value $target url of target
     */
-   function showForm($profiles_id=0, $openform=TRUE, $closeform=TRUE) {
+   function showForm($profiles_id = 0, $openform = TRUE, $closeform = TRUE) {
 
       echo "<div class='firstbloc'>";
       if (($canedit = Session::haveRightsOr(self::$rightname, array(CREATE, UPDATE, PURGE)))
           && $openform) {
          $profile = new Profile();
-         echo "<form method='post' action='".$profile->getFormURL()."'>";
+         echo "<form method='post' action='" . $profile->getFormURL() . "'>";
       }
 
       $profile = new Profile();
       $profile->getFromDB($profiles_id);
 
       $rights = $this->getRightsGeneral();
-      $profile->displayRightsChoiceMatrix($rights, array('canedit'    => $canedit,
-                                                      'default_class' => 'tab_bg_2',
-                                                      'title'         => __('General', 'timelineticket')));
+      $profile->displayRightsChoiceMatrix($rights, array('canedit'       => $canedit,
+                                                         'default_class' => 'tab_bg_2',
+                                                         'title'         => __('General', 'timelineticket')));
 
       if ($canedit
           && $closeform) {
@@ -107,7 +107,7 @@ class PluginTimelineticketProfile extends Profile {
 
    static function uninstallProfile() {
       $pfProfile = new self();
-      $a_rights = $pfProfile->getRightsGeneral();
+      $a_rights  = $pfProfile->getRightsGeneral();
       foreach ($a_rights as $data) {
          ProfileRight::deleteProfileRights(array($data['field']));
       }
@@ -115,9 +115,9 @@ class PluginTimelineticketProfile extends Profile {
 
    static function getRightsGeneral() {
       $rights = array(
-          array('rights'    => array(READ => __('Read'), UPDATE => __('Update')),
-                'label'     => __('Ticket'),
-                'field'     => 'plugin_timelineticket_ticket'),
+         array('rights' => array(READ => __('Read'), UPDATE => __('Update')),
+               'label'  => __('Ticket'),
+               'field'  => 'plugin_timelineticket_ticket'),
       );
 
       return $rights;
@@ -128,7 +128,7 @@ class PluginTimelineticketProfile extends Profile {
       foreach ($rights as $right => $value) {
          $dbutils = new DbUtils();
          if (!$dbutils->countElementsInTable('glpi_profilerights',
-                                   "`profiles_id`='$profiles_id' AND `name`='$right'")) {
+                                             "`profiles_id`='$profiles_id' AND `name`='$right'")) {
             $myright['profiles_id'] = $profiles_id;
             $myright['name']        = $right;
             $myright['rights']      = $value;
@@ -142,10 +142,11 @@ class PluginTimelineticketProfile extends Profile {
 
    /**
     * @param $profiles_id
+    *
     * @internal param int $ID
     */
    static function createFirstAccess($profiles_id) {
-      include_once(GLPI_ROOT."/plugins/timelineticket/inc/profile.class.php");
+      include_once(GLPI_ROOT . "/plugins/timelineticket/inc/profile.class.php");
       $profile = new self();
       foreach ($profile->getRightsGeneral() as $right) {
          self::addDefaultProfileInfos($profiles_id,
@@ -167,11 +168,11 @@ class PluginTimelineticketProfile extends Profile {
    static function migrateProfiles() {
 
       //Get all rights from the old table
-      $dbu = new DbUtils();
+      $dbu      = new DbUtils();
       $profiles = $dbu->getAllDatasFromTable($dbu->getTableForItemType(__CLASS__));
 
       //Load mapping of old rights to their new equivalent
-//      $oldrights = self::getOldRightsMappings();
+      //      $oldrights = self::getOldRightsMappings();
 
       //For each old profile : translate old right the new one
       foreach ($profiles as $id => $profile) {
@@ -206,10 +207,10 @@ class PluginTimelineticketProfile extends Profile {
    }
 
    /**
-   * Init profiles during installation :
-   * - add rights in profile table for the current user's profile
-   * - current profile has all rights on the plugin
-   */
+    * Init profiles during installation :
+    * - add rights in profile table for the current user's profile
+    * - current profile has all rights on the plugin
+    */
    static function initProfile() {
       $pfProfile = new self();
       $profile   = new Profile();
@@ -217,7 +218,7 @@ class PluginTimelineticketProfile extends Profile {
 
       foreach ($a_rights as $data) {
          $dbutils = new DbUtils();
-         if ($dbutils->countElementsInTable("glpi_profilerights", "`name` = '".$data['field']."'") == 0) {
+         if ($dbutils->countElementsInTable("glpi_profilerights", "`name` = '" . $data['field'] . "'") == 0) {
             ProfileRight::addProfileRights(array($data['field']));
             $_SESSION['glpiactiveprofile'][$data['field']] = 0;
          }
@@ -231,7 +232,7 @@ class PluginTimelineticketProfile extends Profile {
          foreach ($a_rights as $info) {
             if (is_array($info)
                 && ((!empty($info['itemtype'])) || (!empty($info['rights'])))
-                  && (!empty($info['label'])) && (!empty($info['field']))) {
+                && (!empty($info['label'])) && (!empty($info['field']))) {
 
                if (isset($info['rights'])) {
                   $rights = $info['rights'];
@@ -239,7 +240,7 @@ class PluginTimelineticketProfile extends Profile {
                   $rights = $profile->getRightsFor($info['itemtype']);
                }
                foreach ($rights as $right => $label) {
-                  $dataprofile['_'.$info['field']][$right] = 1;
+                  $dataprofile['_' . $info['field']][$right]     = 1;
                   $_SESSION['glpiactiveprofile'][$data['field']] = $right;
                }
             }
