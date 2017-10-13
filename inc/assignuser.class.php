@@ -37,7 +37,7 @@
    ------------------------------------------------------------------------
  */
 
-if (!defined('GLPI_ROOT')){
+if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
 }
 
@@ -52,36 +52,35 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
 
       if ($type == 'new') {
          $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
-         if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
-            $begin = $calendar->getActiveTimeBetween ($ticket->fields['date'], $date);
+         if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
+            $begin = $calendar->getActiveTimeBetween($ticket->fields['date'], $date);
          } else {
             // cas 24/24 - 7/7
-            $begin = strtotime($date)-strtotime($ticket->fields['date']);
+            $begin = strtotime($date) - strtotime($ticket->fields['date']);
          }
 
-         $this->add(array('tickets_id'  => $ticket->getField("id"),
-                          'date'        => $date,
+         $this->add(array('tickets_id' => $ticket->getField("id"),
+                          'date'       => $date,
                           'users_id'   => $users_id,
-                          'begin'       => $begin));
+                          'begin'      => $begin));
 
       } else if ($type == 'delete') {
-         $a_dbentry = $this->find("`tickets_id`='".$ticket->getField("id")."'
-            AND `users_id`='".$users_id."'
+         $a_dbentry = $this->find("`tickets_id`='" . $ticket->getField("id") . "'
+            AND `users_id`='" . $users_id . "'
             AND `delay` IS NULL", "", 1);
          if (count($a_dbentry) == 1) {
-            $input = current($a_dbentry);
+            $input        = current($a_dbentry);
             $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
-            if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
-               $input['delay'] = $calendar->getActiveTimeBetween ($input['date'], $date);
+            if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
+               $input['delay'] = $calendar->getActiveTimeBetween($input['date'], $date);
             } else {
                // cas 24/24 - 7/7
-               $input['delay'] = strtotime($date)-strtotime($input['date']);
+               $input['delay'] = strtotime($date) - strtotime($input['date']);
             }
             $this->update($input);
          }
       }
    }
-
 
 
    function showTimeline($ticket, $params = array()) {
@@ -90,23 +89,23 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
       /* Create and populate the pData object */
       $MyData = new pData();
       /* Create the pChart object */
-      $myPicture = new pImage(820,29,$MyData);
+      $myPicture = new pImage(820, 29, $MyData);
       /* Create the pIndicator object */
       $Indicator = new pIndicator($myPicture);
-      $myPicture->setFontProperties(array("FontName"=>GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.4/fonts/pf_arma_five.ttf","FontSize"=>6));
+      $myPicture->setFontProperties(array("FontName" => GLPI_ROOT . "/plugins/timelineticket/lib/pChart2.1.4/fonts/pf_arma_five.ttf", "FontSize" => 6));
       /* Define the indicator sections */
       $IndicatorSections = array();
-      $_usersfinished = array();
+      $_usersfinished    = array();
 
-      $a_users_list = array();
+      $a_users_list      = array();
       $IndicatorSections = PluginTimelineticketToolbox::getDetails($ticket, 'user');
-      foreach ($IndicatorSections as $users_id=>$data) {
+      foreach ($IndicatorSections as $users_id => $data) {
          $a_users_list[$users_id] = $users_id;
 
          $a_end = end($data);
          if ($a_end['R'] == 235
-                 && $a_end['G'] == 235
-                 && $a_end['B'] == 235) {
+             && $a_end['G'] == 235
+             && $a_end['B'] == 235) {
             $_usersfinished[$users_id] = true;
          } else {
             $_usersfinished[$users_id] = false;
@@ -120,50 +119,50 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
       } else {
          echo __('Technician in charge of the ticket');
       }
-      echo"</th>";
+      echo "</th>";
       echo "</tr>";
 
-      foreach ($IndicatorSections as $users_id =>$array) {
+      foreach ($IndicatorSections as $users_id => $array) {
          echo "<tr class='tab_bg_2'>";
          echo "<td width='100'>";
          echo getUserName($users_id);
          echo "</td>";
          echo "<td>";
          if ($ticket->fields['status'] != Ticket::CLOSED
-                 && $_usersfinished[$users_id] != 0) {
+             && $_usersfinished[$users_id] != 0) {
 
-            $IndicatorSettings = array("Values"=>array(100,201),
-                                       "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM,
-                                       "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT,
-                                       "CaptionR"=>0,
-                                       "CaptionG"=>0,
-                                       "CaptionB"=>0,
-                                       "DrawLeftHead"=>false,
-                                       "DrawRightHead"=>true,
-                                       "ValueDisplay"=>false,
-                                       "IndicatorSections"=>$array,
-                                       "SectionsMargin" => 0);
-            $Indicator->draw(2,2,805,25,$IndicatorSettings);
+            $IndicatorSettings = array("Values"            => array(100, 201),
+                                       "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
+                                       "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
+                                       "CaptionR"          => 0,
+                                       "CaptionG"          => 0,
+                                       "CaptionB"          => 0,
+                                       "DrawLeftHead"      => false,
+                                       "DrawRightHead"     => true,
+                                       "ValueDisplay"      => false,
+                                       "IndicatorSections" => $array,
+                                       "SectionsMargin"    => 0);
+            $Indicator->draw(2, 2, 805, 25, $IndicatorSettings);
          } else {
-            $IndicatorSettings = array("Values"=>array(100,201),
-                                       "CaptionPosition"=>INDICATOR_CAPTION_BOTTOM,
-                                       "CaptionLayout"=>INDICATOR_CAPTION_DEFAULT,
-                                       "CaptionR"=>0,
-                                       "CaptionG"=>0,
-                                       "CaptionB"=>0,
-                                       "DrawLeftHead"=>false,
-                                       "DrawRightHead"=>false,
-                                       "ValueDisplay"=>false,
-                                       "IndicatorSections"=>$array,
-                                       "SectionsMargin" => 0);
-            $Indicator->draw(2,2,814,25,$IndicatorSettings);
+            $IndicatorSettings = array("Values"            => array(100, 201),
+                                       "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
+                                       "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
+                                       "CaptionR"          => 0,
+                                       "CaptionG"          => 0,
+                                       "CaptionB"          => 0,
+                                       "DrawLeftHead"      => false,
+                                       "DrawRightHead"     => false,
+                                       "ValueDisplay"      => false,
+                                       "IndicatorSections" => $array,
+                                       "SectionsMargin"    => 0);
+            $Indicator->draw(2, 2, 814, 25, $IndicatorSettings);
          }
 
-         $filename = $uid=Session::getLoginUserID(false)."_testuser".$users_id;
-         $myPicture->render(GLPI_GRAPH_DIR."/".$filename.".png");
+         $filename = $uid = Session::getLoginUserID(false) . "_testuser" . $users_id;
+         $myPicture->render(GLPI_GRAPH_DIR . "/" . $filename . ".png");
 
 
-         echo "<img src='".$CFG_GLPI['root_doc']."/front/graph.send.php?file=".$filename.".png'><br/>";
+         echo "<img src='" . $CFG_GLPI['root_doc'] . "/front/graph.send.php?file=" . $filename . ".png'><br/>";
          echo "</td>";
          echo "</tr>";
       }
@@ -171,21 +170,62 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
    }
 
 
+   static function showUserTimeline(Ticket $ticket) {
+      global $DB;
+
+      $query = "SELECT *
+                FROM `glpi_plugin_timelineticket_assignusers`
+                WHERE `tickets_id` = '" . $ticket->getField('id') . "'
+                ORDER BY `id` ASC";
+
+      $req = $DB->request($query);
+      if ($req->numrows()) {
+         echo "<tr class='tab_bg_2'>";
+         echo "<td>";
+         $users = array();
+         $nb    = 0;
+         $size  = count($req);
+         foreach ($req as $data) {
+            $nb++;
+            $date  = strtotime($data['date']);
+            $class = 'checked';
+            if ($size == $nb) {
+               $class = 'now';
+            }
+            $users[$date . '_users_id'] = [
+               'timestamp' => $date,
+               'label'     => getUserName($data['users_id']) . " (" . Html::timestampToString($data['delay'], true) . ")",
+               'class'     => $class];
+
+         }
+         $title = __('Ticket assign technician history', 'timelineticket');
+         echo "<div class='center'>";
+         Html::showDatesTimelineGraph([
+                                         'title'   => $title,
+                                         'dates'   => $users,
+                                         'add_now' => false,
+                                      ]);
+         echo "</div>";
+         echo "</td>";
+         echo "</tr>";
+
+      }
+   }
 
    static function addUserTicket(Ticket_User $item) {
 
       if ($item->fields['type'] == 2) {
          $ptAssignUser = new PluginTimelineticketAssignUser();
-         $ticket = new Ticket();
+         $ticket       = new Ticket();
          $ticket->getFromDB($item->fields['tickets_id']);
-         $calendar = new Calendar();
+         $calendar     = new Calendar();
          $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
-         $datedebut = $ticket->fields['date'];
-         if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
-            $delay = $calendar->getActiveTimeBetween ($datedebut, $_SESSION["glpi_currenttime"]);
+         $datedebut    = $ticket->fields['date'];
+         if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
+            $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
          } else {
             // cas 24/24 - 7/7
-            $delay = strtotime($_SESSION["glpi_currenttime"])-strtotime($datedebut);
+            $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
          }
 
          $ok = 1;
@@ -193,15 +233,15 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
          $ptConfig = new PluginTimelineticketConfig();
          $ptConfig->getFromDB(1);
          if ($ptConfig->fields["add_waiting"] == 0
-               && $ticket->fields["status"] == Ticket::WAITING) {
+             && $ticket->fields["status"] == Ticket::WAITING) {
             $ok = 0;
          }
          if ($ok) {
-            $input = array();
+            $input               = array();
             $input['tickets_id'] = $item->fields['tickets_id'];
-            $input['users_id'] = $item->fields['users_id'];
-            $input['date'] = $_SESSION["glpi_currenttime"];
-            $input['begin'] = $delay;
+            $input['users_id']   = $item->fields['users_id'];
+            $input['date']       = $_SESSION["glpi_currenttime"];
+            $input['begin']      = $delay;
             $ptAssignUser->add($input);
          }
       }
@@ -210,7 +250,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
    static function checkAssignUser(Ticket $ticket) {
       global $DB;
 
-      $ok = 0;
+      $ok       = 0;
       $ptConfig = new PluginTimelineticketConfig();
       $ptConfig->getFromDB(1);
       if ($ptConfig->fields["add_waiting"] == 0) {
@@ -218,49 +258,49 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
       }
 
       if ($ok && in_array("status", $ticket->updates)
-            && isset($ticket->oldvalues["status"])
-               && $ticket->oldvalues["status"] == Ticket::WAITING) {
+          && isset($ticket->oldvalues["status"])
+          && $ticket->oldvalues["status"] == Ticket::WAITING) {
          if ($ticket->countUsers(CommonITILActor::ASSIGN)) {
             foreach ($ticket->getUsers(CommonITILActor::ASSIGN) as $d) {
                $ptAssignUser = new PluginTimelineticketAssignUser();
-               $calendar = new Calendar();
+               $calendar     = new Calendar();
                $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
-               $datedebut = $ticket->fields['date'];
-               if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
-                  $delay = $calendar->getActiveTimeBetween ($datedebut, $_SESSION["glpi_currenttime"]);
+               $datedebut    = $ticket->fields['date'];
+               if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
+                  $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
                } else {
                   // cas 24/24 - 7/7
-                  $delay = strtotime($_SESSION["glpi_currenttime"])-strtotime($datedebut);
+                  $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
                }
 
-               $input = array();
+               $input               = array();
                $input['tickets_id'] = $ticket->getID();
-               $input['users_id'] = $d["users_id"];
-               $input['date'] = $_SESSION["glpi_currenttime"];
-               $input['begin'] = $delay;
+               $input['users_id']   = $d["users_id"];
+               $input['date']       = $_SESSION["glpi_currenttime"];
+               $input['begin']      = $delay;
                $ptAssignUser->add($input);
             }
          }
       } else if ($ok && in_array("status", $ticket->updates)
-            && isset($ticket->fields["status"])
-               && $ticket->fields["status"] == Ticket::WAITING) {
+                 && isset($ticket->fields["status"])
+                 && $ticket->fields["status"] == Ticket::WAITING) {
          if ($ticket->countUsers(CommonITILActor::ASSIGN)) {
             foreach ($ticket->getUsers(CommonITILActor::ASSIGN) as $d) {
 
-               $calendar = new Calendar();
+               $calendar     = new Calendar();
                $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
                $ptAssignUser = new PluginTimelineticketAssignUser();
-               $query = "SELECT MAX(`date`) AS datedebut, id
-                         FROM `".$ptAssignUser->getTable()."`
-                         WHERE `tickets_id` = '".$ticket->getID()."'
-                           AND `users_id`='".$d["users_id"]."'
+               $query        = "SELECT MAX(`date`) AS datedebut, id
+                         FROM `" . $ptAssignUser->getTable() . "`
+                         WHERE `tickets_id` = '" . $ticket->getID() . "'
+                           AND `users_id`='" . $d["users_id"] . "'
                            AND `delay` IS NULL";
 
                $result    = $DB->query($query);
                $datedebut = '';
-               $input = array();
+               $input     = array();
                if ($result && $DB->numrows($result)) {
-                  $datedebut = $DB->result($result, 0, 'datedebut');
+                  $datedebut   = $DB->result($result, 0, 'datedebut');
                   $input['id'] = $DB->result($result, 0, 'id');
                } else {
                   return;
@@ -268,39 +308,39 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
 
                if (!$datedebut) {
                   $delay = 0;
-               // Utilisation calendrier
-               } else if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
-                  $delay = $calendar->getActiveTimeBetween ($datedebut, $_SESSION["glpi_currenttime"]);
+                  // Utilisation calendrier
+               } else if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
+                  $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
                } else {
                   // cas 24/24 - 7/7
-                  $delay = strtotime($_SESSION["glpi_currenttime"])-strtotime($datedebut);
+                  $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
                }
 
                $input['delay'] = $delay;
                $ptAssignUser->update($input);
             }
          }
-       } else if (in_array("status", $ticket->updates)
-            && isset($ticket->input["status"])
-               && ($ticket->input["status"] == Ticket::SOLVED 
+      } else if (in_array("status", $ticket->updates)
+                 && isset($ticket->input["status"])
+                 && ($ticket->input["status"] == Ticket::SOLVED
                      || $ticket->input["status"] == Ticket::CLOSED)) {
          if ($ticket->countUsers(CommonITILActor::ASSIGN)) {
             foreach ($ticket->getUsers(CommonITILActor::ASSIGN) as $d) {
 
-               $calendar = new Calendar();
+               $calendar     = new Calendar();
                $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
                $ptAssignUser = new PluginTimelineticketAssignUser();
-               $query = "SELECT MAX(`date`) AS datedebut, id
-                         FROM `".$ptAssignUser->getTable()."`
-                         WHERE `tickets_id` = '".$ticket->getID()."'
-                           AND `users_id`='".$d["users_id"]."'
+               $query        = "SELECT MAX(`date`) AS datedebut, id
+                         FROM `" . $ptAssignUser->getTable() . "`
+                         WHERE `tickets_id` = '" . $ticket->getID() . "'
+                           AND `users_id`='" . $d["users_id"] . "'
                            AND `delay` IS NULL";
 
                $result    = $DB->query($query);
                $datedebut = '';
-               $input = array();
+               $input     = array();
                if ($result && $DB->numrows($result)) {
-                  $datedebut = $DB->result($result, 0, 'datedebut');
+                  $datedebut   = $DB->result($result, 0, 'datedebut');
                   $input['id'] = $DB->result($result, 0, 'id');
                } else {
                   return;
@@ -308,12 +348,12 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
 
                if (!$datedebut) {
                   $delay = 0;
-               // Utilisation calendrier
-               } else if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
-                  $delay = $calendar->getActiveTimeBetween ($datedebut, $_SESSION["glpi_currenttime"]);
+                  // Utilisation calendrier
+               } else if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
+                  $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
                } else {
                   // cas 24/24 - 7/7
-                  $delay = strtotime($_SESSION["glpi_currenttime"])-strtotime($datedebut);
+                  $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
                }
 
                $input['delay'] = $delay;
@@ -326,25 +366,25 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
    static function deleteUserTicket(Ticket_User $item) {
       global $DB;
 
-      $ticket = new Ticket();
+      $ticket       = new Ticket();
       $ptAssignUser = new PluginTimelineticketAssignUser();
 
       $ticket->getFromDB($item->fields['tickets_id']);
 
-      $calendar = new Calendar();
+      $calendar     = new Calendar();
       $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
 
       $query = "SELECT MAX(`date`) AS datedebut, id
-                FROM `".$ptAssignUser->getTable()."`
-                WHERE `tickets_id` = '".$item->fields['tickets_id']."'
-                  AND `users_id`='".$item->fields['users_id']."'
+                FROM `" . $ptAssignUser->getTable() . "`
+                WHERE `tickets_id` = '" . $item->fields['tickets_id'] . "'
+                  AND `users_id`='" . $item->fields['users_id'] . "'
                   AND `delay` IS NULL";
 
       $result    = $DB->query($query);
       $datedebut = '';
-      $input = array();
+      $input     = array();
       if ($result && $DB->numrows($result)) {
-         $datedebut = $DB->result($result, 0, 'datedebut');
+         $datedebut   = $DB->result($result, 0, 'datedebut');
          $input['id'] = $DB->result($result, 0, 'id');
       } else {
          return;
@@ -352,12 +392,12 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
 
       if (!$datedebut) {
          $delay = 0;
-      // Utilisation calendrier
-      } else if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
-         $delay = $calendar->getActiveTimeBetween ($datedebut, $_SESSION["glpi_currenttime"]);
+         // Utilisation calendrier
+      } else if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
+         $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
       } else {
          // cas 24/24 - 7/7
-         $delay = strtotime($_SESSION["glpi_currenttime"])-strtotime($datedebut);
+         $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
       }
 
       $input['delay'] = $delay;

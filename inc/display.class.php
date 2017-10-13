@@ -37,17 +37,16 @@
    ------------------------------------------------------------------------
  */
 
-if (!defined('GLPI_ROOT')){
+if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
 }
 
 class PluginTimelineticketDisplay extends CommonDBTM {
 
-   public static function getTypeName($nb=0) {
+   public static function getTypeName($nb = 0) {
 
       return _n('Timeline of ticket', 'Timeline of tickets', $nb, 'timelineticket');
    }
-
 
 
    function getSearchOptions() {
@@ -56,25 +55,25 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
       $tab['common'] = __('Timeline', 'timelineticket');
 
-      $tab[1]['table']     = 'glpi_plugin_timelineticket_assigngroups';
-      $tab[1]['field']     = 'groups_id';
-      $tab[1]['linkfield'] = 'tickets_id';
-      $tab[1]['name']      = __('Group');
-      $tab[1]['datatype']  = 'itemlink';
+      $tab[1]['table']        = 'glpi_plugin_timelineticket_assigngroups';
+      $tab[1]['field']        = 'groups_id';
+      $tab[1]['linkfield']    = 'tickets_id';
+      $tab[1]['name']         = __('Group');
+      $tab[1]['datatype']     = 'itemlink';
       $tab[1]['forcegroupby'] = TRUE;
 
       return $tab;
    }
 
 
-   static function showForTicket (Ticket $ticket) {
+   static function showForTicket(Ticket $ticket) {
       global $DB;
 
       echo "<table class='tab_cadre_fixe'>";
-      echo "<tr><th>".__('Summary')."</th></tr>";
+      echo "<tr><th>" . __('Summary') . "</th></tr>";
 
-      echo "<tr class='tab_bg_1 center'><td>"._n('Time range', 'Time ranges', 2)."&nbsp;: ";
-      $calendar = new Calendar();
+      echo "<tr class='tab_bg_1 center'><td>" . _n('Time range', 'Time ranges', 2) . "&nbsp;: ";
+      $calendar     = new Calendar();
       $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
       if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
          echo $calendar->getLink();
@@ -87,13 +86,13 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
       // Display ticket have Due date
       if ($ticket->fields['time_to_resolve']
-            && $ticket->fields['status'] != CommonITILObject::WAITING
-              && (strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['time_to_resolve'])) > 0) {
+          && $ticket->fields['status'] != CommonITILObject::WAITING
+          && (strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['time_to_resolve'])) > 0) {
 
-         $calendar = new Calendar();
+         $calendar     = new Calendar();
          $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
 
-         if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
+         if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
             if ($ticket->fields['closedate']) {
                $dateend = $calendar->getActiveTimeBetween($ticket->fields['time_to_resolve'],
                                                           $ticket->fields['closedate']);
@@ -104,17 +103,17 @@ class PluginTimelineticketDisplay extends CommonDBTM {
          } else {
             // cas 24/24 - 7/7
             if ($ticket->fields['closedate']) {
-               $dateend = strtotime($ticket->fields['closedate'])-strtotime($ticket->fields['time_to_resolve']);
+               $dateend = strtotime($ticket->fields['closedate']) - strtotime($ticket->fields['time_to_resolve']);
             } else {
-               $dateend = strtotime(date('Y-m-d H:i:s'))-strtotime($ticket->fields['time_to_resolve']);
+               $dateend = strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['time_to_resolve']);
             }
          }
          echo "<tr>";
-         echo "<th>".__('Late')."</th>";
+         echo "<th>" . __('Late') . "</th>";
          echo "</tr>";
          echo "<tr>";
-         echo "<td align='center' class='tab_bg_2_2'>".
-                 Html::timestampToString($dateend, true)."</td>";
+         echo "<td align='center' class='tab_bg_2_2'>" .
+              Html::timestampToString($dateend, true) . "</td>";
          echo "</tr>";
       }
 
@@ -122,14 +121,14 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
       echo "<table class='tab_cadre_fixe'>";
       echo "<tr>";
-      echo "<th colspan='2'>".__('Status')."</th>";
+      echo "<th colspan='2'>" . __('Status') . "</th>";
       echo "</tr>";
 
       /* pChart library inclusions */
-      include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.4/class/pData.class.php");
-      include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.4/class/pDraw.class.php");
-      include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.4/class/pImage.class.php");
-      include(GLPI_ROOT."/plugins/timelineticket/lib/pChart2.1.4/class/pIndicator.class.php");
+      include(GLPI_ROOT . "/plugins/timelineticket/lib/pChart2.1.4/class/pData.class.php");
+      include(GLPI_ROOT . "/plugins/timelineticket/lib/pChart2.1.4/class/pDraw.class.php");
+      include(GLPI_ROOT . "/plugins/timelineticket/lib/pChart2.1.4/class/pImage.class.php");
+      include(GLPI_ROOT . "/plugins/timelineticket/lib/pChart2.1.4/class/pIndicator.class.php");
 
       $a_data = PluginTimelineticketDisplay::getTotaltimeEnddate($ticket);
 
@@ -137,7 +136,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       $end_date  = $a_data['end_date'];
 
       $params = array('totaltime' => $totaltime,
-                        'end_date' => $end_date);
+                      'end_date'  => $end_date);
 
       $ptState = new PluginTimelineticketState();
       $ptState->showTimeline($ticket, $params);
@@ -149,63 +148,63 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
       PluginTimelineticketToolbox::ShowDetail($ticket, 'group');
       PluginTimelineticketToolbox::ShowDetail($ticket, 'user');
-      
+
       if ($_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
          echo "<br><table class='tab_cadre_fixe'>";
          echo "<tr>";
-         echo "<th colspan='5'>".__('DEBUG')." ".__('Group')."</th>";
+         echo "<th colspan='5'>" . __('DEBUG') . " " . __('Group') . "</th>";
          echo "</tr>";
-         
+
          echo "<tr>";
-         echo "<th>".__('ID')."</th>";
-         echo "<th>".__('Date')."</th>";
-         echo "<th>".__('Group')."</th>";
-         echo "<th>".__('Begin')."</th>";
-         echo "<th>".__('Delay', 'timelineticket')."</th>";
+         echo "<th>" . __('ID') . "</th>";
+         echo "<th>" . __('Date') . "</th>";
+         echo "<th>" . __('Group') . "</th>";
+         echo "<th>" . __('Begin') . "</th>";
+         echo "<th>" . __('Delay', 'timelineticket') . "</th>";
          echo "</tr>";
          $query = "SELECT *
                          FROM `glpi_plugin_timelineticket_assigngroups`
-                         WHERE `tickets_id` = '".$ticket->getID()."'";
+                         WHERE `tickets_id` = '" . $ticket->getID() . "'";
 
-         $result    = $DB->query($query);
+         $result = $DB->query($query);
          while ($data = $DB->fetch_assoc($result)) {
 
             echo "<tr class='tab_bg_1'>";
-            echo "<td>".$data['id']."</td>";
-            echo "<td>".Html::convDateTime($data['date'])."</td>";
-            echo "<td>".Dropdown::getDropdownName("glpi_groups", $data['groups_id'])."</td>";
-            echo "<td>".Html::timestampToString($data['begin'])."</td>";
-            echo "<td>".Html::timestampToString($data['delay'])."</td>";
+            echo "<td>" . $data['id'] . "</td>";
+            echo "<td>" . Html::convDateTime($data['date']) . "</td>";
+            echo "<td>" . Dropdown::getDropdownName("glpi_groups", $data['groups_id']) . "</td>";
+            echo "<td>" . Html::timestampToString($data['begin']) . "</td>";
+            echo "<td>" . Html::timestampToString($data['delay']) . "</td>";
             echo "</tr>";
 
          }
          echo "</table>";
-         
+
          echo "<br><table class='tab_cadre_fixe'>";
          echo "<tr>";
-         echo "<th colspan='5'>".__('DEBUG')." ".__('Technician')."</th>";
+         echo "<th colspan='5'>" . __('DEBUG') . " " . __('Technician') . "</th>";
          echo "</tr>";
-         
+
          echo "<tr>";
-         echo "<th>".__('ID')."</th>";
-         echo "<th>".__('Date')."</th>";
-         echo "<th>".__('Technician')."</th>";
-         echo "<th>".__('Begin')."</th>";
-         echo "<th>".__('Delay', 'timelineticket')."</th>";
+         echo "<th>" . __('ID') . "</th>";
+         echo "<th>" . __('Date') . "</th>";
+         echo "<th>" . __('Technician') . "</th>";
+         echo "<th>" . __('Begin') . "</th>";
+         echo "<th>" . __('Delay', 'timelineticket') . "</th>";
          echo "</tr>";
          $query = "SELECT *
                          FROM `glpi_plugin_timelineticket_assignusers`
-                         WHERE `tickets_id` = '".$ticket->getID()."'";
+                         WHERE `tickets_id` = '" . $ticket->getID() . "'";
 
-         $result    = $DB->query($query);
+         $result = $DB->query($query);
          while ($data = $DB->fetch_assoc($result)) {
 
             echo "<tr class='tab_bg_1'>";
-            echo "<td>".$data['id']."</td>";
-            echo "<td>".Html::convDateTime($data['date'])."</td>";
-            echo "<td>".getUserName($data['users_id'])."</td>";
-            echo "<td>".Html::timestampToString($data['begin'])."</td>";
-            echo "<td>".Html::timestampToString($data['delay'])."</td>";
+            echo "<td>" . $data['id'] . "</td>";
+            echo "<td>" . Html::convDateTime($data['date']) . "</td>";
+            echo "<td>" . getUserName($data['users_id']) . "</td>";
+            echo "<td>" . Html::timestampToString($data['begin']) . "</td>";
+            echo "<td>" . Html::timestampToString($data['delay']) . "</td>";
             echo "</tr>";
 
          }
@@ -214,8 +213,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
    }
 
 
-
-   function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
+   function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
 
       if ($item->getType() == 'Ticket'
           && $_SESSION['glpiactiveprofile']['interface'] == 'central') {
@@ -225,8 +223,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
    }
 
 
-
-   static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
+   static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
 
       if ($item->getType() == 'Ticket') {
          self::showForTicket($item);
@@ -235,13 +232,12 @@ class PluginTimelineticketDisplay extends CommonDBTM {
    }
 
 
-
    static function getTotaltimeEnddate(CommonGLPI $ticket) {
 
       $totaltime = 0;
 
-      $ptState = new PluginTimelineticketState();
-      $a_states = $ptState->find("`tickets_id`='".$ticket->getField('id')."'", "date");
+      $ptState   = new PluginTimelineticketState();
+      $a_states  = $ptState->find("`tickets_id`='" . $ticket->getField('id') . "'", "date");
       $last_date = '';
       foreach ($a_states as $a_state) {
          $totaltime += $a_state['delay'];
@@ -252,7 +248,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       //   $totaltime += $actual;
       //}
       if ($ticket->fields['status'] != Ticket::CLOSED
-            && isset($a_state['date'])) {
+          && isset($a_state['date'])) {
          $totaltime += PluginTimelineticketDisplay::getPeriodTime($ticket,
                                                                   $a_state['date'],
                                                                   date("Y-m-d H:i:s"));
@@ -264,13 +260,12 @@ class PluginTimelineticketDisplay extends CommonDBTM {
    }
 
 
-
    static function getPeriodTime(CommonGLPI $ticket, $start, $end) {
 
       $calendar = new Calendar();
-      if ($ticket->fields['slts_ttr_id'] != 0) { // Have SLT
+      if ($ticket->fields['slas_ttr_id'] != 0) { // Have SLT
          $slt = new SLT();
-         $slt->getFromDB($ticket->fields['slts_ttr_id']);
+         $slt->getFromDB($ticket->fields['slas_ttr_id']);
          $totaltime = $slt->getActiveTimeBetween($start, $end);
       } else {
          $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);

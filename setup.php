@@ -60,7 +60,11 @@ function plugin_init_timelineticket() {
    if ($Plugin->isActivated('timelineticket')) { // check if plugin is active
 
       $PLUGIN_HOOKS['change_profile']['timelineticket'] = array('PluginTimelineticketProfile', 'initProfile');
-      
+      /* For 9.2.1
+      $PLUGIN_HOOKS['item_stats']['timelineticket']    = array(
+         'Ticket' => 'plugin_timelineticket_item_stats'
+      );
+      */
       Plugin::registerClass('PluginTimelineticketProfile', array('addtabon' => 'Profile'));
       
       if(Session::haveRightsOr('plugin_timelineticket_ticket', array(READ, UPDATE))) {

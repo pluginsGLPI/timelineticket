@@ -190,7 +190,13 @@ function plugin_timelineticket_install() {
    $migration->dropTable('glpi_plugin_timelineticket_profiles');
    return true;
 }
-
+/* For 9.2.1
+function plugin_timelineticket_item_stats($item) {
+   PluginTimelineticketState::showStateTimeline($item);
+   PluginTimelineticketAssignGroup::showGroupTimeline($item);
+   PluginTimelineticketAssignUser::showUserTimeline($item);
+}
+*/
 function plugin_timelineticket_uninstall() {
    global $DB;
 
