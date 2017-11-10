@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI - Timelineticket plugin 0.90+1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-10 17:57+0200\n"
+"POT-Creation-Date: 2017-10-27 16:14+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,12 +24,20 @@ msgid_plural "Timeline of tickets"
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/assigngroup.class.php:121 inc/toolbox.class.php:327
+#: inc/assigngroup.class.php:120 inc/toolbox.class.php:328
 msgid "Groups in charge of the ticket"
 msgstr ""
 
-#: inc/assignuser.class.php:119 inc/toolbox.class.php:329
+#: inc/assigngroup.class.php:252
+msgid "Ticket assign group history"
+msgstr ""
+
+#: inc/assignuser.class.php:118 inc/toolbox.class.php:330
 msgid "Technicians in charge of the ticket"
+msgstr ""
+
+#: inc/assignuser.class.php:201
+msgid "Ticket assign technician history"
 msgstr ""
 
 #: inc/config.class.php:55
@@ -53,15 +61,15 @@ msgid ""
 "and Assigned flag to Yes"
 msgstr ""
 
-#: inc/config.class.php:83
+#: inc/config.class.php:82
 msgid "Input time on groups / users when ticket is waiting"
 msgstr ""
 
-#: inc/display.class.php:57 inc/display.class.php:222
+#: inc/display.class.php:56 inc/display.class.php:220
 msgid "Timeline"
 msgstr ""
 
-#: inc/display.class.php:164 inc/display.class.php:194 inc/state.class.php:110
+#: inc/display.class.php:163 inc/display.class.php:193 inc/state.class.php:157
 msgid "Delay"
 msgstr ""
 
@@ -77,6 +85,10 @@ msgstr ""
 
 #: inc/profile.class.php:95
 msgid "General"
+msgstr ""
+
+#: inc/state.class.php:121
+msgid "Ticket states history"
 msgstr ""
 
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:47
@@ -95,6 +107,6 @@ msgstr ""
 msgid "statSpentTimeProcessingByGroup_report_title"
 msgstr ""
 
-#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:218
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:219
 msgid "Duration by \"in progress\""
 msgstr ""

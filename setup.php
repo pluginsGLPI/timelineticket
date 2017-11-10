@@ -37,12 +37,16 @@
    ------------------------------------------------------------------------
  */
 
-define("PLUGIN_TIMELINETICKET_VERSION", "9.1+1.0");
+define("PLUGIN_TIMELINETICKET_VERSION", "9.2+1.0");
+
+if (!defined("PLUGIN_TIMELINETICKET_DIR")) {
+   define("PLUGIN_TIMELINETICKET_DIR", GLPI_ROOT . "/plugins/timelineticket");
+}
 
 function plugin_version_timelineticket() {
 
    return array('name'           => _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket"),
-                'minGlpiVersion' => '9.2',
+                'minGlpiVersion' => '9.2.1',
                 'version'        => PLUGIN_TIMELINETICKET_VERSION,
                 'homepage'       => 'https://github.com/pluginsGLPI/timelineticket',
                 'license'        => 'AGPLv3+',
@@ -55,15 +59,18 @@ function plugin_init_timelineticket() {
 
    $PLUGIN_HOOKS['csrf_compliant']['timelineticket'] = true;
 
+   // add autoload for vendor
+   include_once(PLUGIN_TIMELINETICKET_DIR . "/vendor/autoload.php");
+   
    $Plugin = new Plugin();
    if ($Plugin->isActivated('timelineticket')) { // check if plugin is active
 
       $PLUGIN_HOOKS['change_profile']['timelineticket'] = array('PluginTimelineticketProfile', 'initProfile');
-      /* For 9.2.1
-      $PLUGIN_HOOKS['item_stats']['timelineticket']    = array(
+
+      $PLUGIN_HOOKS['show_item_stats']['timelineticket']    = array(
          'Ticket' => 'plugin_timelineticket_item_stats'
       );
-      */
+
       Plugin::registerClass('PluginTimelineticketProfile', array('addtabon' => 'Profile'));
 
       if (Session::haveRightsOr('plugin_timelineticket_ticket', array(READ, UPDATE))) {

@@ -1,23 +1,23 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Timelineticket Development Team
 # This file is distributed under the same license as the PACKAGE package.
-#
+# 
 # Translators:
+# Adão Costa <adaocosta@msn.com>, 2017
 # Rafael Almeida <baliuzao@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-10 17:57+0200\n"
-"PO-Revision-Date: 2017-07-10 18:02+0200\n"
-"Last-Translator: Amandine Manceau\n"
+"POT-Creation-Date: 2017-10-27 16:14+0200\n"
+"PO-Revision-Date: 2017-10-27 14:29+0000\n"
+"Last-Translator: Xavier CAILLAUD <thetsmr@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/tsmr/GLPI_timelineticket/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: pt_BR\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 1.8.12\n"
 
 #: setup.php:44 inc/display.class.php:48
 msgid "Timeline of ticket"
@@ -25,13 +25,21 @@ msgid_plural "Timeline of tickets"
 msgstr[0] "Linha do tempo do chamado"
 msgstr[1] "Linha do tempo dos chamados"
 
-#: inc/assigngroup.class.php:121 inc/toolbox.class.php:327
+#: inc/assigngroup.class.php:120 inc/toolbox.class.php:328
 msgid "Groups in charge of the ticket"
 msgstr "Grupos responsáveis pelo chamado"
 
-#: inc/assignuser.class.php:119 inc/toolbox.class.php:329
+#: inc/assigngroup.class.php:252
+msgid "Ticket assign group history"
+msgstr ""
+
+#: inc/assignuser.class.php:118 inc/toolbox.class.php:330
 msgid "Technicians in charge of the ticket"
 msgstr "Técnicos responsáveis pelo chamado"
+
+#: inc/assignuser.class.php:201
+msgid "Ticket assign technician history"
+msgstr ""
 
 #: inc/config.class.php:55
 msgid "(Can take many time if you have many tickets)"
@@ -49,19 +57,20 @@ msgstr "Reconstruir a linha de tempo dos grupos para todos os chamados"
 
 #: inc/config.class.php:64
 msgid ""
-"Warning : it may be that the reconstruction of groups does not reflect reality because it concern only groups which have the Requester flag to No and Assigned "
-"flag to Yes"
+"Warning : it may be that the reconstruction of groups does not reflect "
+"reality because it concern only groups which have the Requester flag to No "
+"and Assigned flag to Yes"
 msgstr "Atenção: pode ser que a reconstrução de grupos não reflita a realidade porque se refere apenas a grupos que têm o flag Requerente para Não e Atribuído a Sim"
 
-#: inc/config.class.php:83
+#: inc/config.class.php:82
 msgid "Input time on groups / users when ticket is waiting"
 msgstr "Tempo de entrada em grupos / usuários quando o ticket está aguardando"
 
-#: inc/display.class.php:57 inc/display.class.php:222
+#: inc/display.class.php:56 inc/display.class.php:220
 msgid "Timeline"
 msgstr "Linha do Tempo"
 
-#: inc/display.class.php:164 inc/display.class.php:194 inc/state.class.php:110
+#: inc/display.class.php:163 inc/display.class.php:193 inc/state.class.php:157
 msgid "Delay"
 msgstr "Atraso"
 
@@ -79,6 +88,10 @@ msgstr "Lista de grupos associados"
 msgid "General"
 msgstr "Geral"
 
+#: inc/state.class.php:121
+msgid "Ticket states history"
+msgstr ""
+
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:47
 msgid "statSpentTimeByGroup_report_title"
 msgstr "statSpentTimeByGroup_report_title"
@@ -93,8 +106,8 @@ msgstr "Tempo total do chamado"
 
 #: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:47
 msgid "statSpentTimeProcessingByGroup_report_title"
-msgstr ""
+msgstr "Tempo usado para relatório de processamento pro grupo"
 
-#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:218
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:219
 msgid "Duration by \"in progress\""
-msgstr ""
+msgstr "Duração para \"Processando\""

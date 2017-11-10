@@ -87,12 +87,12 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
       global $CFG_GLPI;
 
       /* Create and populate the pData object */
-      $MyData = new pData();
+      $MyData = new CpChart\Data();
       /* Create the pChart object */
-      $myPicture = new pImage(820, 29, $MyData);
+      $myPicture = new CpChart\Image(820, 29, $MyData);
       /* Create the pIndicator object */
-      $Indicator = new pIndicator($myPicture);
-      $myPicture->setFontProperties(array("FontName" => GLPI_ROOT . "/plugins/timelineticket/lib/pChart2.1.4/fonts/pf_arma_five.ttf", "FontSize" => 6));
+      $Indicator = new CpChart\Chart\Indicator($myPicture);
+      $myPicture->setFontProperties(["FontName" => "pf_arma_five.ttf", "FontSize" => 6]);
       /* Define the indicator sections */
       $IndicatorSections = array();
       $_usersfinished    = array();
@@ -142,7 +142,13 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
                                        "ValueDisplay"      => false,
                                        "IndicatorSections" => $array,
                                        "SectionsMargin"    => 0);
-            $Indicator->draw(2, 2, 805, 25, $IndicatorSettings);
+            if (is_array($array)) {
+               foreach ($array as $arr) {
+                  if ($arr['End'] > $arr['Start']) {
+                     $Indicator->draw(2, 2, 805, 25, $IndicatorSettings);
+                  }
+               }
+            }
          } else {
             $IndicatorSettings = array("Values"            => array(100, 201),
                                        "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
@@ -155,7 +161,13 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
                                        "ValueDisplay"      => false,
                                        "IndicatorSections" => $array,
                                        "SectionsMargin"    => 0);
-            $Indicator->draw(2, 2, 814, 25, $IndicatorSettings);
+            if (is_array($array)) {
+               foreach ($array as $arr) {
+                  if ($arr['End'] > $arr['Start']) {
+                     $Indicator->draw(2, 2, 814, 25, $IndicatorSettings);
+                  }
+               }
+            }
          }
 
          $filename = $uid = Session::getLoginUserID(false) . "_testuser" . $users_id;

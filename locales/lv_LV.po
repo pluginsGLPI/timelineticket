@@ -1,23 +1,22 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Timelineticket Development Team
 # This file is distributed under the same license as the PACKAGE package.
-#
+# 
 # Translators:
 # Andrejs <andrew.k2@gmail.com>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-10 17:57+0200\n"
-"PO-Revision-Date: 2017-07-10 18:01+0200\n"
-"Last-Translator: Amandine Manceau\n"
+"POT-Creation-Date: 2017-10-27 16:14+0200\n"
+"PO-Revision-Date: 2017-10-27 14:29+0000\n"
+"Last-Translator: Xavier CAILLAUD <thetsmr@gmail.com>\n"
 "Language-Team: Latvian (Latvia) (http://www.transifex.com/tsmr/GLPI_timelineticket/language/lv_LV/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: lv_LV\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);\n"
-"X-Generator: Poedit 1.8.12\n"
 
 #: setup.php:44 inc/display.class.php:48
 msgid "Timeline of ticket"
@@ -26,13 +25,21 @@ msgstr[0] "Pieteikuma laika skala"
 msgstr[1] "Pieteikuma laika skala"
 msgstr[2] "Pieteikuma laika skala"
 
-#: inc/assigngroup.class.php:121 inc/toolbox.class.php:327
+#: inc/assigngroup.class.php:120 inc/toolbox.class.php:328
 msgid "Groups in charge of the ticket"
 msgstr "Par pieteikumu atbildīgās grupas"
 
-#: inc/assignuser.class.php:119 inc/toolbox.class.php:329
+#: inc/assigngroup.class.php:252
+msgid "Ticket assign group history"
+msgstr ""
+
+#: inc/assignuser.class.php:118 inc/toolbox.class.php:330
 msgid "Technicians in charge of the ticket"
 msgstr "Tehniķi atbildīgie par pieteikumu"
+
+#: inc/assignuser.class.php:201
+msgid "Ticket assign technician history"
+msgstr ""
 
 #: inc/config.class.php:55
 msgid "(Can take many time if you have many tickets)"
@@ -50,19 +57,20 @@ msgstr "Rekonstruēt laika skalas grupas visiem pieteikumiem"
 
 #: inc/config.class.php:64
 msgid ""
-"Warning : it may be that the reconstruction of groups does not reflect reality because it concern only groups which have the Requester flag to No and Assigned flag to "
-"Yes"
+"Warning : it may be that the reconstruction of groups does not reflect "
+"reality because it concern only groups which have the Requester flag to No "
+"and Assigned flag to Yes"
 msgstr "Uzmanību : varētu būt ka grupas rekonstruēšana neatspoguļo realitāti jo tas ir atkarīgs tikai no grupām kuras ir atzīmēts Pieteicējs Nav un Piešķirts atzīmēts Ir"
 
-#: inc/config.class.php:83
+#: inc/config.class.php:82
 msgid "Input time on groups / users when ticket is waiting"
 msgstr "Grupu / lietotāju ievad laiks kad pieteikums gaida izpildi"
 
-#: inc/display.class.php:57 inc/display.class.php:222
+#: inc/display.class.php:56 inc/display.class.php:220
 msgid "Timeline"
 msgstr "Laika skala"
 
-#: inc/display.class.php:164 inc/display.class.php:194 inc/state.class.php:110
+#: inc/display.class.php:163 inc/display.class.php:193 inc/state.class.php:157
 msgid "Delay"
 msgstr "Aizkavējums"
 
@@ -81,6 +89,10 @@ msgstr "Saistīto grupu saraksts"
 msgid "General"
 msgstr "Vispārēji"
 
+#: inc/state.class.php:121
+msgid "Ticket states history"
+msgstr ""
+
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:47
 msgid "statSpentTimeByGroup_report_title"
 msgstr "statistikaNolietotsLaiksGrupa_Atskaites_nosaukums"
@@ -97,6 +109,6 @@ msgstr "Kopējais pieteikuma ilgums"
 msgid "statSpentTimeProcessingByGroup_report_title"
 msgstr ""
 
-#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:218
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:219
 msgid "Duration by \"in progress\""
 msgstr ""

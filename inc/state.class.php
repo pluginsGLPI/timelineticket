@@ -188,16 +188,14 @@ class PluginTimelineticketState extends CommonDBTM {
 
    function showTimeline(Ticket $ticket, $params = array()) {
       global $CFG_GLPI;
-
+      
       /* Create and populate the pData object */
-      $MyData = new pData();
+      $MyData = new CpChart\Data();
       /* Create the pChart object */
-      $myPicture = new pImage(820, 29, $MyData);
+      $myPicture = new CpChart\Image(820, 29, $MyData);
       /* Create the pIndicator object */
-      $Indicator = new pIndicator($myPicture);
-
-      $myPicture->setFontProperties(array("FontName" => GLPI_ROOT . "/plugins/timelineticket/lib/pChart2.1.4/fonts/pf_arma_five.ttf",
-                                          "FontSize" => 6));
+      $Indicator = new CpChart\Chart\Indicator($myPicture);
+      $myPicture->setFontProperties(["FontName" => "pf_arma_five.ttf", "FontSize" => 6]);
 
       /* Define the indicator sections */
       $IndicatorSections = array();
@@ -229,6 +227,7 @@ class PluginTimelineticketState extends CommonDBTM {
       if ($params['totaltime'] > 0) {
          foreach ($a_status as $data) {
             foreach ($a_states as $statusSection) {
+            $IndicatorSections[$statusSection] = array();
                $R       = 235;
                $G       = 235;
                $B       = 235;
@@ -292,7 +291,13 @@ class PluginTimelineticketState extends CommonDBTM {
                                           "ValueDisplay"      => false,
                                           "IndicatorSections" => $IndicatorSections[$status],
                                           "SectionsMargin"    => 0);
-               $Indicator->draw(2, 2, 805, 25, $IndicatorSettings);
+               if(is_array($IndicatorSections[$status])) {
+                  foreach ($IndicatorSections[$status] as $arr) {
+                     if ($arr['End'] > $arr['Start']) {
+                        $Indicator->draw(2, 2, 805, 25, $IndicatorSettings);
+                     }
+                  }
+               }
             } else {
                $IndicatorSettings = array("Values"            => array(100, 201),
                                           "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
@@ -305,7 +310,13 @@ class PluginTimelineticketState extends CommonDBTM {
                                           "ValueDisplay"      => false,
                                           "IndicatorSections" => $IndicatorSections[$status],
                                           "SectionsMargin"    => 0);
-               $Indicator->draw(2, 2, 814, 25, $IndicatorSettings);
+               if (is_array($IndicatorSections[$status])) {
+                  foreach ($IndicatorSections[$status] as $arr) {
+                     if ($arr['End'] > $arr['Start']) {
+                        $Indicator->draw(2, 2, 814, 25, $IndicatorSettings);
+                     }
+                  }
+               }
             }
 
             $filename = $uid = Session::getLoginUserID(false) . "_test" . $status;
@@ -317,105 +328,112 @@ class PluginTimelineticketState extends CommonDBTM {
          }
       }
       // Display ticket have Due date
-      if ($ticket->fields['time_to_resolve']
-          && (strtotime(date('Y-m-d H:i:s') - strtotime($ticket->fields['time_to_resolve'])) > 0)) {
+      if ($ticket->fields['time_to_resolve']) {
 
-         $calendar     = new Calendar();
-         $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+         $time            = strtotime(date('Y-m-d H:i:s'));
+         $time_to_resolve = strtotime($ticket->fields['time_to_resolve']);
 
-         if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
-            $duedate = $calendar->getActiveTimeBetween($ticket->fields['date'],
-                                                       $ticket->fields['time_to_resolve']);
-            if ($ticket->fields['closedate']) {
-               $dateend = $calendar->getActiveTimeBetween($ticket->fields['time_to_resolve'],
-                                                          $ticket->fields['closedate']);
+         if (($time - $time_to_resolve) > 0) {
+            $calendar     = new Calendar();
+            $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+
+            if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
+               $duedate = $calendar->getActiveTimeBetween($ticket->fields['date'],
+                                                          $ticket->fields['time_to_resolve']);
+               if ($ticket->fields['closedate']) {
+                  $dateend = $calendar->getActiveTimeBetween($ticket->fields['time_to_resolve'],
+                                                             $ticket->fields['closedate']);
+               } else {
+                  $dateend = $calendar->getActiveTimeBetween($ticket->fields['time_to_resolve'],
+                                                             date('Y-m-d H:i:s'));
+               }
             } else {
-               $dateend = $calendar->getActiveTimeBetween($ticket->fields['time_to_resolve'],
-                                                          date('Y-m-d H:i:s'));
+               // cas 24/24 - 7/7
+               $duedate = strtotime($ticket->fields['time_to_resolve']) - strtotime($ticket->fields['date']);
+               if ($ticket->fields['closedate']) {
+                  $dateend = strtotime($ticket->fields['closedate']) - strtotime($ticket->fields['time_to_resolve']);
+               } else {
+                  $dateend = strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['time_to_resolve']);
+               }
             }
-         } else {
-            // cas 24/24 - 7/7
-            $duedate = strtotime($ticket->fields['time_to_resolve']) - strtotime($ticket->fields['date']);
-            if ($ticket->fields['closedate']) {
-               $dateend = strtotime($ticket->fields['closedate']) - strtotime($ticket->fields['time_to_resolve']);
+            echo "<tr class='tab_bg_2'>";
+            echo "<td width='100' class='tab_bg_2_2'>";
+            echo __('Late');
+            if ($params['totaltime'] > 0) {
+               echo "<br/>(" . round(($dateend * 100) / $params['totaltime'], 2) . "%)";
+            }
+            echo "</td>";
+            echo "<td>";
+
+            if ($ticket->fields['status'] != Ticket::CLOSED) {
+
+               $IndicatorSettings = array("Values"            => array(100, 201),
+                                          "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
+                                          "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
+                                          "CaptionR"          => 0,
+                                          "CaptionG"          => 0,
+                                          "CaptionB"          => 0,
+                                          "DrawLeftHead"      => FALSE,
+                                          "ValueDisplay"      => false,
+                                          "IndicatorSections" => array(
+                                             array(
+                                                "Start"   => 0,
+                                                "End"     => $duedate,
+                                                "Caption" => "",
+                                                "R"       => 235,
+                                                "G"       => 235,
+                                                "B"       => 235
+                                             ),
+                                             array(
+                                                "Start"   => $duedate,
+                                                "End"     => ($dateend + $duedate),
+                                                "Caption" => "",
+                                                "R"       => 255,
+                                                "G"       => 0,
+                                                "B"       => 0
+                                             )
+                                          ),
+                                          "SectionsMargin"    => 0);
+               $Indicator->draw(2, 2, 805, 25, $IndicatorSettings);
             } else {
-               $dateend = strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['time_to_resolve']);
+               $IndicatorSettings = array("Values"            => array(100, 201),
+                                          "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
+                                          "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
+                                          "CaptionR"          => 0,
+                                          "CaptionG"          => 0,
+                                          "CaptionB"          => 0,
+                                          "DrawLeftHead"      => FALSE,
+                                          "DrawRightHead"     => FALSE,
+                                          "ValueDisplay"      => false,
+                                          "IndicatorSections" => array(
+                                             array(
+                                                "Start"   => 0,
+                                                "End"     => $duedate,
+                                                "Caption" => "",
+                                                "R"       => 235,
+                                                "G"       => 235,
+                                                "B"       => 235
+                                             ),
+                                             array(
+                                                "Start"   => $duedate,
+                                                "End"     => ($dateend + $duedate),
+                                                "Caption" => "",
+                                                "R"       => 255,
+                                                "G"       => 0,
+                                                "B"       => 0
+                                             )
+                                          ),
+                                          "SectionsMargin"    => 0);
+               $Indicator->draw(2, 2, 814, 25, $IndicatorSettings);
             }
+
+            $filename = $uid = Session::getLoginUserID(false) . "_testduedate";
+            $myPicture->render(GLPI_GRAPH_DIR . "/" . $filename . ".png");
+
+            echo "<img src='" . $CFG_GLPI['root_doc'] . "/front/graph.send.php?file=" . $filename . ".png'><br/>";
+            echo "</td>";
+            echo "</tr>";
          }
-         echo "<tr class='tab_bg_2'>";
-         echo "<td width='100' class='tab_bg_2_2'>";
-         echo __('Late');
-         echo "<br/>(" . round(($dateend * 100) / $params['totaltime'], 2) . "%)";
-         echo "</td>";
-         echo "<td>";
-
-         if ($ticket->fields['status'] != Ticket::CLOSED) {
-
-            $IndicatorSettings = array("Values"            => array(100, 201),
-                                       "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
-                                       "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
-                                       "CaptionR"          => 0,
-                                       "CaptionG"          => 0,
-                                       "CaptionB"          => 0,
-                                       "DrawLeftHead"      => FALSE,
-                                       "ValueDisplay"      => false,
-                                       "IndicatorSections" => array(
-                                          array(
-                                             "Start"   => 0,
-                                             "End"     => $duedate,
-                                             "Caption" => "",
-                                             "R"       => 235,
-                                             "G"       => 235,
-                                             "B"       => 235
-                                          ),
-                                          array(
-                                             "Start"   => $duedate,
-                                             "End"     => ($dateend + $duedate),
-                                             "Caption" => "",
-                                             "R"       => 255,
-                                             "G"       => 0,
-                                             "B"       => 0
-                                          )
-                                       ),
-                                       "SectionsMargin"    => 0);
-            $Indicator->draw(2, 2, 805, 25, $IndicatorSettings);
-         } else {
-            $IndicatorSettings = array("Values"            => array(100, 201),
-                                       "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
-                                       "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
-                                       "CaptionR"          => 0,
-                                       "CaptionG"          => 0,
-                                       "CaptionB"          => 0,
-                                       "DrawLeftHead"      => FALSE,
-                                       "DrawRightHead"     => FALSE,
-                                       "ValueDisplay"      => false,
-                                       "IndicatorSections" => array(
-                                          array(
-                                             "Start"   => 0,
-                                             "End"     => $duedate,
-                                             "Caption" => "",
-                                             "R"       => 235,
-                                             "G"       => 235,
-                                             "B"       => 235
-                                          ),
-                                          array(
-                                             "Start"   => $duedate,
-                                             "End"     => ($dateend + $duedate),
-                                             "Caption" => "",
-                                             "R"       => 255,
-                                             "G"       => 0,
-                                             "B"       => 0
-                                          )
-                                       ),
-                                       "SectionsMargin"    => 0);
-            $Indicator->draw(2, 2, 814, 25, $IndicatorSettings);
-         }
-         $filename = $uid = Session::getLoginUserID(false) . "_testduedate";
-         $myPicture->render(GLPI_GRAPH_DIR . "/" . $filename . ".png");
-
-         echo "<img src='" . $CFG_GLPI['root_doc'] . "/front/graph.send.php?file=" . $filename . ".png'><br/>";
-         echo "</td>";
-         echo "</tr>";
       }
    }
 
