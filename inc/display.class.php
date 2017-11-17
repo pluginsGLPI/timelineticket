@@ -258,7 +258,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
       $calendar = new Calendar();
       if ($ticket->fields['slas_ttr_id'] != 0) { // Have SLT
-         $slt = new SLT();
+         $slt = new SLA();
          $slt->getFromDB($ticket->fields['slas_ttr_id']);
          $totaltime = $slt->getActiveTimeBetween($start, $end);
       } else {
