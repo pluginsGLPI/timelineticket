@@ -274,5 +274,3 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       return $totaltime;
    }
 }
-
-?>
