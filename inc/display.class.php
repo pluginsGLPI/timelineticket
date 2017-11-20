@@ -123,7 +123,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       echo "<tr>";
       echo "<th colspan='2'>" . __('Status') . "</th>";
       echo "</tr>";
-      
+
       $a_data = PluginTimelineticketDisplay::getTotaltimeEnddate($ticket);
 
       $totaltime = $a_data['totaltime'];
@@ -258,9 +258,9 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
       $calendar = new Calendar();
       if ($ticket->fields['slas_ttr_id'] != 0) { // Have SLT
-         $slt = new SLT();
-         $slt->getFromDB($ticket->fields['slas_ttr_id']);
-         $totaltime = $slt->getActiveTimeBetween($start, $end);
+         $sla = new SLA();
+         $sla->getFromDB($ticket->fields['slas_ttr_id']);
+         $totaltime = $sla->getActiveTimeBetween($start, $end);
       } else {
          $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
          if ($calendars_id != 0) { // Ticket entity have calendar
