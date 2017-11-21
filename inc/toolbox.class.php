@@ -110,7 +110,7 @@ class PluginTimelineticketToolbox {
 
       $a_states = array();
       $a_item_palette = array();
-      $a_dbstates = $ptState->find("`tickets_id`='".$ticket->getField('id')."'", "date");
+      $a_dbstates = $ptState->find("`tickets_id`='".$ticket->getField('id')."'", "`date`, `id`");
       $end_previous = 0;
       foreach ($a_dbstates as $a_dbstate) {
          $end_previous += $a_dbstate['delay'];
