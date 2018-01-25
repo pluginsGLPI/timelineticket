@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Timelineticket Development Team
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the GLPI - Timelineticket plugin package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI - Timelineticket plugin 0.90+1.1\n"
+"Project-Id-Version: GLPI - Timelineticket plugin 9.2+1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-27 16:14+0200\n"
+"POT-Creation-Date: 2018-01-25 14:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,17 +18,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: setup.php:44 inc/display.class.php:48
+#: setup.php:48 inc/display.class.php:48
 msgid "Timeline of ticket"
 msgid_plural "Timeline of tickets"
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/assigngroup.class.php:120 inc/toolbox.class.php:328
+#: inc/assigngroup.class.php:119 inc/toolbox.class.php:328
 msgid "Groups in charge of the ticket"
 msgstr ""
 
-#: inc/assigngroup.class.php:252
+#: inc/assigngroup.class.php:257
 msgid "Ticket assign group history"
 msgstr ""
 
@@ -36,7 +36,7 @@ msgstr ""
 msgid "Technicians in charge of the ticket"
 msgstr ""
 
-#: inc/assignuser.class.php:201
+#: inc/assignuser.class.php:213
 msgid "Ticket assign technician history"
 msgstr ""
 
@@ -65,11 +65,11 @@ msgstr ""
 msgid "Input time on groups / users when ticket is waiting"
 msgstr ""
 
-#: inc/display.class.php:56 inc/display.class.php:220
+#: inc/display.class.php:56 inc/display.class.php:214
 msgid "Timeline"
 msgstr ""
 
-#: inc/display.class.php:163 inc/display.class.php:193 inc/state.class.php:157
+#: inc/display.class.php:157 inc/display.class.php:187 inc/state.class.php:157
 msgid "Delay"
 msgstr ""
 
