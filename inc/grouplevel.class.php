@@ -96,15 +96,17 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
       }
    }
 
-   function getSearchOptions() {
+   function rawSearchOptions() {
 
-      $tab = parent::getSearchOptions();
+      $tab = parent::rawSearchOptions();
 
+      $tab[11]['id']            = 11;
       $tab[11]['table']         = 'glpi_plugin_timelineticket_grouplevels';
       $tab[11]['field']         = 'rank';
       $tab[11]['name']          = __('Position');
       $tab[11]['massiveaction'] = false;
 
+      $tab[12]['id']            = 12;
       $tab[12]['table']         = 'glpi_plugin_timelineticket_grouplevels';
       $tab[12]['field']         = 'groups';
       $tab[12]['name']          = __('List of associated groups', 'timelineticket');
