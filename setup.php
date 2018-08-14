@@ -105,7 +105,7 @@ function plugin_timelineticket_check_prerequisites() {
 
    // Checking of the GLPI version
    if (version_compare(GLPI_VERSION, '9.2', 'lt')
-       || version_compare(GLPI_VERSION, '9.3', 'ge')) {
+       || version_compare(GLPI_VERSION, '9.4', 'ge')) {
       echo 'This plugin requires GLPI >= 9.2';
       return false;
    }
