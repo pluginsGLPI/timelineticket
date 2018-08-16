@@ -31,6 +31,14 @@
       <author>Xavier CAILLAUD</author>
    </authors>
    <versions>
+       <version>
+           <num>9.3+1.0</num>
+           <compatibility>9.3</compatibility>
+       </version>
+       <version>
+           <num>9.2+1.0</num>
+           <compatibility>9.2</compatibility>
+       </version>
       <version>
           <num>0.90+1.0</num>
           <compatibility>0.90</compatibility>
@@ -61,8 +69,9 @@
       </version>
    </versions>
    <langs>
+      <lang>cs_CZ</lang>
+       <lang>en_GB</lang>
       <lang>fr_FR</lang>
-      <lang>en_GB</lang>
       <lang>lv_LV</lang>
       <lang>pt_BR</lang>
       <lang>ru_RU</lang>

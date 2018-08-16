@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI - Timelineticket plugin 9.2+1.0\n"
+"Project-Id-Version: GLPI - Timelineticket plugin 0.90+1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-25 14:04+0100\n"
+"POT-Creation-Date: 2018-08-16 10:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -36,7 +36,7 @@ msgstr ""
 msgid "Technicians in charge of the ticket"
 msgstr ""
 
-#: inc/assignuser.class.php:213
+#: inc/assignuser.class.php:214
 msgid "Ticket assign technician history"
 msgstr ""
 
@@ -65,7 +65,7 @@ msgstr ""
 msgid "Input time on groups / users when ticket is waiting"
 msgstr ""
 
-#: inc/display.class.php:56 inc/display.class.php:214
+#: inc/display.class.php:56 inc/display.class.php:215
 msgid "Timeline"
 msgstr ""
 
@@ -79,7 +79,7 @@ msgid_plural "Service levels"
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/grouplevel.class.php:58 inc/grouplevel.class.php:110
+#: inc/grouplevel.class.php:58 inc/grouplevel.class.php:127
 msgid "List of associated groups"
 msgstr ""
 
@@ -107,6 +107,6 @@ msgstr ""
 msgid "statSpentTimeProcessingByGroup_report_title"
 msgstr ""
 
-#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:219
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:220
 msgid "Duration by \"in progress\""
 msgstr ""

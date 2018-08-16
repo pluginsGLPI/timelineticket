@@ -3,112 +3,114 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# Andrejs <andrew.k2@gmail.com>, 2017-2018
+# Pavel Borecki <pavel.borecki@gmail.com>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-10-27 16:14+0200\n"
-"PO-Revision-Date: 2018-04-24 10:44+0000\n"
-"Last-Translator: Andrejs <andrew.k2@gmail.com>\n"
-"Language-Team: Latvian (Latvia) (http://www.transifex.com/tsmr/GLPI_timelineticket/language/lv_LV/)\n"
+"PO-Revision-Date: 2018-06-28 09:34+0000\n"
+"Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
+"Language-Team: Czech (Czech Republic) (http://www.transifex.com/tsmr/GLPI_timelineticket/language/cs_CZ/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: lv_LV\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);\n"
+"Language: cs_CZ\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
 
 #: setup.php:44 inc/display.class.php:48
 msgid "Timeline of ticket"
 msgid_plural "Timeline of tickets"
-msgstr[0] "Pieteikuma laika skala"
-msgstr[1] "Pieteikuma laika skala"
-msgstr[2] "Pieteikuma laika skala"
+msgstr[0] "Časová osa požadavku"
+msgstr[1] "Časová osa požadavků"
+msgstr[2] "Časová osa požadavků"
+msgstr[3] "Časová osa požadavků"
 
 #: inc/assigngroup.class.php:120 inc/toolbox.class.php:328
 msgid "Groups in charge of the ticket"
-msgstr "Par pieteikumu atbildīgās grupas"
+msgstr "Skupiny zodpovědné za požadavek"
 
 #: inc/assigngroup.class.php:252
 msgid "Ticket assign group history"
-msgstr "Pieteikuma piesaistīto grupas vēsture"
+msgstr "Historie přiřazování požadavku skupinám"
 
 #: inc/assignuser.class.php:118 inc/toolbox.class.php:330
 msgid "Technicians in charge of the ticket"
-msgstr "Tehniķi atbildīgie par pieteikumu"
+msgstr "Technik zodpovědný za požadavek"
 
 #: inc/assignuser.class.php:201
 msgid "Ticket assign technician history"
-msgstr "Pieteikuma piesaistīto tehniķu vēsture"
+msgstr "Historie přiřazování požadavku technikům"
 
 #: inc/config.class.php:55
 msgid "(Can take many time if you have many tickets)"
-msgstr "(Var aizņemt daudz laika ja jums liels pieteikumu skaits)"
+msgstr "(Může trvat dlouho pokud máte hodně požadavků)"
 
 #: inc/config.class.php:62
 msgctxt "button"
 msgid "Reconstruct states timeline for all tickets"
-msgstr "Rekonstruēt laika skalas stāvokļus visiem pieteikumiem"
+msgstr "Rekonstruovat časovou osu stavů všech požadavků"
 
 #: inc/config.class.php:63
 msgctxt "button"
 msgid "Reconstruct groups timeline for all tickets"
-msgstr "Rekonstruēt laika skalas grupas visiem pieteikumiem"
+msgstr "Rekonstruovat časovou osu skupin všech požadavků"
 
 #: inc/config.class.php:64
 msgid ""
 "Warning : it may be that the reconstruction of groups does not reflect "
 "reality because it concern only groups which have the Requester flag to No "
 "and Assigned flag to Yes"
-msgstr "Uzmanību : varētu būt ka grupas rekonstruēšana neatspoguļo realitāti jo tas ir atkarīgs tikai no grupām kuras ir atzīmēts Pieteicējs Nav un Piešķirts atzīmēts Ir"
+msgstr "Varování: může se stát že rekonstrukce skupin nebude odpovídat realitě protože se týká pouze skupin, které mají příznak Žadatel nastavený na Ne a Přiřazeno na Ano"
 
 #: inc/config.class.php:82
 msgid "Input time on groups / users when ticket is waiting"
-msgstr "Grupu / lietotāju ievad laiks kad pieteikums gaida izpildi"
+msgstr "Vstupní čas na skupinách/uživatelích když požadavek čeká"
 
 #: inc/display.class.php:56 inc/display.class.php:220
 msgid "Timeline"
-msgstr "Laika skala"
+msgstr "Časová osa"
 
 #: inc/display.class.php:163 inc/display.class.php:193 inc/state.class.php:157
 msgid "Delay"
-msgstr "Aizkavējums"
+msgstr "Prodleva"
 
 #: inc/grouplevel.class.php:48
 msgid "Service level"
 msgid_plural "Service levels"
-msgstr[0] "Servisa līmeņi"
-msgstr[1] "Servisa līmeņi"
-msgstr[2] "Servisa līmeņi"
+msgstr[0] "Úroveň služby"
+msgstr[1] "Úrovně služeb"
+msgstr[2] "Úrovní služeb"
+msgstr[3] "Úrovně služeb"
 
 #: inc/grouplevel.class.php:58 inc/grouplevel.class.php:110
 msgid "List of associated groups"
-msgstr "Saistīto grupu saraksts"
+msgstr "Seznam souvisejících skupin"
 
 #: inc/profile.class.php:95
 msgid "General"
-msgstr "Vispārēji"
+msgstr "Obecné"
 
 #: inc/state.class.php:121
 msgid "Ticket states history"
-msgstr "Pieteikuma stāvokļu vēsture"
+msgstr "Historie stavů požadavku"
 
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:47
 msgid "statSpentTimeByGroup_report_title"
-msgstr "statistikaNolietotsLaiksGrupa_Atskaites_nosaukums"
+msgstr "Čas (v hodinách), strávený na uzavřených požadavcích podle úrovní služeb"
 
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:222
 msgid "Duration by"
-msgstr "Ilgums"
+msgstr "Trvání"
 
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:225
 msgid "Total duration of ticket"
-msgstr "Kopējais pieteikuma ilgums"
+msgstr "Celková doba trvání požadavku"
 
 #: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:47
 msgid "statSpentTimeProcessingByGroup_report_title"
-msgstr "statSpentTimeProcessingByGroup_report_title"
+msgstr "Čas strávený na zpracovávaných požadavcích podle úrovní služeb"
 
 #: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:219
 msgid "Duration by \"in progress\""
-msgstr "Ilgums \"procesā\""
+msgstr "Trvání podle „zpracovává se“"
