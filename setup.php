@@ -37,7 +37,7 @@
    ------------------------------------------------------------------------
  */
 
-define("PLUGIN_TIMELINETICKET_VERSION", "9.2+1.0");
+define("PLUGIN_TIMELINETICKET_VERSION", "9.3+1.0");
 
 if (!defined("PLUGIN_TIMELINETICKET_DIR")) {
    define("PLUGIN_TIMELINETICKET_DIR", GLPI_ROOT . "/plugins/timelineticket");
@@ -45,12 +45,12 @@ if (!defined("PLUGIN_TIMELINETICKET_DIR")) {
 
 function plugin_version_timelineticket() {
 
-   return array('name'           => _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket"),
-                'minGlpiVersion' => '9.2.1',
+   return ['name'           => _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket"),
+                'minGlpiVersion' => '9.3.0',
                 'version'        => PLUGIN_TIMELINETICKET_VERSION,
                 'homepage'       => 'https://github.com/pluginsGLPI/timelineticket',
                 'license'        => 'AGPLv3+',
-                'author'         => 'Nelly Mahu-Lasson && David Durieux && Xavier Caillaud');
+                'author'         => 'Nelly Mahu-Lasson && David Durieux && Xavier Caillaud'];
 }
 
 
@@ -61,37 +61,37 @@ function plugin_init_timelineticket() {
 
    // add autoload for vendor
    include_once(PLUGIN_TIMELINETICKET_DIR . "/vendor/autoload.php");
-   
+
    $Plugin = new Plugin();
    if ($Plugin->isActivated('timelineticket')) { // check if plugin is active
 
-      $PLUGIN_HOOKS['change_profile']['timelineticket'] = array('PluginTimelineticketProfile', 'initProfile');
+      $PLUGIN_HOOKS['change_profile']['timelineticket'] = ['PluginTimelineticketProfile', 'initProfile'];
 
-      $PLUGIN_HOOKS['show_item_stats']['timelineticket']    = array(
+      $PLUGIN_HOOKS['show_item_stats']['timelineticket']    = [
          'Ticket' => 'plugin_timelineticket_item_stats'
-      );
+      ];
 
-      Plugin::registerClass('PluginTimelineticketProfile', array('addtabon' => 'Profile'));
+      Plugin::registerClass('PluginTimelineticketProfile', ['addtabon' => 'Profile']);
 
-      if (Session::haveRightsOr('plugin_timelineticket_ticket', array(READ, UPDATE))) {
+      if (Session::haveRightsOr('plugin_timelineticket_ticket', [READ, UPDATE])) {
 
          Plugin::registerClass('PluginTimelineticketDisplay',
-                               array('addtabon' => array('Ticket')));
+                               ['addtabon' => ['Ticket']]);
       }
-      $PLUGIN_HOOKS['item_purge']['timelineticket'] = array(
+      $PLUGIN_HOOKS['item_purge']['timelineticket'] = [
          'Ticket'       => 'plugin_timelineticket_ticket_purge',
-         'Group_Ticket' => array('PluginTimelineticketAssignGroup', 'deleteGroupTicket'),
-         'Ticket_User'  => array('PluginTimelineticketAssignUser', 'deleteUserTicket')
-      );
+         'Group_Ticket' => ['PluginTimelineticketAssignGroup', 'deleteGroupTicket'],
+         'Ticket_User'  => ['PluginTimelineticketAssignUser', 'deleteUserTicket']
+      ];
 
-      $PLUGIN_HOOKS['item_add']['timelineticket']    = array(
+      $PLUGIN_HOOKS['item_add']['timelineticket']    = [
          'Ticket'       => 'plugin_timelineticket_ticket_add',
-         'Group_Ticket' => array('PluginTimelineticketAssignGroup', 'addGroupTicket'),
-         'Ticket_User'  => array('PluginTimelineticketAssignUser', 'addUserTicket')
-      );
-      $PLUGIN_HOOKS['item_update']['timelineticket'] = array(
+         'Group_Ticket' => ['PluginTimelineticketAssignGroup', 'addGroupTicket'],
+         'Ticket_User'  => ['PluginTimelineticketAssignUser', 'addUserTicket']
+      ];
+      $PLUGIN_HOOKS['item_update']['timelineticket'] = [
          'Ticket' => 'plugin_timelineticket_ticket_update'
-      );
+      ];
 
       if (Session::haveRight("config", UPDATE)
           || Session::haveRight('plugin_timelineticket_ticket', UPDATE)) {// Config page
@@ -104,9 +104,9 @@ function plugin_init_timelineticket() {
 function plugin_timelineticket_check_prerequisites() {
 
    // Checking of the GLPI version
-   if (version_compare(GLPI_VERSION, '9.2', 'lt')
-       || version_compare(GLPI_VERSION, '9.3', 'ge')) {
-      echo 'This plugin requires GLPI >= 9.2';
+   if (version_compare(GLPI_VERSION, '9.3', 'lt')
+       || version_compare(GLPI_VERSION, '9.4', 'ge')) {
+      echo 'This plugin requires GLPI >= 9.3';
       return false;
    }
    return true;
@@ -116,5 +116,3 @@ function plugin_timelineticket_check_prerequisites() {
 function plugin_timelineticket_check_config() {
    return true;
 }
-
-?>

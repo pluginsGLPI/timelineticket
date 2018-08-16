@@ -83,4 +83,3 @@ if (Session::haveRight("config", READ)
    }
 }
 
-?>

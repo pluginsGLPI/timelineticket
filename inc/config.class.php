@@ -98,9 +98,9 @@ class PluginTimelineticketConfig extends CommonDBTM {
       $conf = new self();
       if (!$conf->getFromDB(1)) {
 
-         $conf->add(array(
+         $conf->add([
                        'id'          => 1,
-                       'add_waiting' => 1));
+                       'add_waiting' => 1]);
       }
    }
 
@@ -122,4 +122,3 @@ class PluginTimelineticketConfig extends CommonDBTM {
 
 }
 
-?>

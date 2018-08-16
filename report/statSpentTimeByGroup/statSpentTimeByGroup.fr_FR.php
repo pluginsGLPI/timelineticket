@@ -39,4 +39,3 @@
 
 $LANG['plugin_timelineticket']['statSpentTimeByGroup'] = "Temps passés en heures par les niveaux de support sur les tickets clos";
 
-?>

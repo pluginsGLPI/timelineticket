@@ -51,7 +51,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
    function getSearchOptions() {
 
-      $tab = array();
+      $tab = [];
 
       $tab['common'] = __('Timeline', 'timelineticket');
 
@@ -60,7 +60,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       $tab[1]['linkfield']    = 'tickets_id';
       $tab[1]['name']         = __('Group');
       $tab[1]['datatype']     = 'itemlink';
-      $tab[1]['forcegroupby'] = TRUE;
+      $tab[1]['forcegroupby'] = true;
 
       return $tab;
    }
@@ -129,8 +129,8 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       $totaltime = $a_data['totaltime'];
       $end_date  = $a_data['end_date'];
 
-      $params = array('totaltime' => $totaltime,
-                      'end_date'  => $end_date);
+      $params = ['totaltime' => $totaltime,
+                      'end_date'  => $end_date];
 
       $ptState = new PluginTimelineticketState();
       $ptState->showTimeline($ticket, $params);
@@ -191,12 +191,13 @@ class PluginTimelineticketDisplay extends CommonDBTM {
                          WHERE `tickets_id` = '" . $ticket->getID() . "'";
 
          $result = $DB->query($query);
+         $dbu    = new DbUtils();
          while ($data = $DB->fetch_assoc($result)) {
 
             echo "<tr class='tab_bg_1'>";
             echo "<td>" . $data['id'] . "</td>";
             echo "<td>" . Html::convDateTime($data['date']) . "</td>";
-            echo "<td>" . getUserName($data['users_id']) . "</td>";
+            echo "<td>" . $dbu->getUserName($data['users_id']) . "</td>";
             echo "<td>" . Html::timestampToString($data['begin']) . "</td>";
             echo "<td>" . Html::timestampToString($data['delay']) . "</td>";
             echo "</tr>";
@@ -249,8 +250,8 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       }
       $end_date = $totaltime;
 
-      return array('totaltime' => $totaltime,
-                   'end_date'  => $end_date);
+      return ['totaltime' => $totaltime,
+                   'end_date'  => $end_date];
    }
 
 

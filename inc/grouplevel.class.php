@@ -50,17 +50,17 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
 
    function getAdditionalFields() {
 
-      return array(array('name'  => 'rank',
+      return [['name'  => 'rank',
                          'label' => __('Position'),
                          'type'  => 'text',
-                         'list'  => true),
-                   array('name'  => 'groups',
+                         'list'  => true],
+                   ['name'  => 'groups',
                          'label' => __('List of associated groups', 'timelineticket'),
                          'type'  => 'groups',
-                         'list'  => true));
+                         'list'  => true]];
    }
 
-   function displaySpecificTypeField($ID, $field = array()) {
+   function displaySpecificTypeField($ID, $field = []) {
       global $CFG_GLPI;
 
       switch ($field['type']) {
@@ -78,10 +78,10 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
                   Html::showSimpleForm(Toolbox::getItemTypeFormURL('PluginTimelineticketConfig'),
                                        'delete_groups',
                                        _x('button', 'Delete permanently'),
-                                       array('delete_groups'     => 'delete_groups',
+                                       ['delete_groups'     => 'delete_groups',
                                              'id'                => $ID,
                                              '_groups_id_assign' => $val
-                                       ),
+                                       ],
                                        $CFG_GLPI["root_doc"] . "/pics/delete.png");
                   echo " </td>";
                   echo "</tr>";
@@ -96,20 +96,39 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
       }
    }
 
-   function getSearchOptions() {
+   /**
+    * Provides search options configuration. Do not rely directly
+    * on this, @see CommonDBTM::searchOptions instead.
+    *
+    * @since 9.3
+    *
+    * This should be overloaded in Class
+    *
+    * @return array a *not indexed* array of search options
+    *
+    * @see https://glpi-developer-documentation.rtfd.io/en/master/devapi/search.html
+    **/
+   public function rawSearchOptions() {
 
-      $tab = parent::getSearchOptions();
+      $tab = parent::rawSearchOptions();
 
-      $tab[11]['table']         = 'glpi_plugin_timelineticket_grouplevels';
-      $tab[11]['field']         = 'rank';
-      $tab[11]['name']          = __('Position');
-      $tab[11]['massiveaction'] = false;
+      $tab[] = [
+         'id'            => '11',
+         'table'         => $this->getTable(),
+         'field'         => 'rank',
+         'name'          => __('Position'),
+         'massiveaction' => false
+      ];
 
-      $tab[12]['table']         = 'glpi_plugin_timelineticket_grouplevels';
-      $tab[12]['field']         = 'groups';
-      $tab[12]['name']          = __('List of associated groups', 'timelineticket');
-      $tab[12]['massiveaction'] = false;
-      $tab[12]['nosearch']      = true;
+      $tab[] = [
+         'id'            => '12',
+         'table'         => $this->getTable(),
+         'field'         => 'groups',
+         'name'          => __('List of associated groups', 'timelineticket'),
+         'massiveaction' => 'false',
+         'nosearch'      => true
+      ];
+
       return $tab;
    }
 
@@ -120,9 +139,9 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
     *
     * @return array
     */
-   function defineTabs($options = array()) {
+   function defineTabs($options = []) {
 
-      $ong = array();
+      $ong = [];
       $this->addDefaultFormTab($ong);
       $this->addStandardTab("PluginTimelineticketConfig", $ong, $options);
 
@@ -141,13 +160,13 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
       echo "<tr class='tab_bg_1 center'>";
       echo "<td>";
 
-      $used = ($item->fields["groups"] == '' ? array() : json_decode($item->fields["groups"], true));
+      $used = ($item->fields["groups"] == '' ? [] : json_decode($item->fields["groups"], true));
 
-      Group::dropdown(array('name'        => '_groups_id_assign',
+      Group::dropdown(['name'        => '_groups_id_assign',
                             'used'        => $used,
                             'entity'      => $item->fields['entities_id'],
                             'entity_sons' => $item->fields["is_recursive"],
-                            'condition'   => '`is_assign`'));
+                            'condition'   => '`is_assign`']);
 
       echo "</td>";
       echo "<td><input type='hidden' name='id' value='" . $item->getID() . "'>";
@@ -159,10 +178,10 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
    }
 
    function getLaskRank() {
-
-      $restrict = getEntitiesRestrictRequest('', "glpi_plugin_timelineticket_grouplevels", '', '', true);
-      $restrict .= "ORDER BY rank DESC LIMIT 1";
-      $configs  = getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
+      $dbu      = new DbUtils();
+      $restrict = $dbu->getEntitiesRestrictCriteria("glpi_plugin_timelineticket_grouplevels", '', '', true)+
+                  ["ORDER" => "rank DESC"] + ["LIMIT" => 1];
+      $configs  = $dbu->getAllDataFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
       if (!empty($configs)) {
          foreach ($configs as $config) {
             return $config['rank'];
@@ -176,14 +195,14 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
    }
 
    function prepareInputForUpdate($params) {
-
+      $dbu = new DbUtils();
       if (isset($params["add_groups"])) {
-         $input = array();
+         $input = [];
 
          $restrict = "`id` = " . $params['id'];
-         $configs  = getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
+         $configs  = $dbu->getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
 
-         $groups = array();
+         $groups = [];
          if (!empty($configs)) {
             foreach ($configs as $config) {
                if (!empty($config["groups"])) {
@@ -193,10 +212,10 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
                         array_push($groups, $params["_groups_id_assign"]);
                      }
                   } else {
-                     $groups = array($params["_groups_id_assign"]);
+                     $groups = [$params["_groups_id_assign"]];
                   }
                } else {
-                  $groups = array($params["_groups_id_assign"]);
+                  $groups = [$params["_groups_id_assign"]];
                }
             }
          }
@@ -209,9 +228,9 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
       } else if (isset($params["delete_groups"])) {
 
          $restrict = "`id` = " . $params['id'];
-         $configs  = getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
+         $configs  = $dbu->getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
 
-         $groups = array();
+         $groups = [];
          if (!empty($configs)) {
             foreach ($configs as $config) {
                if (!empty($config["groups"])) {
@@ -234,7 +253,6 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
          $input['id']     = $params['id'];
          $input['groups'] = $group;
 
-
       } else {
          $input = $params;
       }
@@ -242,4 +260,3 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
    }
 }
 
-?>

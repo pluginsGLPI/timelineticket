@@ -39,4 +39,3 @@
 
 $LANG['plugin_timelineticket']['statSpentTimeProcessingByGroup'] = "Time spent 'in progress' by services level on closed tickets";
 
-?>

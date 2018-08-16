@@ -71,15 +71,15 @@ $requesttype = new PluginReportsRequestTypeCriteria($report, 'requesttypes_id', 
 //Display criterias form is needed
 $report->displayCriteriasForm();
 
-$columns = array('id'                => array('sorton' => 'id'),
-                 'date'              => array('sorton' => 'date'),
-                 'closedate'         => array('sorton' => 'closedate'),
-                 'priority'          => array('sorton' => 'priority'),
-                 'type'              => array('sorton' => 'type'),
-                 'requesttypes_id'   => array('sorton' => 'requesttypes_id'),
-                 'itilcategories_id' => array('sorton' => 'itilcategories_id'),
-                 'slts_ttr_id'       => array('sorton' => 'slts_ttr_id'),
-);
+$columns = ['id'                => ['sorton' => 'id'],
+                 'date'              => ['sorton' => 'date'],
+                 'closedate'         => ['sorton' => 'closedate'],
+                 'priority'          => ['sorton' => 'priority'],
+                 'type'              => ['sorton' => 'type'],
+                 'requesttypes_id'   => ['sorton' => 'requesttypes_id'],
+                 'itilcategories_id' => ['sorton' => 'itilcategories_id'],
+                 'slts_ttr_id'       => ['sorton' => 'slts_ttr_id'],
+];
 
 $output_type = Search::HTML_OUTPUT;
 
@@ -104,12 +104,13 @@ if (isset($_POST["display_type"])) {
 
 //Report title
 $title = $report->getFullTitle();
+$dbu   = new DbUtils();
 
 // SQL statement
 $query = "SELECT glpi_tickets.*  
                FROM `glpi_tickets`
                WHERE `glpi_tickets`.`status` = '" . Ticket::CLOSED . "'";
-$query .= getEntitiesRestrictRequest('AND', "glpi_tickets", '', '', false);
+$query .= $dbu->getEntitiesRestrictRequest('AND', "glpi_tickets", '', '', false);
 $query .= $date->getSqlCriteriasRestriction();
 $query .= $category->getSqlCriteriasRestriction();
 if (isset($_POST['requesttypes_id']) && $_POST['requesttypes_id'] > 0) {
@@ -184,10 +185,10 @@ if ($nbtot == 0) {
 
 if ($res && $nbtot > 0) {
 
-   $mylevels = array();
-   $restrict = getEntitiesRestrictRequest('', "glpi_plugin_timelineticket_grouplevels", '', '', true);
-   $restrict .= "ORDER BY rank";
-   $levels = getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
+   $mylevels = [];
+   $restrict = $dbu->getEntitiesRestrictCriteria("glpi_plugin_timelineticket_grouplevels", '', '', true) +
+               ["ORDER" => "rank"];
+   $levels = $dbu->getAllDataFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
    if (!empty($levels)) {
       foreach ($levels as $level) {
          $mylevels[$level["name"]] = json_decode($level["groups"], true);
@@ -227,14 +228,14 @@ if ($res && $nbtot > 0) {
       $ticket = new Ticket();
       $ticket->getFromDB($data['id']);
 
-      $timelevels = array();
+      $timelevels = [];
       if (!empty($mylevels)) {
          foreach ($mylevels as $key => $val) {
             if (is_array($val)) {
                foreach ($val as $group => $groups_id) {
 
                   $a_details = getDetails($ticket, $groups_id);
-                  $a_status = array();
+                  $a_status = [];
                   foreach ($a_details as $time) {
                      if ($time['Status'] == Ticket::ASSIGNED || $time['Status'] == Ticket::PLANNED) {
                         if (isset($timelevels[$key])) {
@@ -253,7 +254,7 @@ if ($res && $nbtot > 0) {
       $row_num++;
       $num = 1;
       echo Search::showNewLine($output_type);
-      
+
       $link = "<a href='".$CFG_GLPI["root_doc"].
                 "/front/ticket.form.php?id=".$data["id"]."'>".$data['id']."</a>";
       echo Search::showItem($output_type, $link, $num, $row_num);
@@ -321,7 +322,7 @@ function showTitle($output_type, &$num, $title, $columnname, $sort = false) {
    $link  = $_SERVER['PHP_SELF'];
    $first = true;
    foreach ($_REQUEST as $name => $value) {
-      if (!in_array($name, array('sort', 'order', 'PHPSESSID'))) {
+      if (!in_array($name, ['sort', 'order', 'PHPSESSID'])) {
          $link .= ($first ? '?' : '&amp;');
          $link .= $name . '=' . urlencode($value);
          $first = false;
@@ -375,7 +376,7 @@ function getOrderByFields($default, $columns) {
          return $column['sorton'];
       }
    }
-   return array();
+   return [];
 }
 
 function getDetails(Ticket $ticket, $groups_id) {
@@ -387,7 +388,7 @@ function getDetails(Ticket $ticket, $groups_id) {
 
    $ptItem = new PluginTimelineticketAssignGroup();
 
-   $a_states     = array();
+   $a_states     = [];
    $a_dbstates   = $ptState->find("`tickets_id`='" . $ticket->getField('id') . "'", "`date`, `id`");
    $end_previous = 0;
    foreach ($a_dbstates as $a_dbstate) {
@@ -405,13 +406,12 @@ function getDetails(Ticket $ticket, $groups_id) {
       $a_states[$totaltime] = $a_dbstate['new_status'];
    }
 
-
-   $a_itemsections = array();
+   $a_itemsections = [];
    $a_dbitems      = $ptItem->find("`tickets_id`='" . $ticket->getField('id') . "' AND `groups_id` = $groups_id", "`date`");
    foreach ($a_dbitems as $a_dbitem) {
 
       if (!isset($a_itemsections)) {
-         $a_itemsections[$a_dbitem['groups_id']] = array();
+         $a_itemsections[$a_dbitem['groups_id']] = [];
          $last_statedelay                        = 0;
       } else {
          foreach ($a_itemsections as $data) {
@@ -430,62 +430,62 @@ function getDetails(Ticket $ticket, $groups_id) {
       foreach ($a_states as $delay => $statusname) {
          if ($mem == 1) {
             if ($gdelay > $delay) { // all time of the state
-               $a_itemsections[] = array(
+               $a_itemsections[] = [
                   'Start'   => $gbegin,
                   'End'     => $delay,
                   "Caption" => "",
                   "Status"  => $statusname,
 
-               );
+               ];
                $gbegin                                   = $delay;
             } else if ($gdelay == $delay) { // end of status = end of group
-               $a_itemsections[] = array(
+               $a_itemsections[] = [
                   'Start'   => $gbegin,
                   'End'     => $delay,
                   "Caption" => "",
                   "Status"  => $statusname,
 
-               );
+               ];
                $mem                                      = 2;
             } else { // end of status is after end of group
-               $a_itemsections[] = array(
+               $a_itemsections[] = [
                   'Start'   => $gbegin,
                   'End'     => $gdelay,
                   "Caption" => "",
                   "Status"  => $statusname,
 
-               );
+               ];
                $mem                                      = 2;
             }
          } else if ($mem == 0
                     && $gbegin < $delay) {
             if ($gdelay > $delay) { // all time of the state
-               $a_itemsections[] = array(
+               $a_itemsections[] = [
                   'Start'   => $gbegin,
                   'End'     => $delay,
                   "Caption" => "",
                   "Status"  => $statusname,
 
-               );
+               ];
                $gbegin                                   = $delay;
                $mem                                      = 1;
             } else if ($gdelay == $delay) { // end of status = end of group
-               $a_itemsections[] = array(
+               $a_itemsections[] = [
                   'Start'   => $gbegin,
                   'End'     => $delay,
                   "Caption" => "",
                   "Status"  => $statusname,
 
-               );
+               ];
                $mem                                      = 2;
             } else { // end of status is after end of group
-               $a_itemsections[] = array(
+               $a_itemsections[] = [
                   'Start'   => $gbegin,
                   'End'     => $gdelay,
                   "Caption" => "",
                   "Status"  => $statusname,
 
-               );
+               ];
                $mem                                      = 2;
             }
          }
@@ -496,4 +496,3 @@ function getDetails(Ticket $ticket, $groups_id) {
    return $a_itemsections;
 }
 
-?>

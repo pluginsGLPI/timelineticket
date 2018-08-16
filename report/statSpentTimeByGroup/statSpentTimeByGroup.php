@@ -36,7 +36,7 @@
 
    ------------------------------------------------------------------------
  */
- 
+
 //Options for GLPI 0.71 and newer : need slave db to access the report
 $USEDBREPLICATE = 1;
 $DBCONNECTION_REQUIRED = 1;
@@ -67,21 +67,21 @@ $date->setEndDate($dateMonthend);
 //Display criterias form is needed
 $report->displayCriteriasForm();
 
-$columns = array('closedate' => array('sorton' => 'closedate'),
-                  'id' => array('sorton' => 'id'),
-                  'entities_id' => array('sorton' => 'entities_id'),
-                  'status' => array('sorton' => 'status'),
-                  'date' => array('sorton' => 'date'),
-                  'date_mod' => array('sorton' => 'date_mod'),
-                  'priority' => array('sorton' => 'priority'),
-                  'type' => array('sorton' => 'type'),
-                  'itilcategories_id' => array('sorton' => 'itilcategories_id'),
-                  'name' => array('sorton' => 'name'),
-                  'requesttypes_id' => array('sorton' => 'requesttypes_id'),
-                  'takeintoaccount_delay_stat' => array('sorton' => 'takeintoaccount_delay_stat'),
-                  'slts_ttr_id' => array('sorton' => 'slts_ttr_id')
-    );
-   
+$columns = ['closedate' => ['sorton' => 'closedate'],
+                  'id' => ['sorton' => 'id'],
+                  'entities_id' => ['sorton' => 'entities_id'],
+                  'status' => ['sorton' => 'status'],
+                  'date' => ['sorton' => 'date'],
+                  'date_mod' => ['sorton' => 'date_mod'],
+                  'priority' => ['sorton' => 'priority'],
+                  'type' => ['sorton' => 'type'],
+                  'itilcategories_id' => ['sorton' => 'itilcategories_id'],
+                  'name' => ['sorton' => 'name'],
+                  'requesttypes_id' => ['sorton' => 'requesttypes_id'],
+                  'takeintoaccount_delay_stat' => ['sorton' => 'takeintoaccount_delay_stat'],
+                  'slts_ttr_id' => ['sorton' => 'slts_ttr_id']
+    ];
+
 $output_type = Search::HTML_OUTPUT;
 
 if (isset($_POST['list_limit'])) {
@@ -106,12 +106,12 @@ if (isset($_POST["display_type"])) {
 //}
 //Report title
 $title = $report->getFullTitle();
-
+$dbu   = new DbUtils();
 // SQL statement
 $query = "SELECT glpi_tickets.*  
                FROM `glpi_tickets`
                WHERE `glpi_tickets`.`status` = '".Ticket::CLOSED."'";
-$query .= getEntitiesRestrictRequest('AND',"glpi_tickets",'','',false);
+$query .= $dbu->getEntitiesRestrictRequest('AND', "glpi_tickets", '', '', false);
 $query .= $date->getSqlCriteriasRestriction();
 $query .= getOrderBy('closedate', $columns);
 
@@ -136,7 +136,7 @@ if ($nbtot == 0) {
    }
    echo "<div class='center red b'>" . __('No item found') . "</div>";
    Html::footer();
-} else if ($output_type == Search::PDF_OUTPUT_PORTRAIT 
+} else if ($output_type == Search::PDF_OUTPUT_PORTRAIT
                || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
    include (GLPI_ROOT . "/lib/ezpdf/class.ezpdf.php");
 } else if ($output_type == Search::HTML_OUTPUT) {
@@ -144,9 +144,9 @@ if ($nbtot == 0) {
       Html::header($title, $_SERVER['PHP_SELF'], "utils", "report");
       Report::title();
    }
-   
+
    echo "<div class='center'>";
-   
+
    echo "<table class='tab_cadre_fixe'>";
    echo "<tr><th>$title</th></tr>\n";
 
@@ -181,10 +181,10 @@ if ($nbtot == 0) {
 
 if ($res && $nbtot > 0) {
 
-   $mylevels = array();
-   $restrict = getEntitiesRestrictRequest('',"glpi_plugin_timelineticket_grouplevels",'','',true);
-   $restrict .= "ORDER BY rank";
-   $levels = getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels",$restrict);
+   $mylevels = [];
+   $restrict = $dbu->getEntitiesRestrictCriteria("glpi_plugin_timelineticket_grouplevels", '', '', true) +
+               ["ORDER" => "rank"];
+   $levels = $dbu->getAllDataFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
    if (!empty($levels)) {
       foreach ($levels as $level) {
          $mylevels[$level["name"]] = json_decode($level["groups"], true);
@@ -227,8 +227,8 @@ if ($res && $nbtot > 0) {
 
    $row_num = 1;
    while ($data = $DB->fetch_assoc($res)) {
-      
-      
+
+
       //Requesters
       $userdata = '';
       $ticket = new Ticket();
@@ -238,20 +238,20 @@ if ($res && $nbtot > 0) {
          foreach ($ticket->getUsers(CommonITILActor::REQUESTER) as $d) {
             $k = $d['users_id'];
             if ($k) {
-               $userdata.= getUserName($k);
+               $userdata.= $dbu->getUserName($k);
             }
             if ($ticket->countUsers(CommonITILActor::REQUESTER) > 1) {
                $userdata .= "<br>";
             }
          }
       }
-      
+
       //Time by level group
-      $timegroups = array();
-      $ticketgroups = array();
-      
-      $restrict = " `tickets_id` = " . $data["id"]." ORDER BY date";
-      $groups = getAllDatasFromTable("glpi_plugin_timelineticket_assigngroups", $restrict);
+      $timegroups = [];
+      $ticketgroups = [];
+
+      $restrict = ["tickets_id" => $data["id"]] +["ORDER" => "date"];
+      $groups = $dbu->getAllDataFromTable("glpi_plugin_timelineticket_assigngroups", $restrict);
       if (!empty($groups)) {
          foreach ($groups as $group) {
             if (isset($timegroups[$group["groups_id"]])) {
@@ -267,10 +267,10 @@ if ($res && $nbtot > 0) {
                      $delay = strtotime($data["closedate"]) - strtotime($group["date"]);
                   }
 
-               if ($delay < 0) {
+                  if ($delay < 0) {
                      $delay = 0;
                   }
-              
+
                   $timegroups[$group["groups_id"]] += $delay;
                }
             } else {
@@ -285,26 +285,26 @@ if ($res && $nbtot > 0) {
                   } else {
                      $delay = strtotime($data["closedate"]) - strtotime($group["date"]);
                   }
-             
-               if ($delay < 0) {
+
+                  if ($delay < 0) {
                      $delay = 0;
                   }
                   $timegroups[$group["groups_id"]] = $delay;
                }
             }
-            if (!in_array($group["groups_id"],$ticketgroups)) {
+            if (!in_array($group["groups_id"], $ticketgroups)) {
                $ticketgroups[] = $group["groups_id"];
             }
          }
       }
-      $timelevels = array();
-      if (!empty($mylevels) 
+      $timelevels = [];
+      if (!empty($mylevels)
             && !empty($timegroups)) {
          foreach ($mylevels as $key => $val) {
             foreach ($timegroups as $group => $time) {
-               
-               if (is_array($val) 
-                     && in_array($group,$val)) {
+
+               if (is_array($val)
+                     && in_array($group, $val)) {
                   if (isset($timelevels[$key])) {
                      $timelevels[$key] += $time;
                   } else {
@@ -314,36 +314,36 @@ if ($res && $nbtot > 0) {
             }
          }
       }
-      
+
       //Time of task by level group
-      $tickettechs = array();
+      $tickettechs = [];
       $restrict = " `tickets_id` = " . $data["id"]." 
                   AND actiontime > 0 ORDER BY date";
-      $tasks = getAllDatasFromTable("glpi_tickettasks",$restrict);
-      
+      $tasks = $dbu->getAllDataFromTable("glpi_tickettasks", $restrict);
+
       if (!empty($tasks)) {
          foreach ($tasks as $task) {
 
             foreach (Group_User::getUserGroups($task["users_id"]) as $usergroups) {
-               if (in_array($usergroups["id"],$ticketgroups)) {
+               if (in_array($usergroups["id"], $ticketgroups)) {
                   if (isset($tickettechs[$usergroups["id"]])) {
                      $tickettechs[$usergroups["id"]] += $task["actiontime"];
                   } else {
                      $tickettechs[$usergroups["id"]] = $task["actiontime"];
                   }
-               } 
+               }
             }
          }
       }
 
-      $tasklevels = array();
-      if (!empty($mylevels) 
+      $tasklevels = [];
+      if (!empty($mylevels)
             && !empty($tickettechs)) {
          foreach ($mylevels as $key => $val) {
             foreach ($tickettechs as $group => $time) {
-               
-               if (is_array($val) 
-                     && in_array($group,$val)) {
+
+               if (is_array($val)
+                     && in_array($group, $val)) {
                   if (isset($tasklevels[$key])) {
                      $tasklevels[$key] += $time;
                   } else {
@@ -353,12 +353,12 @@ if ($res && $nbtot > 0) {
             }
          }
       }
-      
+
       $row_num++;
       $num = 1;
       echo Search::showNewLine($output_type);
       echo Search::showItem($output_type, $data['id'], $num, $row_num);
-      echo Search::showItem($output_type,Dropdown::getDropdownName('glpi_entities',$data['entities_id']),$num,$row_num);
+      echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_entities', $data['entities_id']), $num, $row_num);
       echo Search::showItem($output_type, Ticket::getStatus($data["status"]), $num, $row_num);
       echo Search::showItem($output_type, Html::convDateTime($data['date']), $num, $row_num);
       echo Search::showItem($output_type, Html::convDateTime($data['date_mod']), $num, $row_num);
@@ -372,7 +372,7 @@ if ($res && $nbtot > 0) {
       echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_requesttypes', $data["requesttypes_id"]), $num, $row_num);
 
       if ($output_type == Search::HTML_OUTPUT
-            || $output_type == Search::PDF_OUTPUT_PORTRAIT 
+            || $output_type == Search::PDF_OUTPUT_PORTRAIT
                || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
          echo Search::showItem($output_type, Html::timestampToString($data["takeintoaccount_delay_stat"]), $num, $row_num);
       } else {
@@ -394,15 +394,15 @@ if ($res && $nbtot > 0) {
                $timetask = 0;
             }
             if ($output_type == Search::HTML_OUTPUT
-                  || $output_type == Search::PDF_OUTPUT_PORTRAIT 
+                  || $output_type == Search::PDF_OUTPUT_PORTRAIT
                || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
                echo Search::showItem($output_type, Html::timestampToString($timetask), $num, $row_num);
             } else {
                echo Search::showItem($output_type, Html::formatNumber($timetask / 3600, false, 5), $num, $row_num);
             }
-            
+
             if ($output_type == Search::HTML_OUTPUT
-                  || $output_type == Search::PDF_OUTPUT_PORTRAIT 
+                  || $output_type == Search::PDF_OUTPUT_PORTRAIT
                || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
                echo Search::showItem($output_type, Html::timestampToString($time), $num, $row_num);
             } else {
@@ -412,11 +412,11 @@ if ($res && $nbtot > 0) {
       }
       $total = $ticket->fields["close_delay_stat"];
       if ($output_type == Search::HTML_OUTPUT
-                  || $output_type == Search::PDF_OUTPUT_PORTRAIT 
+                  || $output_type == Search::PDF_OUTPUT_PORTRAIT
                || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
          echo Search::showItem($output_type, Html::timestampToString($total), $num, $row_num);
       } else {
-         echo Search::showItem($output_type, Html::formatNumber($total / 3600,false, 5), $num, $row_num);
+         echo Search::showItem($output_type, Html::formatNumber($total / 3600, false, 5), $num, $row_num);
       }
       echo Search::showEndLine($output_type);
    }
@@ -454,7 +454,7 @@ function showTitle($output_type, &$num, $title, $columnname, $sort = false) {
    $link = $_SERVER['PHP_SELF'];
    $first = true;
    foreach ($_REQUEST as $name => $value) {
-      if (!in_array($name, array('sort', 'order', 'PHPSESSID'))) {
+      if (!in_array($name, ['sort', 'order', 'PHPSESSID'])) {
          $link .= ($first ? '?' : '&amp;');
          $link .= $name . '=' . urlencode($value);
          $first = false;
@@ -506,7 +506,6 @@ function getOrderByFields($default, $columns) {
          return $column['sorton'];
       }
    }
-   return array();
+   return [];
 }
 
-?>

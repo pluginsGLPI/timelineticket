@@ -39,4 +39,3 @@
 
 $LANG['plugin_timelineticket']['statSpentTimeByGroup'] = "Hours spent by services level on closed tickets";
 
-?>

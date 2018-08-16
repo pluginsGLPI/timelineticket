@@ -62,7 +62,7 @@ class PluginTimelineticketProfile extends Profile {
    static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
       $pfProfile = new self();
       $pfProfile->showForm($item->getID());
-      return TRUE;
+      return true;
    }
 
 
@@ -77,10 +77,10 @@ class PluginTimelineticketProfile extends Profile {
     * @internal param int $items_id id of the profile
     * @internal param value $target url of target
     */
-   function showForm($profiles_id = 0, $openform = TRUE, $closeform = TRUE) {
+   function showForm($profiles_id = 0, $openform = true, $closeform = true) {
 
       echo "<div class='firstbloc'>";
-      if (($canedit = Session::haveRightsOr(self::$rightname, array(CREATE, UPDATE, PURGE)))
+      if (($canedit = Session::haveRightsOr(self::$rightname, [CREATE, UPDATE, PURGE]))
           && $openform) {
          $profile = new Profile();
          echo "<form method='post' action='" . $profile->getFormURL() . "'>";
@@ -90,15 +90,15 @@ class PluginTimelineticketProfile extends Profile {
       $profile->getFromDB($profiles_id);
 
       $rights = $this->getRightsGeneral();
-      $profile->displayRightsChoiceMatrix($rights, array('canedit'       => $canedit,
+      $profile->displayRightsChoiceMatrix($rights, ['canedit'       => $canedit,
                                                          'default_class' => 'tab_bg_2',
-                                                         'title'         => __('General', 'timelineticket')));
+                                                         'title'         => __('General', 'timelineticket')]);
 
       if ($canedit
           && $closeform) {
          echo "<div class='center'>";
-         echo Html::hidden('id', array('value' => $profiles_id));
-         echo Html::submit(_sx('button', 'Save'), array('name' => 'update'));
+         echo Html::hidden('id', ['value' => $profiles_id]);
+         echo Html::submit(_sx('button', 'Save'), ['name' => 'update']);
          echo "</div>\n";
          Html::closeForm();
       }
@@ -109,16 +109,16 @@ class PluginTimelineticketProfile extends Profile {
       $pfProfile = new self();
       $a_rights  = $pfProfile->getRightsGeneral();
       foreach ($a_rights as $data) {
-         ProfileRight::deleteProfileRights(array($data['field']));
+         ProfileRight::deleteProfileRights([$data['field']]);
       }
    }
 
    static function getRightsGeneral() {
-      $rights = array(
-         array('rights' => array(READ => __('Read'), UPDATE => __('Update')),
+      $rights = [
+         ['rights' => [READ => __('Read'), UPDATE => __('Update')],
                'label'  => __('Ticket'),
-               'field'  => 'plugin_timelineticket_ticket'),
-      );
+               'field'  => 'plugin_timelineticket_ticket'],
+      ];
 
       return $rights;
    }
@@ -128,7 +128,8 @@ class PluginTimelineticketProfile extends Profile {
       foreach ($rights as $right => $value) {
          $dbutils = new DbUtils();
          if (!$dbutils->countElementsInTable('glpi_profilerights',
-                                             "`profiles_id`='$profiles_id' AND `name`='$right'")) {
+                                             ["profiles_id" => $profiles_id,
+                                              "name"        => $right])) {
             $myright['profiles_id'] = $profiles_id;
             $myright['name']        = $right;
             $myright['rights']      = $value;
@@ -150,7 +151,7 @@ class PluginTimelineticketProfile extends Profile {
       $profile = new self();
       foreach ($profile->getRightsGeneral() as $right) {
          self::addDefaultProfileInfos($profiles_id,
-                                      array($right['field'] => ALLSTANDARDRIGHT));
+                                      [$right['field'] => ALLSTANDARDRIGHT]);
       }
    }
 
@@ -161,7 +162,7 @@ class PluginTimelineticketProfile extends Profile {
             unset($_SESSION['glpiactiveprofile'][$right['field']]);
          }
       }
-      ProfileRight::deleteProfileRights(array($right['field']));
+      ProfileRight::deleteProfileRights([$right['field']]);
 
    }
 
@@ -188,18 +189,18 @@ class PluginTimelineticketProfile extends Profile {
                $value = 0;
                break;
          }
-         $oldrights = array();
+         $oldrights = [];
          //Write in glpi_profilerights the new timelineticket right
          if (isset($oldrights[$profile['type']])) {
             //There's one new right corresponding to the old one
             if (!is_array($oldrights[$profile['type']])) {
                self::addDefaultProfileInfos($profile['profiles_id'],
-                                            array($oldrights[$profile['type']] => $value));
+                                            [$oldrights[$profile['type']] => $value]);
             } else {
                //One old right has been splitted into serveral new ones
                foreach ($oldrights[$profile['type']] as $newtype) {
                   self::addDefaultProfileInfos($profile['profiles_id'],
-                                               array($newtype => $value));
+                                               [$newtype => $value]);
                }
             }
          }
@@ -218,15 +219,16 @@ class PluginTimelineticketProfile extends Profile {
 
       foreach ($a_rights as $data) {
          $dbutils = new DbUtils();
-         if ($dbutils->countElementsInTable("glpi_profilerights", "`name` = '" . $data['field'] . "'") == 0) {
-            ProfileRight::addProfileRights(array($data['field']));
+         if ($dbutils->countElementsInTable("glpi_profilerights",
+                                            ["name" => $data['field']]) == 0) {
+            ProfileRight::addProfileRights([$data['field']]);
             $_SESSION['glpiactiveprofile'][$data['field']] = 0;
          }
       }
 
       // Add all rights to current profile of the user
       if (isset($_SESSION['glpiactiveprofile'])) {
-         $dataprofile       = array();
+         $dataprofile       = [];
          $dataprofile['id'] = $_SESSION['glpiactiveprofile']['id'];
          $profile->getFromDB($_SESSION['glpiactiveprofile']['id']);
          foreach ($a_rights as $info) {
@@ -250,4 +252,3 @@ class PluginTimelineticketProfile extends Profile {
    }
 }
 
-?>

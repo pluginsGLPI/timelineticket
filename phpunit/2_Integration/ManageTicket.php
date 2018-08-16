@@ -109,6 +109,8 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       Plugin::load("timelineticket");
 
       Session::loadLanguage("en_GB");
+
+      $dbu = new DbUtils();
       
       $ticket        = new Ticket();
       $group         = new Group();
@@ -151,7 +153,7 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       $GLPIlog->testSQLlogs('03/');
       $GLPIlog->testPHPlogs('03/');
 
-      $a_db = getAllDatasFromTable('glpi_groups_tickets');
+      $a_db = $dbu->getAllDataFromTable('glpi_groups_tickets');
       $a_ref = array();
 
       $a_ref[1] = array(
@@ -162,7 +164,7 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       );
       $this->assertEquals($a_ref, $a_db, 'May have ticket assigned to group1');
 
-      $a_db = getAllDatasFromTable('glpi_tickets_users');
+      $a_db = $dbu->getAllDataFromTable('glpi_tickets_users');
       $a_ref = array();
 
       $a_ref[1] = array(
@@ -221,7 +223,7 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       $GLPIlog->testSQLlogs('07/');
       $GLPIlog->testPHPlogs('07/');
       
-      $a_db = getAllDatasFromTable('glpi_groups_tickets');
+      $a_db = $dbu->getAllDataFromTable('glpi_groups_tickets');
       $this->assertEquals(array(), $a_db, 'May have no group assigned');
       
       // * 08/
@@ -239,7 +241,7 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       $GLPIlog->testSQLlogs('09/');
       $GLPIlog->testPHPlogs('09/');
 
-      $a_db = getAllDatasFromTable('glpi_groups_tickets');
+      $a_db = $dbu->getAllDataFromTable('glpi_groups_tickets');
       $a_ref = array();
 
       $a_ref[2] = array(
@@ -305,7 +307,7 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       $GLPIlog->testSQLlogs('14/');
       $GLPIlog->testPHPlogs('14/');
 
-      $a_db = getAllDatasFromTable('glpi_groups_tickets');
+      $a_db = $dbu->getAllDataFromTable('glpi_groups_tickets');
       $a_ref = array();
 
       $a_ref[3] = array(
@@ -378,10 +380,11 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       global $DB;
 
       $DB->connect();
-      
+
       $a_storedate_temp = self::$storedate;
-      $a_states = getAllDatasFromTable('glpi_plugin_timelineticket_states', '', FALSE, 'id');
-      
+      $dbu              = new DbUtils();
+      $a_states         = $dbu->getAllDataFromTable('glpi_plugin_timelineticket_states', [], FALSE, 'id');
+
       $numlines = 9;
       if (!$closed) {
          $numlines = 8;
@@ -488,9 +491,10 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       global $DB;
 
       $DB->connect();
-      
+
       $a_storedate_temp = self::$storedate;
-      $a_states = getAllDatasFromTable('glpi_plugin_timelineticket_assigngroups', '', FALSE, 'id');
+      $dbu              = new DbUtils();
+      $a_states         = $dbu->getAllDataFromTable('glpi_plugin_timelineticket_assigngroups', [], FALSE, 'id');
       
       $this->assertEquals(3, count($a_states), 'Number of lines in assigngroup table of plugin');
       
@@ -567,7 +571,8 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
       $a_data = PluginTimelineticketDisplay::getTotaltimeEnddate($ticket);
 
       $totaltime_ref = 0;
-      $a_states = getAllDatasFromTable('glpi_plugin_timelineticket_states', '', FALSE, 'id');
+      $dbu           = new DbUtils();
+      $a_states      = $dbu->getAllDataFromTable('glpi_plugin_timelineticket_states', [], FALSE, 'id');
       
       foreach($a_states as $data) {
          $totaltime_ref += $data['delay'];         
@@ -683,4 +688,3 @@ class ManageTicket_AllTests  {
    }
 }
 
-?>
