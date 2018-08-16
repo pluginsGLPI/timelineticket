@@ -8,6 +8,7 @@
       <short>
          <fr><![CDATA[Ce plugin vous permet d'ajouter un onglet Chronologie sur les tickets]]></fr>
          <en><![CDATA[This plugin allows you to add a Timeline tab on tickets]]></en>
+         <cs><![CDATA[Tento zásuvný modul umožňuje v požadavcích přidat kartu časové osy]]></cs>
       </short>
       <long>
          <fr><![CDATA[Ce plugin vous permet d'ajouter un onglet Chronologie sur les tickets
@@ -20,6 +21,11 @@
 > * History and statistics for differents technicians of the tickets
 > * History and statistics for differents technicians groups of the tickets
 > * Report time spent on closed tickets ]]></en>
+         <cs><![CDATA[Tento zásuvný modul umožňuje v požadavcích přidat kartu časové osy
+         > * Historie a statistiky pro různé stavy požadavků
+> * Historie a statistiky pro různé techniky požadavků
+> * Historie a statistiky pro různé skupiny techniků požadavků
+> * Výkaz času stráveného na uzavřených požadavcích ]]></cs>
       </long>
    </description>
    <homepage>https://github.com/pluginsGLPI/timelineticket</homepage>
@@ -70,7 +76,7 @@
    </versions>
    <langs>
       <lang>cs_CZ</lang>
-       <lang>en_GB</lang>
+      <lang>en_GB</lang>
       <lang>fr_FR</lang>
       <lang>lv_LV</lang>
       <lang>pt_BR</lang>
@@ -88,6 +94,11 @@
             <tag>Timeline</tag>
             <tag>Statistics</tag>
          </en>
+         <cs>
+            <tag>Požadavek</tag>
+            <tag>Časováosa</tag>
+            <tag>Statistiky</tag>
+         </cs>
    </tags>
    <screenshots>
       <screenshot></screenshot>
