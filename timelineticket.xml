@@ -6,26 +6,26 @@
    <logo></logo>
    <description>
       <short>
-         <fr><![CDATA[Ce plugin vous permet d'ajouter un onglet Chronologie sur les tickets]]></fr>
+         <cs><![CDATA[Tento zásuvný modul umožňuje v požadavcích přidat kartu s časovou osou]]></cs>
          <en><![CDATA[This plugin allows you to add a Timeline tab on tickets]]></en>
-         <cs><![CDATA[Tento zásuvný modul umožňuje v požadavcích přidat kartu časové osy]]></cs>
+         <fr><![CDATA[Ce plugin vous permet d'ajouter un onglet Chronologie sur les tickets]]></fr>
       </short>
       <long>
-         <fr><![CDATA[Ce plugin vous permet d'ajouter un onglet Chronologie sur les tickets
-         > * Historisation et statistiques sur les différents statuts du tickets
-> * Historisation et statistiques sur les différents techniciens du tickets
-> * Historisation et statistiques sur les différents groupes de techniciens du tickets
-> * Rapport sur les temps passés sur les tickets clos]]></fr>
+         <cs><![CDATA[Tento zásuvný modul umožňuje v požadavcích přidat kartu s časovou osou
+         > * Historie a statistiky pro různé stavy požadavků
+> * Historie a statistiky pro různé techniky požadavků
+> * Historie a statistiky pro různé skupiny techniků požadavků
+> * Výkaz času stráveného na uzavřených požadavcích ]]></cs>
          <en><![CDATA[This plugin allows you to add a Timeline tab on tickets
          > * History and statistics for differents status of the tickets
 > * History and statistics for differents technicians of the tickets
 > * History and statistics for differents technicians groups of the tickets
 > * Report time spent on closed tickets ]]></en>
-         <cs><![CDATA[Tento zásuvný modul umožňuje v požadavcích přidat kartu časové osy
-         > * Historie a statistiky pro různé stavy požadavků
-> * Historie a statistiky pro různé techniky požadavků
-> * Historie a statistiky pro různé skupiny techniků požadavků
-> * Výkaz času stráveného na uzavřených požadavcích ]]></cs>
+         <fr><![CDATA[Ce plugin vous permet d'ajouter un onglet Chronologie sur les tickets
+         > * Historisation et statistiques sur les différents statuts du tickets
+> * Historisation et statistiques sur les différents techniciens du tickets
+> * Historisation et statistiques sur les différents groupes de techniciens du tickets
+> * Rapport sur les temps passés sur les tickets clos]]></fr>         
       </long>
    </description>
    <homepage>https://github.com/pluginsGLPI/timelineticket</homepage>
@@ -84,21 +84,21 @@
    </langs>
    <license><![CDATA[AGPL v3]]></license>
    <tags>
-         <fr>
-            <tag>Ticket</tag>
-            <tag>Chronologie</tag>
-            <tag>Statistiques</tag>
-         </fr>
+         <cs>
+            <tag>Požadavek</tag>
+            <tag>Časová osa</tag>
+            <tag>Statistiky</tag>
+         </cs>
          <en>
             <tag>Ticket</tag>
             <tag>Timeline</tag>
             <tag>Statistics</tag>
          </en>
-         <cs>
-            <tag>Požadavek</tag>
-            <tag>Časováosa</tag>
-            <tag>Statistiky</tag>
-         </cs>
+         <fr>
+            <tag>Ticket</tag>
+            <tag>Chronologie</tag>
+            <tag>Statistiques</tag>
+         </fr>
    </tags>
    <screenshots>
       <screenshot></screenshot>
