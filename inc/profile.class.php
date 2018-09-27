@@ -41,9 +41,12 @@ if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
 }
 
+/**
+ * Class PluginTimelineticketProfile
+ */
 class PluginTimelineticketProfile extends Profile {
 
-   static $rightname = "config";
+   static $rightname = "profile";
 
    /*
     * Old profile names:
@@ -58,13 +61,62 @@ class PluginTimelineticketProfile extends Profile {
       }
    }
 
-
+   /**
+    * @param CommonGLPI $item
+    * @param int        $tabnum
+    * @param int        $withtemplate
+    *
+    * @return bool
+    */
    static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
-      $pfProfile = new self();
-      $pfProfile->showForm($item->getID());
+
+      if ($item->getType() == 'Profile') {
+         $ID   = $item->getID();
+         $prof = new self();
+
+         self::addDefaultProfileInfos($ID,
+                                      ['plugin_timelineticket_ticket' => 0]);
+         $prof->showForm($ID);
+      }
       return true;
    }
 
+   /**
+    * @param $ID
+    */
+   static function createFirstAccess($ID) {
+      //85
+      self::addDefaultProfileInfos($ID,
+                                   ['plugin_timelineticket_ticket' => 3], true);
+   }
+
+   /**
+    * @param      $profiles_id
+    * @param      $rights
+    * @param bool $drop_existing
+    *
+    * @internal param $profile
+    */
+   static function addDefaultProfileInfos($profiles_id, $rights, $drop_existing = false) {
+      $dbu          = new DbUtils();
+      $profileRight = new ProfileRight();
+      foreach ($rights as $right => $value) {
+         if ($dbu->countElementsInTable('glpi_profilerights',
+                                        ["profiles_id" => $profiles_id, "name" => $right]) && $drop_existing) {
+            $profileRight->deleteByCriteria(['profiles_id' => $profiles_id, 'name' => $right]);
+         }
+         if (!$dbu->countElementsInTable('glpi_profilerights',
+                                         ["profiles_id" => $profiles_id, "name" => $right])) {
+            $myright['profiles_id'] = $profiles_id;
+            $myright['name']        = $right;
+            $myright['rights']      = $value;
+            $profileRight->add($myright);
+
+            //Add right to the current session
+            $_SESSION['glpiactiveprofile'][$right] = $value;
+         }
+      }
+   }
 
    /**
     * Show profile form
@@ -88,11 +140,12 @@ class PluginTimelineticketProfile extends Profile {
 
       $profile = new Profile();
       $profile->getFromDB($profiles_id);
-
-      $rights = $this->getRightsGeneral();
-      $profile->displayRightsChoiceMatrix($rights, ['canedit'       => $canedit,
-                                                         'default_class' => 'tab_bg_2',
-                                                         'title'         => __('General', 'timelineticket')]);
+      if ($profile->getField('interface') == 'central') {
+         $rights = $this->getAllRights();
+         $profile->displayRightsChoiceMatrix($rights, ['canedit'       => $canedit,
+                                                       'default_class' => 'tab_bg_2',
+                                                       'title'         => __('General')]);
+      }
 
       if ($canedit
           && $closeform) {
@@ -113,7 +166,12 @@ class PluginTimelineticketProfile extends Profile {
       }
    }
 
-   static function getRightsGeneral() {
+   /**
+    * @param bool $all
+    *
+    * @return array
+    */
+   static function getAllRights($all = false) {
       $rights = [
          ['rights' => [READ => __('Read'), UPDATE => __('Update')],
                'label'  => __('Ticket'),
@@ -123,131 +181,94 @@ class PluginTimelineticketProfile extends Profile {
       return $rights;
    }
 
-   static function addDefaultProfileInfos($profiles_id, $rights) {
-      $profileRight = new ProfileRight();
-      foreach ($rights as $right => $value) {
-         $dbutils = new DbUtils();
-         if (!$dbutils->countElementsInTable('glpi_profilerights',
-                                             ["profiles_id" => $profiles_id,
-                                              "name"        => $right])) {
-            $myright['profiles_id'] = $profiles_id;
-            $myright['name']        = $right;
-            $myright['rights']      = $value;
-            $profileRight->add($myright);
+   /**
+    * Init profiles
+    *
+    * @param $old_right
+    *
+    * @return int
+    */
 
-            //Add right to the current session
-            $_SESSION['glpiactiveprofile'][$right] = $value;
+   static function translateARight($old_right) {
+      switch ($old_right) {
+         case '':
+            return 0;
+         case 'r' :
+            return READ;
+         case 'w':
+            return ALLSTANDARDRIGHT + READNOTE + UPDATENOTE;
+         case '0':
+         case '1':
+            return $old_right;
+
+         default :
+            return 0;
+      }
+   }
+
+   /**
+    * @since 0.85
+    * Migration rights from old system to the new one for one profile
+    *
+    * @param $profiles_id the profile ID
+    *
+    * @return bool
+    */
+   static function migrateOneProfile($profiles_id) {
+      global $DB;
+      //Cannot launch migration if there's nothing to migrate...
+      if (!$DB->tableExists('glpi_plugin_timelineticket_profiles')) {
+         return true;
+      }
+
+      foreach ($DB->request('glpi_plugin_timelineticket_profiles',
+                            "`profiles_id`='$profiles_id'") as $profile_data) {
+
+         $matching       = ['timelineticket' => 'plugin_timelineticket_ticket'];
+         $current_rights = ProfileRight::getProfileRights($profiles_id, array_values($matching));
+         foreach ($matching as $old => $new) {
+            if (!isset($current_rights[$old])) {
+               $query = "UPDATE `glpi_profilerights` 
+                         SET `rights`='" . self::translateARight($profile_data[$old]) . "' 
+                         WHERE `name`='$new' AND `profiles_id`='$profiles_id'";
+               $DB->query($query);
+            }
          }
       }
    }
 
    /**
-    * @param $profiles_id
-    *
-    * @internal param int $ID
+    * Initialize profiles, and migrate it necessary
     */
-   static function createFirstAccess($profiles_id) {
-      include_once(GLPI_ROOT . "/plugins/timelineticket/inc/profile.class.php");
+   static function initProfile() {
+      global $DB;
       $profile = new self();
-      foreach ($profile->getRightsGeneral() as $right) {
-         self::addDefaultProfileInfos($profiles_id,
-                                      [$right['field'] => ALLSTANDARDRIGHT]);
+      $dbu     = new DbUtils();
+      //Add new rights in glpi_profilerights table
+      foreach ($profile->getAllRights(true) as $data) {
+         if ($dbu->countElementsInTable("glpi_profilerights",
+                                        ["name" => $data['field']]) == 0) {
+            ProfileRight::addProfileRights([$data['field']]);
+         }
+      }
+
+      //Migration old rights in new ones
+      foreach ($DB->request("SELECT `id` FROM `glpi_profiles`") as $prof) {
+         self::migrateOneProfile($prof['id']);
+      }
+      foreach ($DB->request("SELECT *
+                           FROM `glpi_profilerights` 
+                           WHERE `profiles_id`='" . $_SESSION['glpiactiveprofile']['id'] . "' 
+                              AND `name` LIKE '%plugin_timelineticket_%'") as $prof) {
+         $_SESSION['glpiactiveprofile'][$prof['name']] = $prof['rights'];
       }
    }
 
    static function removeRightsFromSession() {
-      $profile = new self();
-      foreach ($profile->getRightsGeneral() as $right) {
+      foreach (self::getAllRights(true) as $right) {
          if (isset($_SESSION['glpiactiveprofile'][$right['field']])) {
             unset($_SESSION['glpiactiveprofile'][$right['field']]);
          }
-      }
-      ProfileRight::deleteProfileRights([$right['field']]);
-
-   }
-
-   static function migrateProfiles() {
-
-      //Get all rights from the old table
-      $dbu      = new DbUtils();
-      $profiles = $dbu->getAllDatasFromTable($dbu->getTableForItemType(__CLASS__));
-
-      //Load mapping of old rights to their new equivalent
-      //      $oldrights = self::getOldRightsMappings();
-
-      //For each old profile : translate old right the new one
-      foreach ($profiles as $id => $profile) {
-         switch ($profile['right']) {
-            case 'r' :
-               $value = READ;
-               break;
-            case 'w':
-               $value = ALLSTANDARDRIGHT;
-               break;
-            case 0:
-            default:
-               $value = 0;
-               break;
-         }
-         $oldrights = [];
-         //Write in glpi_profilerights the new timelineticket right
-         if (isset($oldrights[$profile['type']])) {
-            //There's one new right corresponding to the old one
-            if (!is_array($oldrights[$profile['type']])) {
-               self::addDefaultProfileInfos($profile['profiles_id'],
-                                            [$oldrights[$profile['type']] => $value]);
-            } else {
-               //One old right has been splitted into serveral new ones
-               foreach ($oldrights[$profile['type']] as $newtype) {
-                  self::addDefaultProfileInfos($profile['profiles_id'],
-                                               [$newtype => $value]);
-               }
-            }
-         }
-      }
-   }
-
-   /**
-    * Init profiles during installation :
-    * - add rights in profile table for the current user's profile
-    * - current profile has all rights on the plugin
-    */
-   static function initProfile() {
-      $pfProfile = new self();
-      $profile   = new Profile();
-      $a_rights  = $pfProfile->getRightsGeneral();
-
-      foreach ($a_rights as $data) {
-         $dbutils = new DbUtils();
-         if ($dbutils->countElementsInTable("glpi_profilerights",
-                                            ["name" => $data['field']]) == 0) {
-            ProfileRight::addProfileRights([$data['field']]);
-            $_SESSION['glpiactiveprofile'][$data['field']] = 0;
-         }
-      }
-
-      // Add all rights to current profile of the user
-      if (isset($_SESSION['glpiactiveprofile'])) {
-         $dataprofile       = [];
-         $dataprofile['id'] = $_SESSION['glpiactiveprofile']['id'];
-         $profile->getFromDB($_SESSION['glpiactiveprofile']['id']);
-         foreach ($a_rights as $info) {
-            if (is_array($info)
-                && ((!empty($info['itemtype'])) || (!empty($info['rights'])))
-                && (!empty($info['label'])) && (!empty($info['field']))) {
-
-               if (isset($info['rights'])) {
-                  $rights = $info['rights'];
-               } else {
-                  $rights = $profile->getRightsFor($info['itemtype']);
-               }
-               foreach ($rights as $right => $label) {
-                  $dataprofile['_' . $info['field']][$right]     = 1;
-                  $_SESSION['glpiactiveprofile'][$data['field']] = $right;
-               }
-            }
-         }
-         $profile->update($dataprofile);
       }
    }
 }
