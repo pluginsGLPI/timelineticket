@@ -1,0 +1,112 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Timelineticket Development Team
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+# Juanra Posada <juanra.posada@gmail.com>, 2018
+msgid ""
+msgstr ""
+"Project-Id-Version: GLPI Project - timelineticket plugin\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-10-27 16:14+0200\n"
+"PO-Revision-Date: 2018-08-31 17:10+0000\n"
+"Last-Translator: Juanra Posada <juanra.posada@gmail.com>\n"
+"Language-Team: Spanish (Spain) (http://www.transifex.com/tsmr/GLPI_timelineticket/language/es_ES/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es_ES\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: setup.php:44 inc/display.class.php:48
+msgid "Timeline of ticket"
+msgid_plural "Timeline of tickets"
+msgstr[0] "Linea de tiempo del ticket"
+msgstr[1] "Línea de tiempo de los tickets"
+
+#: inc/assigngroup.class.php:120 inc/toolbox.class.php:328
+msgid "Groups in charge of the ticket"
+msgstr "Grupos responsables del ticket"
+
+#: inc/assigngroup.class.php:252
+msgid "Ticket assign group history"
+msgstr "Historial de tickets asignados por grupo"
+
+#: inc/assignuser.class.php:118 inc/toolbox.class.php:330
+msgid "Technicians in charge of the ticket"
+msgstr "Técnicos responsables del ticket"
+
+#: inc/assignuser.class.php:201
+msgid "Ticket assign technician history"
+msgstr "Histórico de tickets asignados por técnico"
+
+#: inc/config.class.php:55
+msgid "(Can take many time if you have many tickets)"
+msgstr "(Podría durar un tiempo si tiene muchos tickets)"
+
+#: inc/config.class.php:62
+msgctxt "button"
+msgid "Reconstruct states timeline for all tickets"
+msgstr "Reconstruye los estados de la línea de tiempo de todos los tickets"
+
+#: inc/config.class.php:63
+msgctxt "button"
+msgid "Reconstruct groups timeline for all tickets"
+msgstr "Reconstruye los grupos de la línea de tiempo de todos los tickets"
+
+#: inc/config.class.php:64
+msgid ""
+"Warning : it may be that the reconstruction of groups does not reflect "
+"reality because it concern only groups which have the Requester flag to No "
+"and Assigned flag to Yes"
+msgstr "Atención: Es posible que la reconstrucción de grupos no refleje la realidad porque se trata solo de grupos que tienen el indicador de solicitante marcados como No y el indicador de Asignación marcado como Sí"
+
+#: inc/config.class.php:82
+msgid "Input time on groups / users when ticket is waiting"
+msgstr "Tiempo de entrada de grupos/usuarios cuando el ticket está en espera"
+
+#: inc/display.class.php:56 inc/display.class.php:220
+msgid "Timeline"
+msgstr "Línea de tiempo"
+
+#: inc/display.class.php:163 inc/display.class.php:193 inc/state.class.php:157
+msgid "Delay"
+msgstr "Retraso"
+
+#: inc/grouplevel.class.php:48
+msgid "Service level"
+msgid_plural "Service levels"
+msgstr[0] "Nivel de servicio"
+msgstr[1] "Niveles de servicio"
+
+#: inc/grouplevel.class.php:58 inc/grouplevel.class.php:110
+msgid "List of associated groups"
+msgstr "Lista de grupos asociados"
+
+#: inc/profile.class.php:95
+msgid "General"
+msgstr "General"
+
+#: inc/state.class.php:121
+msgid "Ticket states history"
+msgstr "Histórico de estados de tickets"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:47
+msgid "statSpentTimeByGroup_report_title"
+msgstr "estadisticasTiempoGastadoPorGrupo_informe_titulo"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:222
+msgid "Duration by"
+msgstr "por duración"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:225
+msgid "Total duration of ticket"
+msgstr "Duración total de ticket"
+
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:47
+msgid "statSpentTimeProcessingByGroup_report_title"
+msgstr "estadisticasTiempoProcesandoPorGrupo_informe_titulo"
+
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:219
+msgid "Duration by \"in progress\""
+msgstr "Duración en \"en progreso\""
