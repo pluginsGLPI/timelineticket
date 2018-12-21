@@ -358,9 +358,10 @@ class ManageTicket extends PHPUnit_Framework_TestCase {
          // * 20/
          $_SESSION["glpi_currenttime"] = date("Y-m-d H:i:s");
          $a_storedate[20] = $_SESSION["glpi_currenttime"];
-         $fup = new TicketFollowup();
+         $fup = new ITILFollowup();
          $input = array();
-         $input['tickets_id'] = $tickets_id;
+         $input['items_id'] = $tickets_id;
+         $input['itemtype'] = 'Ticket';
          $input['add_close'] = 'add_close';
          $fup->add($input);
 
