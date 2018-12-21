@@ -199,8 +199,8 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
       if (isset($params["add_groups"])) {
          $input = [];
 
-         $restrict = "`id` = " . $params['id'];
-         $configs  = $dbu->getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
+         $restrict = ["id" => $params['id']];
+         $configs  = $dbu->getAllDataFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
 
          $groups = [];
          if (!empty($configs)) {
@@ -227,8 +227,8 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
 
       } else if (isset($params["delete_groups"])) {
 
-         $restrict = "`id` = " . $params['id'];
-         $configs  = $dbu->getAllDatasFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
+         $restrict = ["id" => $params['id']];
+         $configs  = $dbu->getAllDataFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
 
          $groups = [];
          if (!empty($configs)) {

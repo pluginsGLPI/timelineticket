@@ -48,19 +48,27 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       return _n('Timeline of ticket', 'Timeline of tickets', $nb, 'timelineticket');
    }
 
-
-   function getSearchOptions() {
+   /**
+    * @return array
+    */
+   function rawSearchOptions() {
 
       $tab = [];
 
-      $tab['common'] = __('Timeline', 'timelineticket');
+      $tab[] = [
+         'id'   => 'common',
+         'name' => __('Timeline', 'timelineticket')
+      ];
 
-      $tab[1]['table']        = 'glpi_plugin_timelineticket_assigngroups';
-      $tab[1]['field']        = 'groups_id';
-      $tab[1]['linkfield']    = 'tickets_id';
-      $tab[1]['name']         = __('Group');
-      $tab[1]['datatype']     = 'itemlink';
-      $tab[1]['forcegroupby'] = true;
+      $tab[] = [
+         'id'           => '1',
+         'table'        => 'glpi_plugin_timelineticket_assigngroups',
+         'field'        => 'groups_id',
+         'linkfield'    => 'tickets_id',
+         'name'         => __('Group'),
+         'datatype'     => 'itemlink',
+         'forcegroupby' => true
+      ];
 
       return $tab;
    }
@@ -258,9 +266,9 @@ class PluginTimelineticketDisplay extends CommonDBTM {
    static function getPeriodTime(CommonGLPI $ticket, $start, $end) {
 
       $calendar = new Calendar();
-      if ($ticket->fields['slas_ttr_id'] != 0) { // Have SLT
+      if ($ticket->fields['slas_id_ttr'] != 0) { // Have SLT
          $sla = new SLA();
-         $sla->getFromDB($ticket->fields['slas_ttr_id']);
+         $sla->getFromDB($ticket->fields['slas_id_ttr']);
          $totaltime = $sla->getActiveTimeBetween($start, $end);
       } else {
          $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
