@@ -37,7 +37,7 @@
    ------------------------------------------------------------------------
  */
 
-define("PLUGIN_TIMELINETICKET_VERSION", "9.3+1.1");
+define("PLUGIN_TIMELINETICKET_VERSION", "9.4+1.0");
 
 if (!defined("PLUGIN_TIMELINETICKET_DIR")) {
    define("PLUGIN_TIMELINETICKET_DIR", GLPI_ROOT . "/plugins/timelineticket");
@@ -45,12 +45,18 @@ if (!defined("PLUGIN_TIMELINETICKET_DIR")) {
 
 function plugin_version_timelineticket() {
 
-   return ['name'           => _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket"),
-                'minGlpiVersion' => '9.3.0',
-                'version'        => PLUGIN_TIMELINETICKET_VERSION,
-                'homepage'       => 'https://github.com/pluginsGLPI/timelineticket',
-                'license'        => 'AGPLv3+',
-                'author'         => 'Nelly Mahu-Lasson && David Durieux && Xavier Caillaud'];
+   return ['name'         => _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket"),
+           'version'      => PLUGIN_TIMELINETICKET_VERSION,
+           'homepage'     => 'https://github.com/pluginsGLPI/timelineticket',
+           'license'      => 'AGPLv3+',
+           'author'       => 'Nelly Mahu-Lasson && David Durieux && Xavier Caillaud',
+           'requirements' => [
+              'glpi' => [
+                 'min' => '9.4',
+                 'dev' => false
+              ]
+           ]
+   ];
 }
 
 
@@ -100,19 +106,25 @@ function plugin_init_timelineticket() {
    }
 }
 
-
+/**
+ * @return bool
+ */
 function plugin_timelineticket_check_prerequisites() {
 
-   // Checking of the GLPI version
-   if (version_compare(GLPI_VERSION, '9.3', 'lt')
-       || version_compare(GLPI_VERSION, '9.4', 'ge')) {
-      echo 'This plugin requires GLPI >= 9.3';
+   if (version_compare(GLPI_VERSION, '9.4', 'lt')
+       || version_compare(GLPI_VERSION, '9.5', 'ge')) {
+      if (method_exists('Plugin', 'messageIncompatible')) {
+         echo Plugin::messageIncompatible('core', '9.4');
+      }
       return false;
    }
+
    return true;
 }
 
-
+/**
+ * @return bool
+ */
 function plugin_timelineticket_check_config() {
    return true;
 }
