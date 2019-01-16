@@ -389,7 +389,7 @@ function getDetails(Ticket $ticket, $groups_id) {
    $ptItem = new PluginTimelineticketAssignGroup();
 
    $a_states     = [];
-   $a_dbstates   = $ptState->find("`tickets_id`='" . $ticket->getField('id') . "'", "`date`, `id`");
+   $a_dbstates   = $ptState->find(["tickets_id" => $ticket->getField('id')], "`date`, `id`");
    $end_previous = 0;
    foreach ($a_dbstates as $a_dbstate) {
       $end_previous += $a_dbstate['delay'];
@@ -407,7 +407,7 @@ function getDetails(Ticket $ticket, $groups_id) {
    }
 
    $a_itemsections = [];
-   $a_dbitems      = $ptItem->find("`tickets_id`='" . $ticket->getField('id') . "' AND `groups_id` = $groups_id", "`date`");
+   $a_dbitems      = $ptItem->find(["tickets_id" => $ticket->getField('id'), "groups_id" => $groups_id], "`date`");
    foreach ($a_dbitems as $a_dbitem) {
 
       if (!isset($a_itemsections)) {

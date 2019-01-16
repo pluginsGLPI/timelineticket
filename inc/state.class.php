@@ -221,7 +221,7 @@ class PluginTimelineticketState extends CommonDBTM {
          $delaystatus[$status]       = 0;
       }
 
-      $a_status = $this->find("`tickets_id`='" . $ticket->getField('id') . "'", "`date`");
+      $a_status = $this->find(["tickets_id" => $ticket->getField('id')], "`date`");
       $begin    = 0;
 
       if ($params['totaltime'] > 0) {
@@ -459,8 +459,8 @@ class PluginTimelineticketState extends CommonDBTM {
       $status_translation[Ticket::CLOSED]   = Ticket::CLOSED;
 
       // Unset plugin session to avoid loadLanguage on plugin
-      $save_plugin_session = $_SESSION['glpi_plugins'];
-      unset($_SESSION['glpi_plugins']);
+//      $save_plugin_session = $_SESSION['glpi_plugins'];
+//      unset($_SESSION['glpi_plugins']);
 
       // Get all existing languages status
       foreach (glob(GLPI_ROOT . '/locales/*.po') as $file) {
@@ -475,7 +475,7 @@ class PluginTimelineticketState extends CommonDBTM {
          $status_translation[__('Closed')]                = Ticket::CLOSED;
       }
 
-      $_SESSION['glpi_plugins'] = $save_plugin_session;
+//      $_SESSION['glpi_plugins'] = $save_plugin_session;
 
       $query  = "SELECT * FROM `glpi_tickets`
          ORDER BY `date`";
@@ -497,15 +497,19 @@ class PluginTimelineticketState extends CommonDBTM {
                if ($datal['old_value'] != Ticket::INCOMING
                    || $datal['old_value'] != 'new'
                    || $datal['old_value'] != _x('ticket', 'New')) {
-
-                  $this->createFollowup($ticket, $data['date'], Ticket::INCOMING, $status_translation[$datal['old_value']]);
+                  if(!is_null($datal['old_value']) && $datal['old_value'] != ""){
+                     $this->createFollowup($ticket, $data['date'], Ticket::INCOMING, $status_translation[$datal['old_value']]);
+                  }
                }
             }
-            $this->createFollowup($ticket, $datal['date_mod'],
-                                  $status_translation[$datal['old_value']],
-                                  $status_translation[$datal['new_value']]);
+            if(!is_null($datal['old_value']) && $datal['old_value'] != ""){
+               $this->createFollowup($ticket, $datal['date_mod'],
+                   $status_translation[$datal['old_value']],
+                   $status_translation[$datal['new_value']]);
+               $first++;
+            }
 
-            $first++;
+
          }
       }
    }

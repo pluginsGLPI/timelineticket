@@ -240,7 +240,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       $totaltime = 0;
 
       $ptState   = new PluginTimelineticketState();
-      $a_states  = $ptState->find("`tickets_id`='" . $ticket->getField('id') . "'", "date");
+      $a_states  = $ptState->find(["tickets_id" => $ticket->getField('id')], "date");
       $last_date = '';
       foreach ($a_states as $a_state) {
          $totaltime += $a_state['delay'];

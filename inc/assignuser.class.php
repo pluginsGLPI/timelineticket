@@ -65,9 +65,9 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
                           'begin'      => $begin]);
 
       } else if ($type == 'delete') {
-         $a_dbentry = $this->find("`tickets_id`='" . $ticket->getField("id") . "'
-            AND `users_id`='" . $users_id . "'
-            AND `delay` IS NULL", "", 1);
+         $a_dbentry = $this->find(["tickets_id" => $ticket->getField("id"),
+                                   "users_id" => $users_id,
+                                   "delay" => NULL], "", 1);
          if (count($a_dbentry) == 1) {
             $input        = current($a_dbentry);
             $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);

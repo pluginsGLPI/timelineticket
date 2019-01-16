@@ -215,7 +215,7 @@ function plugin_timelineticket_uninstall() {
 
    //Delete rights associated with the plugin
    $profileRight = new ProfileRight();
-   foreach (PluginTimelineticketProfile::getRightsGeneral() as $right) {
+   foreach (PluginTimelineticketProfile::getAllRights() as $right) {
       $profileRight->deleteByCriteria(['name' => $right['field']]);
    }
 
