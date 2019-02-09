@@ -78,7 +78,7 @@ $columns = ['id'                => ['sorton' => 'id'],
                  'type'              => ['sorton' => 'type'],
                  'requesttypes_id'   => ['sorton' => 'requesttypes_id'],
                  'itilcategories_id' => ['sorton' => 'itilcategories_id'],
-                 'slts_ttr_id'       => ['sorton' => 'slts_ttr_id'],
+                 'slas_ttr_id'       => ['sorton' => 'slas_ttr_id'],
 ];
 
 $output_type = Search::HTML_OUTPUT;
@@ -212,7 +212,7 @@ if ($res && $nbtot > 0) {
    showTitle($output_type, $num, __('Type'), 'type', true);
    showTitle($output_type, $num, __('Request source'), 'requesttypes_id', true);
    showTitle($output_type, $num, __('Category'), 'itilcategories_id', true);
-   showTitle($output_type, $num, __('SLT'), 'slts_ttr_id', true);
+   showTitle($output_type, $num, __('SLA'), 'slas_ttr_id', true);
 
 
    if (!empty($mylevels)) {
@@ -264,7 +264,7 @@ if ($res && $nbtot > 0) {
       echo Search::showItem($output_type, Ticket::getTicketTypeName($data['type']), $num, $row_num);
       echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_requesttypes', $data["requesttypes_id"]), $num, $row_num);
       echo Search::showItem($output_type, Dropdown::getDropdownName("glpi_itilcategories", $data["itilcategories_id"]), $num, $row_num);
-      echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_slts', $data["slts_ttr_id"]), $num, $row_num);
+      echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_slas', $data["slas_ttr_id"]), $num, $row_num);
 
       $time = 0;
       if (!empty($mylevels)) {
