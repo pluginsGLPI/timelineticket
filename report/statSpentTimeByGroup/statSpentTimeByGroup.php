@@ -79,7 +79,7 @@ $columns = ['closedate' => ['sorton' => 'closedate'],
                   'name' => ['sorton' => 'name'],
                   'requesttypes_id' => ['sorton' => 'requesttypes_id'],
                   'takeintoaccount_delay_stat' => ['sorton' => 'takeintoaccount_delay_stat'],
-                  'slts_ttr_id' => ['sorton' => 'slts_ttr_id']
+                  'slas_ttr_id' => ['sorton' => 'slas_ttr_id']
     ];
 
 $output_type = Search::HTML_OUTPUT;
@@ -214,11 +214,12 @@ if ($res && $nbtot > 0) {
    showTitle($output_type, $num, __('Closing date'), 'closedate', true);
    showTitle($output_type, $num, __('Request source'), 'requesttypes_id', true);
    showTitle($output_type, $num, __('Take into account time'), 'takeintoaccount_delay_stat', true);
-   showTitle($output_type, $num, __('SLT'), 'slts_ttr_id', true);
+   showTitle($output_type, $num, __('SLA'), 'slas_ttr_id', true);
 
    if (!empty($mylevels)) {
       foreach ($mylevels as $key => $val) {
-         showTitle($output_type, $num, $key, '', false);
+         showTitle($output_type, $num, __('Tasks number by', 'timelineticket')."&nbsp;".$key, '', false);
+         showTitle($output_type, $num, __('Tasks duration by', 'timelineticket')."&nbsp;".$key, '', false);
          showTitle($output_type, $num, __('Duration by', 'timelineticket')."&nbsp;".$key, '', false);
       }
    }
@@ -337,6 +338,7 @@ if ($res && $nbtot > 0) {
       }
 
       $tasklevels = [];
+      $nbtasklevels = [];
       if (!empty($mylevels)
             && !empty($tickettechs)) {
          foreach ($mylevels as $key => $val) {
@@ -346,8 +348,10 @@ if ($res && $nbtot > 0) {
                      && in_array($group, $val)) {
                   if (isset($tasklevels[$key])) {
                      $tasklevels[$key] += $time;
+                     $nbtasklevels[$key] += 1;
                   } else {
                      $tasklevels[$key] = $time;
+                     $nbtasklevels[$key] = 1;
                   }
                }
             }
@@ -378,7 +382,7 @@ if ($res && $nbtot > 0) {
       } else {
          echo Search::showItem($output_type, Html::formatNumber($data["takeintoaccount_delay_stat"] / 3600, false, 5), $num, $row_num);
       }
-      echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_slts', $data["slts_ttr_id"]), $num, $row_num);
+      echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_slas', $data["slas_ttr_id"]), $num, $row_num);
 
       $time = 0;
       if (!empty($mylevels)) {
@@ -393,11 +397,18 @@ if ($res && $nbtot > 0) {
             } else {
                $timetask = 0;
             }
+            if (array_key_exists($key, $nbtasklevels)) {
+               $nbtasks = $nbtasklevels[$key];
+            } else {
+               $nbtasks = 0;
+            }
             if ($output_type == Search::HTML_OUTPUT
                   || $output_type == Search::PDF_OUTPUT_PORTRAIT
                || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
+               echo Search::showItem($output_type, $nbtasks, $num, $row_num);
                echo Search::showItem($output_type, Html::timestampToString($timetask), $num, $row_num);
             } else {
+               echo Search::showItem($output_type, $nbtasks, $num, $row_num);
                echo Search::showItem($output_type, Html::formatNumber($timetask / 3600, false, 5), $num, $row_num);
             }
 
