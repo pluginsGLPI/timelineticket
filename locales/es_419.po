@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the GLPI - Timelineticket plugin package.
 # 
 # Translators:
+# Roberto Flores <robertocarlos.floresh@gmail.com>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
@@ -10,106 +11,106 @@ msgstr ""
 "POT-Creation-Date: 2019-02-25 09:41+0100\n"
 "PO-Revision-Date: 2019-02-25 08:43+0000\n"
 "Last-Translator: Xavier CAILLAUD <thetsmr@gmail.com>\n"
-"Language-Team: English (United Kingdom) (http://www.transifex.com/tsmr/GLPI_timelineticket/language/en_GB/)\n"
+"Language-Team: Spanish (Latin America) (http://www.transifex.com/tsmr/GLPI_timelineticket/language/es_419/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: en_GB\n"
+"Language: es_419\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: setup.php:48 inc/display.class.php:48
 msgid "Timeline of ticket"
 msgid_plural "Timeline of tickets"
-msgstr[0] "Timeline of ticket"
-msgstr[1] "Timeline of tickets"
+msgstr[0] "Línea de tiempo del ticket"
+msgstr[1] "Línea de tiempo de los tickets"
 
 #: inc/assigngroup.class.php:119 inc/toolbox.class.php:328
 msgid "Groups in charge of the ticket"
-msgstr "Groups in charge of the ticket"
+msgstr "Grupos responsables del ticket"
 
 #: inc/assigngroup.class.php:257
 msgid "Ticket assign group history"
-msgstr "Ticket assign group history"
+msgstr "Historial de tickets asignados por grupo"
 
 #: inc/assignuser.class.php:118 inc/toolbox.class.php:330
 msgid "Technicians in charge of the ticket"
-msgstr "Technicians in charge of the ticket"
+msgstr "Técnicos responsables del ticket"
 
 #: inc/assignuser.class.php:214
 msgid "Ticket assign technician history"
-msgstr "Ticket assign technician history"
+msgstr "Historial de ticket asignado por técnico"
 
 #: inc/config.class.php:55
 msgid "(Can take many time if you have many tickets)"
-msgstr "(Can take many time if you have many tickets)"
+msgstr "(Podría durar un tiempo si tiene muchos tickets)"
 
 #: inc/config.class.php:62
 msgctxt "button"
 msgid "Reconstruct states timeline for all tickets"
-msgstr "Reconstruct states timeline for all tickets"
+msgstr "Reconstruye los estados de línea de tiempo de todos los tickets"
 
 #: inc/config.class.php:63
 msgctxt "button"
 msgid "Reconstruct groups timeline for all tickets"
-msgstr "Reconstruct groups timeline for all tickets"
+msgstr "Reconstruye los grupos de línea de tiempo de todos los tickets"
 
 #: inc/config.class.php:64
 msgid ""
 "Warning : it may be that the reconstruction of groups does not reflect "
 "reality because it concern only groups which have the Requester flag to No "
 "and Assigned flag to Yes"
-msgstr "Warning : it may be that the reconstruction of groups does not reflect reality because it concern only groups which have the Requester flag to No and Assigned flag to Yes"
+msgstr "Advertencia: Es posible que la reconstrucción de grupo no refleje la realidad porque se trata solo de grupos que tienen el indicador del solicitante marcados como No y el indicador Asignación marcado como Sí"
 
 #: inc/config.class.php:82
 msgid "Input time on groups / users when ticket is waiting"
-msgstr "Input time on groups / users when ticket is waiting"
+msgstr "Tiempo de entrada de grupos /usuarios cuando el ticket está en espera"
 
 #: inc/display.class.php:60 inc/display.class.php:223
 msgid "Timeline"
-msgstr "Timeline"
+msgstr "Línea de tiempo"
 
 #: inc/display.class.php:165 inc/display.class.php:195 inc/state.class.php:157
 msgid "Delay"
-msgstr "Delay"
+msgstr "Retraso"
 
 #: inc/grouplevel.class.php:48
 msgid "Service level"
 msgid_plural "Service levels"
-msgstr[0] "Service level"
-msgstr[1] "Service levels"
+msgstr[0] "Nivel de servicio"
+msgstr[1] "Niveles de servicios"
 
 #: inc/grouplevel.class.php:58 inc/grouplevel.class.php:127
 msgid "List of associated groups"
-msgstr "List of associated groups"
+msgstr "Lista de grupos asociados"
 
 #: inc/state.class.php:121
 msgid "Ticket states history"
-msgstr "Ticket states history"
+msgstr "Histórico de estados de tickets"
 
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:47
 msgid "statSpentTimeByGroup_report_title"
-msgstr "statSpentTimeByGroup_report_title"
+msgstr "estadisticasTiempoGastadosPorGrupo_informe_titulo"
 
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:221
 msgid "Tasks number by"
-msgstr "Tasks number by"
+msgstr ""
 
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:222
 msgid "Tasks duration by"
-msgstr "Tasks duration by"
+msgstr ""
 
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:223
 msgid "Duration by"
-msgstr "Duration by"
+msgstr "Por duración"
 
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
 msgid "Total duration of ticket"
-msgstr "Total duration of ticket"
+msgstr "Duración total de ticket"
 
 #: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:47
 msgid "statSpentTimeProcessingByGroup_report_title"
-msgstr "statSpentTimeProcessingByGroup_report_title"
+msgstr "estadisticaTiempoProcesadoPorGrupo_informe_titulo"
 
 #: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:220
 msgid "Duration by \"in progress\""
-msgstr "Duration by \"in progress\""
+msgstr "Duración en \"en proceso\" "

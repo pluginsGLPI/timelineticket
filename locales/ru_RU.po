@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Timelineticket Development Team
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the GLPI - Timelineticket plugin package.
 # 
 # Translators:
 # Ilya Petrikov <patrick.ilia@gmail.com>, 2017
@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-27 16:14+0200\n"
-"PO-Revision-Date: 2017-12-20 07:43+0000\n"
-"Last-Translator: Nikolay <techobsl@yandex.ru>\n"
+"POT-Creation-Date: 2019-02-25 09:41+0100\n"
+"PO-Revision-Date: 2019-02-25 08:43+0000\n"
+"Last-Translator: Xavier CAILLAUD <thetsmr@gmail.com>\n"
 "Language-Team: Russian (Russia) (http://www.transifex.com/tsmr/GLPI_timelineticket/language/ru_RU/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Language: ru_RU\n"
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: setup.php:44 inc/display.class.php:48
+#: setup.php:48 inc/display.class.php:48
 msgid "Timeline of ticket"
 msgid_plural "Timeline of tickets"
 msgstr[0] "Срок заявки"
@@ -27,11 +27,11 @@ msgstr[1] "Сроки заявок"
 msgstr[2] "Сроки заявок"
 msgstr[3] "Сроки заявок"
 
-#: inc/assigngroup.class.php:120 inc/toolbox.class.php:328
+#: inc/assigngroup.class.php:119 inc/toolbox.class.php:328
 msgid "Groups in charge of the ticket"
 msgstr "Группы ответственные за заявки"
 
-#: inc/assigngroup.class.php:252
+#: inc/assigngroup.class.php:257
 msgid "Ticket assign group history"
 msgstr "История назначения заявок группе"
 
@@ -39,7 +39,7 @@ msgstr "История назначения заявок группе"
 msgid "Technicians in charge of the ticket"
 msgstr "Специалисты ответственные за заявку"
 
-#: inc/assignuser.class.php:201
+#: inc/assignuser.class.php:214
 msgid "Ticket assign technician history"
 msgstr "История назначения заявок специалисту"
 
@@ -68,11 +68,11 @@ msgstr "Предупреждение : перестроение группы н�
 msgid "Input time on groups / users when ticket is waiting"
 msgstr "Время входа в группы / пользователи, когда заявка в ожидании"
 
-#: inc/display.class.php:56 inc/display.class.php:220
+#: inc/display.class.php:60 inc/display.class.php:223
 msgid "Timeline"
 msgstr "Сроки"
 
-#: inc/display.class.php:163 inc/display.class.php:193 inc/state.class.php:157
+#: inc/display.class.php:165 inc/display.class.php:195 inc/state.class.php:157
 msgid "Delay"
 msgstr "Задержка"
 
@@ -84,13 +84,9 @@ msgstr[1] "Уровней обслуживания"
 msgstr[2] "Уровней обслуживания"
 msgstr[3] "Уровни обслуживания"
 
-#: inc/grouplevel.class.php:58 inc/grouplevel.class.php:110
+#: inc/grouplevel.class.php:58 inc/grouplevel.class.php:127
 msgid "List of associated groups"
 msgstr "Список связанных групп"
-
-#: inc/profile.class.php:95
-msgid "General"
-msgstr "Общее"
 
 #: inc/state.class.php:121
 msgid "Ticket states history"
@@ -100,11 +96,19 @@ msgstr "История статусов заявки"
 msgid "statSpentTimeByGroup_report_title"
 msgstr "Статистика времени, затраченное группой"
 
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:221
+msgid "Tasks number by"
+msgstr ""
+
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:222
+msgid "Tasks duration by"
+msgstr ""
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:223
 msgid "Duration by"
 msgstr "Продолжительность"
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:225
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
 msgid "Total duration of ticket"
 msgstr "Общая продолжительность заявки"
 
@@ -112,6 +116,6 @@ msgstr "Общая продолжительность заявки"
 msgid "statSpentTimeProcessingByGroup_report_title"
 msgstr "Статистика обработки времени по группам"
 
-#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:219
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:220
 msgid "Duration by \"in progress\""
 msgstr "Продолжительность \"в работе\""

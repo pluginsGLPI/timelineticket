@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI - Timelineticket plugin 0.90+1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-16 10:36+0200\n"
+"POT-Creation-Date: 2019-02-25 09:41+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -65,11 +65,11 @@ msgstr ""
 msgid "Input time on groups / users when ticket is waiting"
 msgstr ""
 
-#: inc/display.class.php:56 inc/display.class.php:215
+#: inc/display.class.php:60 inc/display.class.php:223
 msgid "Timeline"
 msgstr ""
 
-#: inc/display.class.php:157 inc/display.class.php:187 inc/state.class.php:157
+#: inc/display.class.php:165 inc/display.class.php:195 inc/state.class.php:157
 msgid "Delay"
 msgstr ""
 
@@ -83,10 +83,6 @@ msgstr[1] ""
 msgid "List of associated groups"
 msgstr ""
 
-#: inc/profile.class.php:95
-msgid "General"
-msgstr ""
-
 #: inc/state.class.php:121
 msgid "Ticket states history"
 msgstr ""
@@ -95,11 +91,19 @@ msgstr ""
 msgid "statSpentTimeByGroup_report_title"
 msgstr ""
 
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:221
+msgid "Tasks number by"
+msgstr ""
+
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:222
+msgid "Tasks duration by"
+msgstr ""
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:223
 msgid "Duration by"
 msgstr ""
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:225
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
 msgid "Total duration of ticket"
 msgstr ""
 

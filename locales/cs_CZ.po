@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Timelineticket Development Team
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the GLPI - Timelineticket plugin package.
 # 
 # Translators:
 # Pavel Borecki <pavel.borecki@gmail.com>, 2018
@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-27 16:14+0200\n"
-"PO-Revision-Date: 2018-06-28 09:34+0000\n"
-"Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
+"POT-Creation-Date: 2019-02-25 09:41+0100\n"
+"PO-Revision-Date: 2019-02-25 08:43+0000\n"
+"Last-Translator: Xavier CAILLAUD <thetsmr@gmail.com>\n"
 "Language-Team: Czech (Czech Republic) (http://www.transifex.com/tsmr/GLPI_timelineticket/language/cs_CZ/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Language: cs_CZ\n"
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
 
-#: setup.php:44 inc/display.class.php:48
+#: setup.php:48 inc/display.class.php:48
 msgid "Timeline of ticket"
 msgid_plural "Timeline of tickets"
 msgstr[0] "Časová osa požadavku"
@@ -26,11 +26,11 @@ msgstr[1] "Časová osa požadavků"
 msgstr[2] "Časová osa požadavků"
 msgstr[3] "Časová osa požadavků"
 
-#: inc/assigngroup.class.php:120 inc/toolbox.class.php:328
+#: inc/assigngroup.class.php:119 inc/toolbox.class.php:328
 msgid "Groups in charge of the ticket"
 msgstr "Skupiny zodpovědné za požadavek"
 
-#: inc/assigngroup.class.php:252
+#: inc/assigngroup.class.php:257
 msgid "Ticket assign group history"
 msgstr "Historie přiřazování požadavku skupinám"
 
@@ -38,7 +38,7 @@ msgstr "Historie přiřazování požadavku skupinám"
 msgid "Technicians in charge of the ticket"
 msgstr "Technik zodpovědný za požadavek"
 
-#: inc/assignuser.class.php:201
+#: inc/assignuser.class.php:214
 msgid "Ticket assign technician history"
 msgstr "Historie přiřazování požadavku technikům"
 
@@ -67,11 +67,11 @@ msgstr "Varování: může se stát že rekonstrukce skupin nebude odpovídat re
 msgid "Input time on groups / users when ticket is waiting"
 msgstr "Vstupní čas na skupinách/uživatelích když požadavek čeká"
 
-#: inc/display.class.php:56 inc/display.class.php:220
+#: inc/display.class.php:60 inc/display.class.php:223
 msgid "Timeline"
 msgstr "Časová osa"
 
-#: inc/display.class.php:163 inc/display.class.php:193 inc/state.class.php:157
+#: inc/display.class.php:165 inc/display.class.php:195 inc/state.class.php:157
 msgid "Delay"
 msgstr "Prodleva"
 
@@ -83,13 +83,9 @@ msgstr[1] "Úrovně služeb"
 msgstr[2] "Úrovní služeb"
 msgstr[3] "Úrovně služeb"
 
-#: inc/grouplevel.class.php:58 inc/grouplevel.class.php:110
+#: inc/grouplevel.class.php:58 inc/grouplevel.class.php:127
 msgid "List of associated groups"
 msgstr "Seznam souvisejících skupin"
-
-#: inc/profile.class.php:95
-msgid "General"
-msgstr "Obecné"
 
 #: inc/state.class.php:121
 msgid "Ticket states history"
@@ -99,11 +95,19 @@ msgstr "Historie stavů požadavku"
 msgid "statSpentTimeByGroup_report_title"
 msgstr "Čas (v hodinách), strávený na uzavřených požadavcích podle úrovní služeb"
 
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:221
+msgid "Tasks number by"
+msgstr ""
+
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:222
+msgid "Tasks duration by"
+msgstr ""
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:223
 msgid "Duration by"
 msgstr "Trvání"
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:225
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
 msgid "Total duration of ticket"
 msgstr "Celková doba trvání požadavku"
 
@@ -111,6 +115,6 @@ msgstr "Celková doba trvání požadavku"
 msgid "statSpentTimeProcessingByGroup_report_title"
 msgstr "Čas strávený na zpracovávaných požadavcích podle úrovní služeb"
 
-#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:219
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:220
 msgid "Duration by \"in progress\""
 msgstr "Trvání podle „zpracovává se“"

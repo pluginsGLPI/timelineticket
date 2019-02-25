@@ -1,18 +1,18 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Timelineticket Development Team
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the GLPI - Timelineticket plugin package.
 # 
 # Translators:
 # Amandine Manceau, 2017
-# Xavier CAILLAUD <thetsmr@gmail.com>, 2017
+# Xavier CAILLAUD <thetsmr@gmail.com>, 2017,2019
 # Xavier CAILLAUD <thetsmr@gmail.com>, 2013,2016
 msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-27 16:14+0200\n"
-"PO-Revision-Date: 2017-11-14 08:40+0000\n"
-"Last-Translator: Amandine Manceau\n"
+"POT-Creation-Date: 2019-02-25 09:41+0100\n"
+"PO-Revision-Date: 2019-02-25 08:43+0000\n"
+"Last-Translator: Xavier CAILLAUD <thetsmr@gmail.com>\n"
 "Language-Team: French (France) (http://www.transifex.com/tsmr/GLPI_timelineticket/language/fr_FR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,17 +20,17 @@ msgstr ""
 "Language: fr_FR\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: setup.php:44 inc/display.class.php:48
+#: setup.php:48 inc/display.class.php:48
 msgid "Timeline of ticket"
 msgid_plural "Timeline of tickets"
 msgstr[0] "Chronologie du ticket"
 msgstr[1] "Chronologie des tickets"
 
-#: inc/assigngroup.class.php:120 inc/toolbox.class.php:328
+#: inc/assigngroup.class.php:119 inc/toolbox.class.php:328
 msgid "Groups in charge of the ticket"
 msgstr "Groupes chargés du ticket"
 
-#: inc/assigngroup.class.php:252
+#: inc/assigngroup.class.php:257
 msgid "Ticket assign group history"
 msgstr "Historique des assignations de groupes du ticket"
 
@@ -38,7 +38,7 @@ msgstr "Historique des assignations de groupes du ticket"
 msgid "Technicians in charge of the ticket"
 msgstr "Techniciens chargés du ticket"
 
-#: inc/assignuser.class.php:201
+#: inc/assignuser.class.php:214
 msgid "Ticket assign technician history"
 msgstr "Historique des assignations de techniciens du ticket"
 
@@ -67,11 +67,11 @@ msgstr "Attention : il se peut que la reconstruction des groupes ne reflète pas
 msgid "Input time on groups / users when ticket is waiting"
 msgstr "Inputer du temps au groupes / techniciens assignés quand le ticket est en En attente"
 
-#: inc/display.class.php:56 inc/display.class.php:220
+#: inc/display.class.php:60 inc/display.class.php:223
 msgid "Timeline"
 msgstr "Chronologie"
 
-#: inc/display.class.php:163 inc/display.class.php:193 inc/state.class.php:157
+#: inc/display.class.php:165 inc/display.class.php:195 inc/state.class.php:157
 msgid "Delay"
 msgstr "Délai"
 
@@ -81,13 +81,9 @@ msgid_plural "Service levels"
 msgstr[0] "Niveau de support"
 msgstr[1] "Niveaux de support"
 
-#: inc/grouplevel.class.php:58 inc/grouplevel.class.php:110
+#: inc/grouplevel.class.php:58 inc/grouplevel.class.php:127
 msgid "List of associated groups"
 msgstr "Liste des groupes associés"
-
-#: inc/profile.class.php:95
-msgid "General"
-msgstr "Général"
 
 #: inc/state.class.php:121
 msgid "Ticket states history"
@@ -97,11 +93,19 @@ msgstr "Historique des statuts du ticket"
 msgid "statSpentTimeByGroup_report_title"
 msgstr "Temps passés en heures par les niveaux de support sur les tickets clos"
 
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:221
+msgid "Tasks number by"
+msgstr "Nombre de tâches par"
+
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:222
+msgid "Tasks duration by"
+msgstr "Durée des tâches par"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:223
 msgid "Duration by"
 msgstr "Temps passé par"
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:225
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
 msgid "Total duration of ticket"
 msgstr "Temps total du ticket"
 
@@ -109,6 +113,6 @@ msgstr "Temps total du ticket"
 msgid "statSpentTimeProcessingByGroup_report_title"
 msgstr "Temps passés \"en cours\" par les niveaux de support sur les tickets"
 
-#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:219
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:220
 msgid "Duration by \"in progress\""
 msgstr "Temps passé \"en cours\""
