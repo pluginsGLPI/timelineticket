@@ -38,7 +38,7 @@
  */
 
 if (in_array('--help', $_SERVER['argv'])) {
-   die("usage: ".$_SERVER['argv'][0]." [ --optimize ]\n");
+   die("usage: ".$_SERVER['argv'][0]."\n");
 }
 
 chdir(dirname($_SERVER["SCRIPT_FILENAME"]));
@@ -153,13 +153,3 @@ $migration->displayWarning($mess);
 $plugin->load("timelineticket");
 $plugin->activate($plugin->fields['id']);
 $plugin->load("timelineticket");
- 
-
-
-if (in_array('--optimize', $_SERVER['argv'])) {
-
-   $migration->displayTitle("Optimizing tables");
-   DBmysql::optimize_tables($migration);
-
-   $migration->displayWarning("Optimize done.");
-}
