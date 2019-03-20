@@ -66,15 +66,6 @@ function plugin_timelineticket_getAddSearchOptions($itemtype) {
                                                 'joinparams'
                                                         => ['jointype'  => 'child']]];
 
-         $sopt[11001]['table']     = 'glpi_plugin_timelineticket_assigngroups';
-         $sopt[11001]['field']     = 'groups_id';
-         $sopt[11001]['name']      = "timelineticket-".__('Group')."-".__('Time');
-      //         $sopt[11001]['datatype']  = 'itemtype';
-      //         $sopt[11001]['itemlink_type'] = 'PluginFusioninventoryInventoryComputerLib';
-         $sopt[11001]['massiveaction'] = false;
-         $sopt[11001]['forcegroupby']  = true;
-         $sopt[11001]['splititems']    = true;
-
    }
    return $sopt;
 }
