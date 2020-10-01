@@ -79,7 +79,7 @@ $columns = ['closedate' => ['sorton' => 'closedate'],
                   'name' => ['sorton' => 'name'],
                   'requesttypes_id' => ['sorton' => 'requesttypes_id'],
                   'takeintoaccount_delay_stat' => ['sorton' => 'takeintoaccount_delay_stat'],
-                  'slas_ttr_id' => ['sorton' => 'slas_ttr_id']
+                  'slas_id_ttr' => ['sorton' => 'slas_id_ttr']
     ];
 
 $output_type = Search::HTML_OUTPUT;
@@ -89,7 +89,7 @@ if (isset($_POST['list_limit'])) {
    unset($_POST['list_limit']);
 }
 if (!isset($_REQUEST['sort'])) {
-   $_REQUEST['sort'] = "entity";
+   $_REQUEST['sort'] = "closedate";
    $_REQUEST['order'] = "ASC";
 }
 
@@ -104,6 +104,8 @@ if (isset($_POST["display_type"])) {
 } //else {
 //   $output_type = Search::HTML_OUTPUT;
 //}
+
+global $DB, $HEADER_LOADED;
 //Report title
 $title = $report->getFullTitle();
 $dbu   = new DbUtils();
@@ -116,6 +118,7 @@ $query .= $date->getSqlCriteriasRestriction();
 $query .= getOrderBy('closedate', $columns);
 
 $res = $DB->query($query);
+
 $nbtot = ($res ? $DB->numrows($res) : 0);
 if ($limit) {
    $start = (isset($_GET["start"]) ? $_GET["start"] : 0);
@@ -214,7 +217,7 @@ if ($res && $nbtot > 0) {
    showTitle($output_type, $num, __('Closing date'), 'closedate', true);
    showTitle($output_type, $num, __('Request source'), 'requesttypes_id', true);
    showTitle($output_type, $num, __('Take into account time'), 'takeintoaccount_delay_stat', true);
-   showTitle($output_type, $num, __('SLA'), 'slas_ttr_id', true);
+   showTitle($output_type, $num, __('SLA'), 'slas_id_ttr', true);
 
    if (!empty($mylevels)) {
       foreach ($mylevels as $key => $val) {
@@ -382,7 +385,7 @@ if ($res && $nbtot > 0) {
       } else {
          echo Search::showItem($output_type, Html::formatNumber($data["takeintoaccount_delay_stat"] / 3600, false, 5), $num, $row_num);
       }
-      echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_slas', $data["slas_ttr_id"]), $num, $row_num);
+      echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_slas', $data["slas_id_ttr"]), $num, $row_num);
 
       $time = 0;
       if (!empty($mylevels)) {
@@ -489,11 +492,12 @@ function getOrderBy($default, $columns) {
       $_REQUEST['order'] = 'ASC';
    }
    $order = $_REQUEST['order'];
+   $sort = isset($_REQUEST['sort'])?$_REQUEST['sort']:$default;
 
-   $tab = getOrderByFields($default, $columns);
-   if (count($tab) > 0) {
-      return " ORDER BY " . $tab . " " . $order;
-   }
+//   $tab = getOrderByFields($default, $columns);
+//   if (is_array($tab) && count($tab) > 0) {
+      return " ORDER BY " . $sort . " " . $order;
+//   }
    return '';
 }
 
@@ -505,18 +509,18 @@ function getOrderBy($default, $columns) {
  * @param $columns
  * @return array of column names
  */
-function getOrderByFields($default, $columns) {
-
-   if (!isset($_REQUEST['sort'])) {
-      $_REQUEST['sort'] = $default;
-   }
-   $colsort = $_REQUEST['sort'];
-
-   foreach ($columns as $colname => $column) {
-      if ($colname == $colsort) {
-         return $column['sorton'];
-      }
-   }
-   return [];
-}
+//function getOrderByFields($default, $columns) {
+//
+//   if (!isset($_REQUEST['sort'])) {
+//      $_REQUEST['sort'] = $default;
+//   }
+//   $colsort = $_REQUEST['sort'];
+//
+//   foreach ($columns as $colname => $column) {
+//      if ($colname == $colsort) {
+//         return $column['sorton'];
+//      }
+//   }
+//   return [];
+//}
 

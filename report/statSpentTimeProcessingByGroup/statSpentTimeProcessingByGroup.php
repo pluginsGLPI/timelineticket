@@ -78,7 +78,7 @@ $columns = ['id'                => ['sorton' => 'id'],
                  'type'              => ['sorton' => 'type'],
                  'requesttypes_id'   => ['sorton' => 'requesttypes_id'],
                  'itilcategories_id' => ['sorton' => 'itilcategories_id'],
-                 'slas_ttr_id'       => ['sorton' => 'slas_ttr_id'],
+                 'slas_id_ttr'       => ['sorton' => 'slas_id_ttr'],
 ];
 
 $output_type = Search::HTML_OUTPUT;
@@ -88,7 +88,7 @@ if (isset($_POST['list_limit'])) {
    unset($_POST['list_limit']);
 }
 if (!isset($_REQUEST['sort'])) {
-   $_REQUEST['sort']  = "entity";
+   $_REQUEST['sort']  = "closedate";
    $_REQUEST['order'] = "ASC";
 }
 
@@ -102,6 +102,7 @@ if (isset($_POST["display_type"])) {
    }
 }
 
+global $DB, $HEADER_LOADED, $CFG_GLPI;
 //Report title
 $title = $report->getFullTitle();
 $dbu   = new DbUtils();
@@ -212,7 +213,7 @@ if ($res && $nbtot > 0) {
    showTitle($output_type, $num, __('Type'), 'type', true);
    showTitle($output_type, $num, __('Request source'), 'requesttypes_id', true);
    showTitle($output_type, $num, __('Category'), 'itilcategories_id', true);
-   showTitle($output_type, $num, __('SLA'), 'slas_ttr_id', true);
+   showTitle($output_type, $num, __('SLA'), 'slas_id_ttr', true);
 
 
    if (!empty($mylevels)) {
@@ -264,7 +265,7 @@ if ($res && $nbtot > 0) {
       echo Search::showItem($output_type, Ticket::getTicketTypeName($data['type']), $num, $row_num);
       echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_requesttypes', $data["requesttypes_id"]), $num, $row_num);
       echo Search::showItem($output_type, Dropdown::getDropdownName("glpi_itilcategories", $data["itilcategories_id"]), $num, $row_num);
-      echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_slas', $data["slas_ttr_id"]), $num, $row_num);
+      echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_slas', $data["slas_id_ttr"]), $num, $row_num);
 
       $time = 0;
       if (!empty($mylevels)) {
@@ -348,10 +349,12 @@ function getOrderBy($default, $columns) {
    }
    $order = $_REQUEST['order'];
 
-   $tab = getOrderByFields($default, $columns);
-   if (count($tab) > 0) {
-      return " ORDER BY " . $tab . " " . $order;
-   }
+   $sort = isset($_REQUEST['sort'])?$_REQUEST['sort']:$default;
+
+   //   $tab = getOrderByFields($default, $columns);
+   //   if (is_array($tab) && count($tab) > 0) {
+   return " ORDER BY " . $sort . " " . $order;
+   //   }
    return '';
 }
 
@@ -364,20 +367,20 @@ function getOrderBy($default, $columns) {
  *
  * @return array of column names
  */
-function getOrderByFields($default, $columns) {
-
-   if (!isset($_REQUEST['sort'])) {
-      $_REQUEST['sort'] = $default;
-   }
-   $colsort = $_REQUEST['sort'];
-
-   foreach ($columns as $colname => $column) {
-      if ($colname == $colsort) {
-         return $column['sorton'];
-      }
-   }
-   return [];
-}
+//function getOrderByFields($default, $columns) {
+//
+//   if (!isset($_REQUEST['sort'])) {
+//      $_REQUEST['sort'] = $default;
+//   }
+//   $colsort = $_REQUEST['sort'];
+//
+//   foreach ($columns as $colname => $column) {
+//      if ($colname == $colsort) {
+//         return $column['sorton'];
+//      }
+//   }
+//   return [];
+//}
 
 function getDetails(Ticket $ticket, $groups_id) {
 
@@ -389,7 +392,7 @@ function getDetails(Ticket $ticket, $groups_id) {
    $ptItem = new PluginTimelineticketAssignGroup();
 
    $a_states     = [];
-   $a_dbstates   = $ptState->find("`tickets_id`='" . $ticket->getField('id') . "'", "`date`, `id`");
+   $a_dbstates   = $ptState->find(["tickets_id" => $ticket->getField('id')], ['date', 'id']);
    $end_previous = 0;
    foreach ($a_dbstates as $a_dbstate) {
       $end_previous += $a_dbstate['delay'];
@@ -407,7 +410,7 @@ function getDetails(Ticket $ticket, $groups_id) {
    }
 
    $a_itemsections = [];
-   $a_dbitems      = $ptItem->find("`tickets_id`='" . $ticket->getField('id') . "' AND `groups_id` = $groups_id", "`date`");
+   $a_dbitems      = $ptItem->find(["tickets_id" => $ticket->getField('id'), 'groups_id' => $groups_id], ['date']);
    foreach ($a_dbitems as $a_dbitem) {
 
       if (!isset($a_itemsections)) {
