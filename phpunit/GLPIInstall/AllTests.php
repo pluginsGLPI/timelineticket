@@ -50,13 +50,13 @@ class GLPIInstall extends PHPUnit_Framework_TestCase {
 
       $query = "SHOW FULL TABLES WHERE TABLE_TYPE LIKE 'VIEW'";
       $result = $DB->query($query);
-      while ($data=$DB->fetch_array($result)) {
+      while ($data=$DB->fetchArray($result)) {
          $DB->query("DROP VIEW ".$data[0]);
       }
 
       $query = "SHOW TABLES";
       $result = $DB->query($query);
-      while ($data=$DB->fetch_array($result)) {
+      while ($data=$DB->fetchArray($result)) {
          $DB->query("DROP TABLE ".$data[0]);
       }
 

@@ -37,7 +37,7 @@
    ------------------------------------------------------------------------
  */
 
-define("PLUGIN_TIMELINETICKET_VERSION", "9.4+1.0");
+define("PLUGIN_TIMELINETICKET_VERSION", "9.5+1.0");
 
 if (!defined("PLUGIN_TIMELINETICKET_DIR")) {
    define("PLUGIN_TIMELINETICKET_DIR", GLPI_ROOT . "/plugins/timelineticket");
@@ -52,7 +52,7 @@ function plugin_version_timelineticket() {
            'author'       => 'Nelly Mahu-Lasson && David Durieux && Xavier Caillaud',
            'requirements' => [
               'glpi' => [
-                 'min' => '9.4',
+                 'min' => '9.5',
                  'dev' => false
               ]
            ]
@@ -111,11 +111,15 @@ function plugin_init_timelineticket() {
  */
 function plugin_timelineticket_check_prerequisites() {
 
-   if (version_compare(GLPI_VERSION, '9.4', 'lt')
-       || version_compare(GLPI_VERSION, '9.5', 'ge')) {
+   if (version_compare(GLPI_VERSION, '9.5', 'lt')
+       || version_compare(GLPI_VERSION, '9.6', 'ge')) {
       if (method_exists('Plugin', 'messageIncompatible')) {
-         echo Plugin::messageIncompatible('core', '9.4');
+         echo Plugin::messageIncompatible('core', '9.5');
       }
+      return false;
+   }
+   if (!is_readable(__DIR__ . '/vendor/autoload.php') || !is_file(__DIR__ . '/vendor/autoload.php')) {
+      echo "Run composer install --no-dev in the plugin directory<br>";
       return false;
    }
 

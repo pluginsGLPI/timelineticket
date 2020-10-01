@@ -103,9 +103,9 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
          $a_users_list[$users_id] = $users_id;
 
          $a_end = end($data);
-         if ($a_end['R'] == 235
-             && $a_end['G'] == 235
-             && $a_end['B'] == 235) {
+         if (isset($a_end['R']) && $a_end['R'] == 235
+             && isset($a_end['G']) && $a_end['G'] == 235
+             && isset($a_end['B']) && $a_end['B'] == 235) {
             $_usersfinished[$users_id] = true;
          } else {
             $_usersfinished[$users_id] = false;

@@ -259,13 +259,13 @@ class PluginTimelineticketToolbox {
             $B          = 235;
             $statusname = '';
             $a_end      = end($data_f);
-            $last       = $a_end['End'];
+            $last       = isset($a_end['End'])?$a_end['End']:0;
             if ($ticket->fields['status'] != Ticket::CLOSED
                 && $last == $verylastdelayStateDB) {
-               $R          = $a_end['R'];
-               $G          = $a_end['G'];
-               $B          = $a_end['B'];
-               $statusname = $a_end['Status'];
+               $R          = isset($a_end['R'])?$a_end['R']:235;
+               $G          = isset($a_end['G'])?$a_end['G']:235;
+               $B          = isset($a_end['B'])?$a_end['B']:235;
+               $statusname = isset($a_end['Status'])?$a_end['Status']:$statusname;
             }
             if ($last < $totaltime) {
                $a_itemsections[$items_id][] = [

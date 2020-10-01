@@ -104,9 +104,9 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
          $a_groups_list[$groups_id] = $groups_id;
 
          $a_end = end($data);
-         if ($a_end['R'] == 235
-             && $a_end['G'] == 235
-             && $a_end['B'] == 235) {
+         if (isset($a_end['R']) && $a_end['R'] == 235
+             && isset($a_end['G']) && $a_end['G'] == 235
+             && isset($a_end['B']) && $a_end['B'] == 235) {
             $_groupsfinished[$groups_id] = true;
          } else {
             $_groupsfinished[$groups_id] = false;
@@ -477,7 +477,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
                FROM `glpi_tickets`";
       $result = $DB->query($query);
 
-      while ($data = $DB->fetch_array($result)) {
+      while ($data = $DB->fetchArray($result)) {
 
          $queryGroup = "SELECT * FROM `glpi_logs`";
          $queryGroup .= " WHERE `itemtype_link` = 'Group'";
@@ -488,7 +488,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
          $resultGroup = $DB->query($queryGroup);
 
          if ($resultGroup) {
-            while ($dataGroup = $DB->fetch_array($resultGroup)) {
+            while ($dataGroup = $DB->fetchArray($resultGroup)) {
                if ($dataGroup['new_value'] != null) {
                   $start     = Toolbox::strpos($dataGroup['new_value'], "(");
                   $end       = Toolbox::strpos($dataGroup['new_value'], ")");

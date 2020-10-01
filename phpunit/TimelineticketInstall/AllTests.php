@@ -86,7 +86,7 @@ class TimelineticketInstall extends PHPUnit_Framework_TestCase {
       // SHOW TABLES;
       $query = "SHOW TABLES";
       $result = $DB->query($query);
-      while ($data=$DB->fetch_array($result)) {
+      while ($data=$DB->fetchArray($result)) {
          if (strstr($data[0], "timelineticket")){
             $data[0] = str_replace(" COLLATE utf8_unicode_ci", "", $data[0]);
             $data[0] = str_replace("( ", "(", $data[0]);
@@ -98,7 +98,7 @@ class TimelineticketInstall extends PHPUnit_Framework_TestCase {
       foreach($a_tables as $table) {
          $query = "SHOW COLUMNS FROM ".$table;
          $result = $DB->query($query);
-         while ($data=$DB->fetch_array($result)) {
+         while ($data=$DB->fetchArray($result)) {
             $construct = $data['Type'];
 //            if ($data['Type'] == 'text') {
 //               $construct .= ' COLLATE utf8_unicode_ci';

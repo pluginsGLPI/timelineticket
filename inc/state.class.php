@@ -480,7 +480,7 @@ class PluginTimelineticketState extends CommonDBTM {
       $query  = "SELECT * FROM `glpi_tickets`
          ORDER BY `date`";
       $result = $DB->query($query);
-      while ($data = $DB->fetch_array($result)) {
+      while ($data = $DB->fetchArray($result)) {
          $ticket->getFromDB($data['id']);
          $this->createFollowup($ticket, $data['date'], '', Ticket::INCOMING);
 
@@ -491,7 +491,7 @@ class PluginTimelineticketState extends CommonDBTM {
          ORDER BY `id`";
          $resultl = $DB->query($queryl);
          $first   = 0;
-         while ($datal = $DB->fetch_array($resultl)) {
+         while ($datal = $DB->fetchArray($resultl)) {
 
             if ($first == 0) {
                if ($datal['old_value'] != Ticket::INCOMING

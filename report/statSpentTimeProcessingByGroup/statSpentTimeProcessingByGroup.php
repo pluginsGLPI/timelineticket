@@ -196,7 +196,7 @@ if ($res && $nbtot > 0) {
       }
    }
 
-   $nbCols = $DB->num_fields($res);
+   $nbCols = $DB->numFields($res);
    $nbrows = $DB->numrows($res);
    $num    = 1;
    $link   = $_SERVER['PHP_SELF'];
@@ -224,7 +224,7 @@ if ($res && $nbtot > 0) {
    echo Search::showEndLine($output_type);
 
    $row_num = 1;
-   while ($data = $DB->fetch_assoc($res)) {
+   while ($data = $DB->fetchAssoc($res)) {
 
       $ticket = new Ticket();
       $ticket->getFromDB($data['id']);

@@ -48,7 +48,7 @@ class Install extends PHPUnit_Framework_TestCase {
          
          $query = "SHOW TABLES";
          $result = $DB->query($query);
-         while ($data=$DB->fetch_array($result)) {
+         while ($data=$DB->fetchArray($result)) {
             $DB->query("DROP TABLE ".$data[0]);
          }
          
@@ -63,7 +63,7 @@ class Install extends PHPUnit_Framework_TestCase {
       } else {      
          $query = "SHOW TABLES";
          $result = $DB->query($query);
-         while ($data=$DB->fetch_array($result)) {
+         while ($data=$DB->fetchArray($result)) {
             if (strstr($data[0], "timelineticket")) {
                $DB->query("DROP TABLE ".$data[0]);
             }

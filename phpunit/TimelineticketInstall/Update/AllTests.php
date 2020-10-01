@@ -61,7 +61,7 @@ class Update extends PHPUnit_Framework_TestCase {
       
       $query = "SHOW TABLES";
       $result = $DB->query($query);
-      while ($data=$DB->fetch_array($result)) {
+      while ($data=$DB->fetchArray($result)) {
          if (strstr($data[0], "timelineticket")) {
             $DB->query("DROP TABLE ".$data[0]);
          }

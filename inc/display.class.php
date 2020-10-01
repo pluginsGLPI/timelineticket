@@ -169,7 +169,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
                          WHERE `tickets_id` = '" . $ticket->getID() . "'";
 
          $result = $DB->query($query);
-         while ($data = $DB->fetch_assoc($result)) {
+         while ($data = $DB->fetchAssoc($result)) {
 
             echo "<tr class='tab_bg_1'>";
             echo "<td>" . $data['id'] . "</td>";
@@ -200,7 +200,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
          $result = $DB->query($query);
          $dbu    = new DbUtils();
-         while ($data = $DB->fetch_assoc($result)) {
+         while ($data = $DB->fetchAssoc($result)) {
 
             echo "<tr class='tab_bg_1'>";
             echo "<td>" . $data['id'] . "</td>";
