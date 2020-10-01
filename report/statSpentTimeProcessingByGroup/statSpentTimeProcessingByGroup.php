@@ -410,7 +410,8 @@ function getDetails(Ticket $ticket, $groups_id) {
    }
 
    $a_itemsections = [];
-   $a_dbitems      = $ptItem->find(["tickets_id" => $ticket->getField('id'), 'groups_id' => $groups_id], ['date']);
+   $a_dbitems      = $ptItem->find(["tickets_id" => $ticket->getField('id'),
+                                    'groups_id' => $groups_id], ['date']);
    foreach ($a_dbitems as $a_dbitem) {
 
       if (!isset($a_itemsections)) {

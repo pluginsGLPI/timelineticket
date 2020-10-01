@@ -111,7 +111,7 @@ class PluginTimelineticketToolbox {
 
       $a_states       = [];
       $a_item_palette = [];
-      $a_dbstates     = $ptState->find(["tickets_id" => $ticket->getField('id')], "`date`, `id`");
+      $a_dbstates     = $ptState->find(["tickets_id" => $ticket->getField('id')], ["date", "id"]);
       $end_previous   = 0;
       foreach ($a_dbstates as $a_dbstate) {
          $end_previous += $a_dbstate['delay'];
@@ -128,7 +128,7 @@ class PluginTimelineticketToolbox {
          $a_states[$totaltime] = $a_dbstate['new_status'];
       }
       $a_itemsections = [];
-      $a_dbitems      = $ptItem->find(["tickets_id" => $ticket->getField('id')], "`date`");
+      $a_dbitems      = $ptItem->find(["tickets_id" => $ticket->getField('id')], ["date"]);
       foreach ($a_dbitems as $a_dbitem) {
 
          if ($type == 'group') {
@@ -301,7 +301,7 @@ class PluginTimelineticketToolbox {
          $ptItem = new PluginTimelineticketAssignUser();
       }
 
-      $a_states = $ptState->find(["tickets_id" => $ticket->getField('id')], "`date`");
+      $a_states = $ptState->find(["tickets_id" => $ticket->getField('id')], ["date"]);
 
       $a_state_delays = [];
       $a_state_num    = [];
@@ -318,7 +318,7 @@ class PluginTimelineticketToolbox {
       $a_state_num[] = $delay;
       $last_delay    = $delay;
 
-      $a_groups = $ptItem->find(["tickets_id" => $ticket->getField('id')], "`date`");
+      $a_groups = $ptItem->find(["tickets_id" => $ticket->getField('id')], ["date"]);
 
       echo "<table class='tab_cadre_fixe' width='100%'>";
       echo "<tr class='tab_bg_1'>";

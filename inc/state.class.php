@@ -79,10 +79,10 @@ class PluginTimelineticketState extends CommonDBTM {
          }
       }
       $this->add(['tickets_id' => $ticket->getField("id"),
-                       'date'       => $date,
-                       'old_status' => $old_status,
-                       'new_status' => $new_status,
-                       'delay'      => $delay]);
+                  'date'       => $date,
+                  'old_status' => $old_status,
+                  'new_status' => $new_status,
+                  'delay'      => $delay]);
    }
 
 
@@ -201,11 +201,11 @@ class PluginTimelineticketState extends CommonDBTM {
       $IndicatorSections = [];
 
       $a_states                         = [Ticket::INCOMING,
-                                                Ticket::ASSIGNED,
-                                                Ticket::PLANNED,
-                                                Ticket::WAITING,
-                                                Ticket::SOLVED,
-                                                Ticket::CLOSED];
+                                           Ticket::ASSIGNED,
+                                           Ticket::PLANNED,
+                                           Ticket::WAITING,
+                                           Ticket::SOLVED,
+                                           Ticket::CLOSED];
       $a_status_color                   = [];
       $a_status_color[Ticket::INCOMING] = ['R' => 197, 'G' => 204, 'B' => 79];
       $a_status_color[Ticket::ASSIGNED] = ['R' => 38, 'G' => 174, 'B' => 38];
@@ -221,17 +221,17 @@ class PluginTimelineticketState extends CommonDBTM {
          $delaystatus[$status]       = 0;
       }
 
-      $a_status = $this->find(["tickets_id" => $ticket->getField('id')], "`date`");
+      $a_status = $this->find(["tickets_id" => $ticket->getField('id')], ["date"]);
       $begin    = 0;
 
       if ($params['totaltime'] > 0) {
          foreach ($a_status as $data) {
             foreach ($a_states as $statusSection) {
                $IndicatorSections[$statusSection] = [];
-               $R       = 235;
-               $G       = 235;
-               $B       = 235;
-               $caption = '';
+               $R                                 = 235;
+               $G                                 = 235;
+               $B                                 = 235;
+               $caption                           = '';
                if ($statusSection == $data['old_status']) {
                   $R = $a_status_color[$statusSection]['R'];
                   $G = $a_status_color[$statusSection]['G'];
@@ -241,11 +241,11 @@ class PluginTimelineticketState extends CommonDBTM {
                   $delaystatus[$statusSection] += round(($data['delay'] * 100) / $params['totaltime'], 2);
                }
                $IndicatorSections[$statusSection][] = ["Start"   => $begin,
-                                                            "End"     => ($begin + $data['delay']),
-                                                            "Caption" => $caption,
-                                                            "R"       => $R,
-                                                            "G"       => $G,
-                                                            "B"       => $B];
+                                                       "End"     => ($begin + $data['delay']),
+                                                       "Caption" => $caption,
+                                                       "R"       => $R,
+                                                       "G"       => $G,
+                                                       "B"       => $B];
             }
             $begin += $data['delay'];
          }
@@ -263,11 +263,11 @@ class PluginTimelineticketState extends CommonDBTM {
                   $delaystatus[$statusSection] += round((($params['totaltime'] - $begin) * 100) / $params['totaltime'], 2);
                }
                $IndicatorSections[$statusSection][] = ["Start"   => $begin,
-                                                            "End"     => ($begin + ($params['totaltime'] - $begin)),
-                                                            "Caption" => $caption,
-                                                            "R"       => $R,
-                                                            "G"       => $G,
-                                                            "B"       => $B];
+                                                       "End"     => ($begin + ($params['totaltime'] - $begin)),
+                                                       "Caption" => $caption,
+                                                       "R"       => $R,
+                                                       "G"       => $G,
+                                                       "B"       => $B];
             }
          }
       }
@@ -282,15 +282,15 @@ class PluginTimelineticketState extends CommonDBTM {
 
             if ($ticket->fields['status'] != Ticket::CLOSED) {
                $IndicatorSettings = ["Values"            => [100, 201],
-                                          "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
-                                          "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
-                                          "CaptionR"          => 0,
-                                          "CaptionG"          => 0,
-                                          "CaptionB"          => 0,
-                                          "DrawLeftHead"      => false,
-                                          "ValueDisplay"      => false,
-                                          "IndicatorSections" => $IndicatorSections[$status],
-                                          "SectionsMargin"    => 0];
+                                     "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
+                                     "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
+                                     "CaptionR"          => 0,
+                                     "CaptionG"          => 0,
+                                     "CaptionB"          => 0,
+                                     "DrawLeftHead"      => false,
+                                     "ValueDisplay"      => false,
+                                     "IndicatorSections" => $IndicatorSections[$status],
+                                     "SectionsMargin"    => 0];
                if (is_array($IndicatorSections[$status])) {
                   foreach ($IndicatorSections[$status] as $arr) {
                      if ($arr['End'] > $arr['Start']) {
@@ -300,16 +300,16 @@ class PluginTimelineticketState extends CommonDBTM {
                }
             } else {
                $IndicatorSettings = ["Values"            => [100, 201],
-                                          "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
-                                          "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
-                                          "CaptionR"          => 0,
-                                          "CaptionG"          => 0,
-                                          "CaptionB"          => 0,
-                                          "DrawLeftHead"      => false,
-                                          "DrawRightHead"     => false,
-                                          "ValueDisplay"      => false,
-                                          "IndicatorSections" => $IndicatorSections[$status],
-                                          "SectionsMargin"    => 0];
+                                     "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
+                                     "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
+                                     "CaptionR"          => 0,
+                                     "CaptionG"          => 0,
+                                     "CaptionB"          => 0,
+                                     "DrawLeftHead"      => false,
+                                     "DrawRightHead"     => false,
+                                     "ValueDisplay"      => false,
+                                     "IndicatorSections" => $IndicatorSections[$status],
+                                     "SectionsMargin"    => 0];
                if (is_array($IndicatorSections[$status])) {
                   foreach ($IndicatorSections[$status] as $arr) {
                      if ($arr['End'] > $arr['Start']) {
@@ -368,62 +368,62 @@ class PluginTimelineticketState extends CommonDBTM {
             if ($ticket->fields['status'] != Ticket::CLOSED) {
 
                $IndicatorSettings = ["Values"            => [100, 201],
-                                          "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
-                                          "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
-                                          "CaptionR"          => 0,
-                                          "CaptionG"          => 0,
-                                          "CaptionB"          => 0,
-                                          "DrawLeftHead"      => false,
-                                          "ValueDisplay"      => false,
-                                          "IndicatorSections" => [
-                                             [
-                                                "Start"   => 0,
-                                                "End"     => $duedate,
-                                                "Caption" => "",
-                                                "R"       => 235,
-                                                "G"       => 235,
-                                                "B"       => 235
-                                             ],
-                                             [
-                                                "Start"   => $duedate,
-                                                "End"     => ($dateend + $duedate),
-                                                "Caption" => "",
-                                                "R"       => 255,
-                                                "G"       => 0,
-                                                "B"       => 0
-                                             ]
-                                          ],
-                                          "SectionsMargin"    => 0];
+                                     "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
+                                     "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
+                                     "CaptionR"          => 0,
+                                     "CaptionG"          => 0,
+                                     "CaptionB"          => 0,
+                                     "DrawLeftHead"      => false,
+                                     "ValueDisplay"      => false,
+                                     "IndicatorSections" => [
+                                        [
+                                           "Start"   => 0,
+                                           "End"     => $duedate,
+                                           "Caption" => "",
+                                           "R"       => 235,
+                                           "G"       => 235,
+                                           "B"       => 235
+                                        ],
+                                        [
+                                           "Start"   => $duedate,
+                                           "End"     => ($dateend + $duedate),
+                                           "Caption" => "",
+                                           "R"       => 255,
+                                           "G"       => 0,
+                                           "B"       => 0
+                                        ]
+                                     ],
+                                     "SectionsMargin"    => 0];
                $Indicator->draw(2, 2, 805, 25, $IndicatorSettings);
             } else {
                $IndicatorSettings = ["Values"            => [100, 201],
-                                          "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
-                                          "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
-                                          "CaptionR"          => 0,
-                                          "CaptionG"          => 0,
-                                          "CaptionB"          => 0,
-                                          "DrawLeftHead"      => false,
-                                          "DrawRightHead"     => false,
-                                          "ValueDisplay"      => false,
-                                          "IndicatorSections" => [
-                                             [
-                                                "Start"   => 0,
-                                                "End"     => $duedate,
-                                                "Caption" => "",
-                                                "R"       => 235,
-                                                "G"       => 235,
-                                                "B"       => 235
-                                             ],
-                                             [
-                                                "Start"   => $duedate,
-                                                "End"     => ($dateend + $duedate),
-                                                "Caption" => "",
-                                                "R"       => 255,
-                                                "G"       => 0,
-                                                "B"       => 0
-                                             ]
-                                          ],
-                                          "SectionsMargin"    => 0];
+                                     "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
+                                     "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
+                                     "CaptionR"          => 0,
+                                     "CaptionG"          => 0,
+                                     "CaptionB"          => 0,
+                                     "DrawLeftHead"      => false,
+                                     "DrawRightHead"     => false,
+                                     "ValueDisplay"      => false,
+                                     "IndicatorSections" => [
+                                        [
+                                           "Start"   => 0,
+                                           "End"     => $duedate,
+                                           "Caption" => "",
+                                           "R"       => 235,
+                                           "G"       => 235,
+                                           "B"       => 235
+                                        ],
+                                        [
+                                           "Start"   => $duedate,
+                                           "End"     => ($dateend + $duedate),
+                                           "Caption" => "",
+                                           "R"       => 255,
+                                           "G"       => 0,
+                                           "B"       => 0
+                                        ]
+                                     ],
+                                     "SectionsMargin"    => 0];
                $Indicator->draw(2, 2, 814, 25, $IndicatorSettings);
             }
 
@@ -459,36 +459,36 @@ class PluginTimelineticketState extends CommonDBTM {
       $status_translation[Ticket::CLOSED]   = Ticket::CLOSED;
 
       // Unset plugin session to avoid loadLanguage on plugin
-//      $save_plugin_session = $_SESSION['glpi_plugins'];
-//      unset($_SESSION['glpi_plugins']);
+      //      $save_plugin_session = $_SESSION['glpi_plugins'];
+      //      unset($_SESSION['glpi_plugins']);
 
       // Get all existing languages status
       foreach (glob(GLPI_ROOT . '/locales/*.po') as $file) {
          $locale = basename($file, '.po');
          Session::loadLanguage($locale);
 
-         $status_translation[_x('ticket', 'New')]         = Ticket::INCOMING;
-         $status_translation[__('Processing (assigned)')] = Ticket::ASSIGNED;
-         $status_translation[__('Processing (planned)')]  = Ticket::PLANNED;
-         $status_translation[__('Pending')]               = Ticket::WAITING;
-         $status_translation[__('Solved')]                = Ticket::SOLVED;
-         $status_translation[__('Closed')]                = Ticket::CLOSED;
+         $status_translation[_x('status', 'New')]                   = Ticket::INCOMING;
+         $status_translation[_x('status', 'Processing (assigned)')] = Ticket::ASSIGNED;
+         $status_translation[_x('status', 'Processing (planned)')]  = Ticket::PLANNED;
+         $status_translation[__('Pending')]                         = Ticket::WAITING;
+         $status_translation[_x('status', 'Solved')]                = Ticket::SOLVED;
+         $status_translation[_x('status', 'Closed')]                = Ticket::CLOSED;
       }
 
-//      $_SESSION['glpi_plugins'] = $save_plugin_session;
+      //      $_SESSION['glpi_plugins'] = $save_plugin_session;
 
       $query  = "SELECT * FROM `glpi_tickets`
-         ORDER BY `date`";
+               ORDER BY `date`";
       $result = $DB->query($query);
       while ($data = $DB->fetchArray($result)) {
          $ticket->getFromDB($data['id']);
          $this->createFollowup($ticket, $data['date'], '', Ticket::INCOMING);
 
          $queryl  = "SELECT * FROM `glpi_logs`
-            WHERE `itemtype`='Ticket'
-               AND `items_id`='" . $data['id'] . "'
-               AND `id_search_option`='12'
-         ORDER BY `id`";
+                  WHERE `itemtype`='Ticket'
+                     AND `items_id`='" . $data['id'] . "'
+                     AND `id_search_option`='12'
+               ORDER BY `id`";
          $resultl = $DB->query($queryl);
          $first   = 0;
          while ($datal = $DB->fetchArray($resultl)) {
@@ -497,19 +497,17 @@ class PluginTimelineticketState extends CommonDBTM {
                if ($datal['old_value'] != Ticket::INCOMING
                    || $datal['old_value'] != 'new'
                    || $datal['old_value'] != _x('ticket', 'New')) {
-                  if(!is_null($datal['old_value']) && $datal['old_value'] != ""){
+                  if (!is_null($datal['old_value']) && $datal['old_value'] != "") {
                      $this->createFollowup($ticket, $data['date'], Ticket::INCOMING, $status_translation[$datal['old_value']]);
                   }
                }
             }
-            if(!is_null($datal['old_value']) && $datal['old_value'] != ""){
+            if (!is_null($datal['old_value']) && $datal['old_value'] != "") {
                $this->createFollowup($ticket, $datal['date_mod'],
-                   $status_translation[$datal['old_value']],
-                   $status_translation[$datal['new_value']]);
+                                     $status_translation[$datal['old_value']],
+                                     $status_translation[$datal['new_value']]);
                $first++;
             }
-
-
          }
       }
    }

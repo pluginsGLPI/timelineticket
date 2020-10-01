@@ -87,7 +87,9 @@ if (!defined('GLPI_ROOT')) {
          // Command line usage of GLPI : need to do a real check plugin activation
          if (isCommandLine()) {
             $plugin = new Plugin();
-            if (count($plugin->find("directory='$plugname' AND state=".Plugin::ACTIVATED)) == 0) {
+            $cond = ["directory" => $plugname,
+               "state" => Plugin::ACTIVATED];
+            if (count($plugin->find($cond)) == 0) {
                // Plugin does not exists or not activated
                return FALSE;
             }
