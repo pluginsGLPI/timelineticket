@@ -38,23 +38,23 @@
  */
 
 //Options for GLPI 0.71 and newer : need slave db to access the report
-$USEDBREPLICATE = 1;
+$USEDBREPLICATE        = 1;
 $DBCONNECTION_REQUIRED = 1;
 
-include ("../../../../inc/includes.php");
+include("../../../../inc/includes.php");
 
 // Instantiate Report with Name
 $report = new PluginReportsAutoReport(__("statSpentTimeByGroup_report_title", "timelineticket"));
 //Report's search criterias
 $dateYear = date("Y-m-d", mktime(0, 0, 0, date("m"), 1, date("Y") - 1));
-$lastday = cal_days_in_month(CAL_GREGORIAN, date("m"), date("Y"));
+$lastday  = cal_days_in_month(CAL_GREGORIAN, date("m"), date("Y"));
 
 if (date("d") == $lastday) {
-   $dateMonthend = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d"), date("Y")));
+   $dateMonthend   = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d"), date("Y")));
    $dateMonthbegin = date("Y-m-d", mktime(0, 0, 0, date("m"), 1, date("Y")));
 } else {
-   $lastday = cal_days_in_month(CAL_GREGORIAN, date("m") - 1, date("Y"));
-   $dateMonthend = date("Y-m-d", mktime(0, 0, 0, date("m") - 1, $lastday, date("Y")));
+   $lastday        = cal_days_in_month(CAL_GREGORIAN, date("m") - 1, date("Y"));
+   $dateMonthend   = date("Y-m-d", mktime(0, 0, 0, date("m") - 1, $lastday, date("Y")));
    $dateMonthbegin = date("Y-m-d", mktime(0, 0, 0, date("m") - 1, 1, date("Y")));
 }
 $endDate = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d"), date("Y")));
@@ -67,20 +67,20 @@ $date->setEndDate($dateMonthend);
 //Display criterias form is needed
 $report->displayCriteriasForm();
 
-$columns = ['closedate' => ['sorton' => 'closedate'],
-                  'id' => ['sorton' => 'id'],
-                  'entities_id' => ['sorton' => 'entities_id'],
-                  'status' => ['sorton' => 'status'],
-                  'date' => ['sorton' => 'date'],
-                  'date_mod' => ['sorton' => 'date_mod'],
-                  'priority' => ['sorton' => 'priority'],
-                  'type' => ['sorton' => 'type'],
-                  'itilcategories_id' => ['sorton' => 'itilcategories_id'],
-                  'name' => ['sorton' => 'name'],
-                  'requesttypes_id' => ['sorton' => 'requesttypes_id'],
-                  'takeintoaccount_delay_stat' => ['sorton' => 'takeintoaccount_delay_stat'],
-                  'slas_id_ttr' => ['sorton' => 'slas_id_ttr']
-    ];
+$columns = ['closedate'                  => ['sorton' => 'closedate'],
+            'id'                         => ['sorton' => 'id'],
+            'entities_id'                => ['sorton' => 'entities_id'],
+            'status'                     => ['sorton' => 'status'],
+            'date'                       => ['sorton' => 'date'],
+            'date_mod'                   => ['sorton' => 'date_mod'],
+            'priority'                   => ['sorton' => 'priority'],
+            'type'                       => ['sorton' => 'type'],
+            'itilcategories_id'          => ['sorton' => 'itilcategories_id'],
+            'name'                       => ['sorton' => 'name'],
+            'requesttypes_id'            => ['sorton' => 'requesttypes_id'],
+            'takeintoaccount_delay_stat' => ['sorton' => 'takeintoaccount_delay_stat'],
+            'slas_id_ttr'                => ['sorton' => 'slas_id_ttr']
+];
 
 $output_type = Search::HTML_OUTPUT;
 
@@ -89,7 +89,7 @@ if (isset($_POST['list_limit'])) {
    unset($_POST['list_limit']);
 }
 if (!isset($_REQUEST['sort'])) {
-   $_REQUEST['sort'] = "closedate";
+   $_REQUEST['sort']  = "closedate";
    $_REQUEST['order'] = "ASC";
 }
 
@@ -98,8 +98,8 @@ $limit = $_SESSION['glpilist_limit'];
 if (isset($_POST["display_type"])) {
    $output_type = $_POST["display_type"];
    if ($output_type < 0) {
-      $output_type = - $output_type;
-      $limit = 0;
+      $output_type = -$output_type;
+      $limit       = 0;
    }
 } //else {
 //   $output_type = Search::HTML_OUTPUT;
@@ -112,7 +112,7 @@ $dbu   = new DbUtils();
 // SQL statement
 $query = "SELECT glpi_tickets.*  
                FROM `glpi_tickets`
-               WHERE `glpi_tickets`.`status` = '".Ticket::CLOSED."'";
+               WHERE `glpi_tickets`.`status` = '" . Ticket::CLOSED . "'";
 $query .= $dbu->getEntitiesRestrictRequest('AND', "glpi_tickets", '', '', false);
 $query .= $date->getSqlCriteriasRestriction();
 $query .= getOrderBy('closedate', $columns);
@@ -140,8 +140,8 @@ if ($nbtot == 0) {
    echo "<div class='center red b'>" . __('No item found') . "</div>";
    Html::footer();
 } else if ($output_type == Search::PDF_OUTPUT_PORTRAIT
-               || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
-   include (GLPI_ROOT . "/lib/ezpdf/class.ezpdf.php");
+           || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
+   include(GLPI_ROOT . "/lib/ezpdf/class.ezpdf.php");
 } else if ($output_type == Search::HTML_OUTPUT) {
    if (!$HEADER_LOADED) {
       Html::header($title, $_SERVER['PHP_SELF'], "utils", "report");
@@ -187,7 +187,7 @@ if ($res && $nbtot > 0) {
    $mylevels = [];
    $restrict = $dbu->getEntitiesRestrictCriteria("glpi_plugin_timelineticket_grouplevels", '', '', true) +
                ["ORDER" => "rank"];
-   $levels = $dbu->getAllDataFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
+   $levels   = $dbu->getAllDataFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
    if (!empty($levels)) {
       foreach ($levels as $level) {
          $mylevels[$level["name"]] = json_decode($level["groups"], true);
@@ -196,9 +196,9 @@ if ($res && $nbtot > 0) {
 
    $nbCols = $DB->numFields($res);
    $nbrows = $DB->numrows($res);
-   $num = 1;
-   $link = $_SERVER['PHP_SELF'];
-   $order = 'ASC';
+   $num    = 1;
+   $link   = $_SERVER['PHP_SELF'];
+   $order  = 'ASC';
    $issort = false;
 
    echo Search::showHeader($output_type, $nbrows, $nbCols, false);
@@ -221,11 +221,12 @@ if ($res && $nbtot > 0) {
 
    if (!empty($mylevels)) {
       foreach ($mylevels as $key => $val) {
-         showTitle($output_type, $num, __('Tasks number by', 'timelineticket')."&nbsp;".$key, '', false);
-         showTitle($output_type, $num, __('Tasks duration by', 'timelineticket')."&nbsp;".$key, '', false);
-         showTitle($output_type, $num, __('Duration by', 'timelineticket')."&nbsp;".$key, '', false);
+         showTitle($output_type, $num, __('Tasks number by', 'timelineticket') . "&nbsp;" . $key, '', false);
+         showTitle($output_type, $num, __('Tasks duration by', 'timelineticket') . "&nbsp;" . $key, '', false);
+         showTitle($output_type, $num, __('Duration by', 'timelineticket') . "&nbsp;" . $key, '', false);
       }
    }
+   showTitle($output_type, $num, __('Total waiting duration of ticket', 'timelineticket'), 'waiting_duration', false);
    showTitle($output_type, $num, __('Total duration of ticket', 'timelineticket'), 'TOTAL', false);
    echo Search::showEndLine($output_type);
 
@@ -235,14 +236,14 @@ if ($res && $nbtot > 0) {
 
       //Requesters
       $userdata = '';
-      $ticket = new Ticket();
+      $ticket   = new Ticket();
       $ticket->getFromDB($data['id']);
 
       if ($ticket->countUsers(CommonITILActor::REQUESTER)) {
          foreach ($ticket->getUsers(CommonITILActor::REQUESTER) as $d) {
             $k = $d['users_id'];
             if ($k) {
-               $userdata.= $dbu->getUserName($k);
+               $userdata .= $dbu->getUserName($k);
             }
             if ($ticket->countUsers(CommonITILActor::REQUESTER) > 1) {
                $userdata .= "<br>";
@@ -251,21 +252,21 @@ if ($res && $nbtot > 0) {
       }
 
       //Time by level group
-      $timegroups = [];
+      $timegroups   = [];
       $ticketgroups = [];
 
-      $restrict = ["tickets_id" => $data["id"]] +["ORDER" => "date"];
-      $groups = $dbu->getAllDataFromTable("glpi_plugin_timelineticket_assigngroups", $restrict);
+      $restrict = ["tickets_id" => $data["id"]] + ["ORDER" => "date"];
+      $groups   = $dbu->getAllDataFromTable("glpi_plugin_timelineticket_assigngroups", $restrict);
       if (!empty($groups)) {
          foreach ($groups as $group) {
             if (isset($timegroups[$group["groups_id"]])) {
                if ($group["delay"] != null) {
                   $timegroups[$group["groups_id"]] += $group["delay"];
                } else {
-                  $calendar = new Calendar();
+                  $calendar     = new Calendar();
                   $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
-                  if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
-                     $delay = $calendar->getActiveTimeBetween ($group["date"], $data["closedate"]);
+                  if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
+                     $delay = $calendar->getActiveTimeBetween($group["date"], $data["closedate"]);
 
                   } else {
                      $delay = strtotime($data["closedate"]) - strtotime($group["date"]);
@@ -281,10 +282,10 @@ if ($res && $nbtot > 0) {
                if ($group["delay"] != null) {
                   $timegroups[$group["groups_id"]] = $group["delay"];
                } else {
-                  $calendar = new Calendar();
+                  $calendar     = new Calendar();
                   $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
-                  if ($calendars_id>0 && $calendar->getFromDB($calendars_id)) {
-                     $delay = $calendar->getActiveTimeBetween ($group["date"], $data["closedate"]);
+                  if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
+                     $delay = $calendar->getActiveTimeBetween($group["date"], $data["closedate"]);
 
                   } else {
                      $delay = strtotime($data["closedate"]) - strtotime($group["date"]);
@@ -303,12 +304,12 @@ if ($res && $nbtot > 0) {
       }
       $timelevels = [];
       if (!empty($mylevels)
-            && !empty($timegroups)) {
+          && !empty($timegroups)) {
          foreach ($mylevels as $key => $val) {
             foreach ($timegroups as $group => $time) {
 
                if (is_array($val)
-                     && in_array($group, $val)) {
+                   && in_array($group, $val)) {
                   if (isset($timelevels[$key])) {
                      $timelevels[$key] += $time;
                   } else {
@@ -322,7 +323,7 @@ if ($res && $nbtot > 0) {
       //Time of task by level group
       $tickettechs = [];
 
-      $restrict = ["tickets_id" => $data["id"], "actiontime" => ['>', 0]] +["ORDER" => "date"];
+      $restrict = ["tickets_id" => $data["id"], "actiontime" => ['>', 0]] + ["ORDER" => "date"];
 
       $tasks = $dbu->getAllDataFromTable("glpi_tickettasks", $restrict);
 
@@ -341,20 +342,20 @@ if ($res && $nbtot > 0) {
          }
       }
 
-      $tasklevels = [];
+      $tasklevels   = [];
       $nbtasklevels = [];
       if (!empty($mylevels)
-            && !empty($tickettechs)) {
+          && !empty($tickettechs)) {
          foreach ($mylevels as $key => $val) {
             foreach ($tickettechs as $group => $time) {
 
                if (is_array($val)
-                     && in_array($group, $val)) {
+                   && in_array($group, $val)) {
                   if (isset($tasklevels[$key])) {
-                     $tasklevels[$key] += $time;
+                     $tasklevels[$key]   += $time;
                      $nbtasklevels[$key] += 1;
                   } else {
-                     $tasklevels[$key] = $time;
+                     $tasklevels[$key]   = $time;
                      $nbtasklevels[$key] = 1;
                   }
                }
@@ -374,25 +375,49 @@ if ($res && $nbtot > 0) {
       echo Search::showItem($output_type, $userdata, $num, $row_num);
       echo Search::showItem($output_type, Ticket::getTicketTypeName($data['type']), $num, $row_num);
       echo Search::showItem($output_type, Dropdown::getDropdownName("glpi_itilcategories", $data["itilcategories_id"]), $num, $row_num);
-      $out  = $ticket->getLink();
+      $out = $ticket->getLink();
       echo Search::showItem($output_type, $out, $num, $row_num);
       echo Search::showItem($output_type, Html::convDateTime($data['closedate']), $num, $row_num);
       echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_requesttypes', $data["requesttypes_id"]), $num, $row_num);
 
       if ($output_type == Search::HTML_OUTPUT
-            || $output_type == Search::PDF_OUTPUT_PORTRAIT
-               || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
+          || $output_type == Search::PDF_OUTPUT_PORTRAIT
+          || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
          echo Search::showItem($output_type, Html::timestampToString($data["takeintoaccount_delay_stat"]), $num, $row_num);
       } else {
-         echo Search::showItem($output_type, Html::formatNumber($data["takeintoaccount_delay_stat"] / 3600, false, 5), $num, $row_num);
+         echo Search::showItem($output_type, convertTimestamp($data["takeintoaccount_delay_stat"]), $num, $row_num);
       }
       echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_slas', $data["slas_id_ttr"]), $num, $row_num);
 
       $time = 0;
       if (!empty($mylevels)) {
+
          foreach ($mylevels as $key => $val) {
             if (array_key_exists($key, $timelevels)) {
                $time = $timelevels[$key];
+
+               $a_details = PluginTimelineticketToolbox::getDetails($ticket, 'group', false);
+               $waiting_group = 0;
+               foreach ($a_details as $items_id => $a_detail) {
+
+                  if (in_array($items_id,$val)) {
+                     $a_status = [];
+                     foreach ($a_detail as $data) {
+                        if (!isset($a_status[$data['Status']])) {
+                           $a_status[$data['Status']] = 0;
+                        }
+                        $a_status[$data['Status']] += ($data['End'] - $data['Start']);
+                     }
+                     $list_status = Ticket::getAllStatusArray();
+                     foreach ($list_status as $status => $name) {
+                        if (isset($a_status[$status]) && $status == Ticket::WAITING) {
+                           $waiting_group += $a_status[$status];
+                        }
+                     }
+                  }
+               }
+               $time = $time - $waiting_group;
+
             } else {
                $time = 0;
             }
@@ -407,31 +432,41 @@ if ($res && $nbtot > 0) {
                $nbtasks = 0;
             }
             if ($output_type == Search::HTML_OUTPUT
-                  || $output_type == Search::PDF_OUTPUT_PORTRAIT
-               || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
+                || $output_type == Search::PDF_OUTPUT_PORTRAIT
+                || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
                echo Search::showItem($output_type, $nbtasks, $num, $row_num);
                echo Search::showItem($output_type, Html::timestampToString($timetask), $num, $row_num);
             } else {
                echo Search::showItem($output_type, $nbtasks, $num, $row_num);
-               echo Search::showItem($output_type, Html::formatNumber($timetask / 3600, false, 5), $num, $row_num);
+               echo Search::showItem($output_type, convertTimestamp($timetask), $num, $row_num);
             }
 
             if ($output_type == Search::HTML_OUTPUT
-                  || $output_type == Search::PDF_OUTPUT_PORTRAIT
-               || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
+                || $output_type == Search::PDF_OUTPUT_PORTRAIT
+                || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
                echo Search::showItem($output_type, Html::timestampToString($time), $num, $row_num);
             } else {
-               echo Search::showItem($output_type, Html::formatNumber($time / 3600, false, 5), $num, $row_num);
+               echo Search::showItem($output_type, convertTimestamp($time), $num, $row_num);
             }
          }
       }
+
+      $waiting = $ticket->fields["waiting_duration"];
+      if ($output_type == Search::HTML_OUTPUT
+          || $output_type == Search::PDF_OUTPUT_PORTRAIT
+          || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
+         echo Search::showItem($output_type, Html::timestampToString($waiting), $num, $row_num);
+      } else {
+         echo Search::showItem($output_type, convertTimestamp($waiting), $num, $row_num);
+      }
+
       $total = $ticket->fields["close_delay_stat"];
       if ($output_type == Search::HTML_OUTPUT
-                  || $output_type == Search::PDF_OUTPUT_PORTRAIT
-               || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
+          || $output_type == Search::PDF_OUTPUT_PORTRAIT
+          || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
          echo Search::showItem($output_type, Html::timestampToString($total), $num, $row_num);
       } else {
-         echo Search::showItem($output_type, Html::formatNumber($total / 3600, false, 5), $num, $row_num);
+         echo Search::showItem($output_type, convertTimestamp($total), $num, $row_num);
       }
       echo Search::showEndLine($output_type);
    }
@@ -442,14 +477,42 @@ if ($output_type == Search::HTML_OUTPUT) {
    Html::footer();
 }
 
+
+function convertTimestamp($tps) {
+   // Calcul du jour
+   $j = $tps / 86400;
+   $j = floor($j);
+   // Calcul des heures
+//   $h      = $tps / 86400;
+//   $h      = $h - $j;
+//   $h      *= 24;
+//   $heures = floor($h); // On crée une nouvelle variable pour garder $h qui va nous servir après.
+   // Calcul des minutes
+//   $mn  = $h - $heures;
+//   $mn  *= 60;
+//   $min = floor($mn);
+//   // Calcul des secondes
+//   $s = $mn - $min;
+//   $s *= 60;
+//   $s = floor($s);
+
+//   $j = date('d',$tps);
+   $heures = date('H',$tps);
+   $min = date('i',$tps);
+   $s = date('s',$tps);
+   // Echo
+   return sprintf('%s:%s:%s:%s', $j, $heures, $min, $s);
+}
+
 /**
  * Display the column title and allow the sort
  *
- * @param $output_type
- * @param $num
- * @param $title
- * @param $columnname
+ * @param      $output_type
+ * @param      $num
+ * @param      $title
+ * @param      $columnname
  * @param bool $sort
+ *
  * @return mixed
  */
 function showTitle($output_type, &$num, $title, $columnname, $sort = false) {
@@ -458,7 +521,7 @@ function showTitle($output_type, &$num, $title, $columnname, $sort = false) {
       echo Search::showHeaderItem($output_type, $title, $num);
       return;
    }
-   $order = 'ASC';
+   $order  = 'ASC';
    $issort = false;
    if (isset($_REQUEST['sort']) && $_REQUEST['sort'] == $columnname) {
       $issort = true;
@@ -466,12 +529,12 @@ function showTitle($output_type, &$num, $title, $columnname, $sort = false) {
          $order = 'DESC';
       }
    }
-   $link = $_SERVER['PHP_SELF'];
+   $link  = $_SERVER['PHP_SELF'];
    $first = true;
    foreach ($_REQUEST as $name => $value) {
       if (!in_array($name, ['sort', 'order', 'PHPSESSID'])) {
-         $link .= ($first ? '?' : '&amp;');
-         $link .= $name . '=' . urlencode($value);
+         $link  .= ($first ? '?' : '&amp;');
+         $link  .= $name . '=' . urlencode($value);
          $first = false;
       }
    }
@@ -485,6 +548,7 @@ function showTitle($output_type, &$num, $title, $columnname, $sort = false) {
  *
  * @param $default string, name of the column used by default
  * @param $columns
+ *
  * @return string
  */
 function getOrderBy($default, $columns) {
@@ -493,12 +557,12 @@ function getOrderBy($default, $columns) {
       $_REQUEST['order'] = 'ASC';
    }
    $order = $_REQUEST['order'];
-   $sort = isset($_REQUEST['sort'])?$_REQUEST['sort']:$default;
+   $sort  = isset($_REQUEST['sort']) ? $_REQUEST['sort'] : $default;
 
-//   $tab = getOrderByFields($default, $columns);
-//   if (is_array($tab) && count($tab) > 0) {
-      return " ORDER BY " . $sort . " " . $order;
-//   }
+   //   $tab = getOrderByFields($default, $columns);
+   //   if (is_array($tab) && count($tab) > 0) {
+   return " ORDER BY " . $sort . " " . $order;
+   //   }
    return '';
 }
 
@@ -508,6 +572,7 @@ function getOrderBy($default, $columns) {
  * @param $default string, name of the column used by default
  *
  * @param $columns
+ *
  * @return array of column names
  */
 //function getOrderByFields($default, $columns) {

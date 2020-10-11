@@ -166,7 +166,7 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
                             'used'        => $used,
                             'entity'      => $item->fields['entities_id'],
                             'entity_sons' => $item->fields["is_recursive"],
-                            'condition'   => '`is_assign`']);
+                            'condition'   => ['is_assign' => 1]]);
 
       echo "</td>";
       echo "<td><input type='hidden' name='id' value='" . $item->getID() . "'>";

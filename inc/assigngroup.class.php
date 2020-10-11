@@ -61,14 +61,14 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
          }
 
          $this->add(['tickets_id' => $ticket->getField("id"),
-                          'date'       => $date,
-                          'groups_id'  => $groups_id,
-                          'begin'      => $begin]);
+                     'date'       => $date,
+                     'groups_id'  => $groups_id,
+                     'begin'      => $begin]);
 
       } else if ($type == 'delete') {
          $a_dbentry = $this->find(["tickets_id" => $ticket->getField("id"),
-                                   "groups_id" => $groups_id,
-                                   "delay" => NULL], [], 1);
+                                   "groups_id"  => $groups_id,
+                                   "delay"      => NULL], [], 1);
          if (count($a_dbentry) == 1) {
             $input        = current($a_dbentry);
             $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
@@ -173,16 +173,16 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
                    && $_groupsfinished[$groups_id] != 0) {
 
                   $IndicatorSettings = ["Values"            => [100, 201],
-                                             "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
-                                             "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
-                                             "CaptionR"          => 0,
-                                             "CaptionG"          => 0,
-                                             "CaptionB"          => 0,
-                                             "DrawLeftHead"      => false,
-                                             "DrawRightHead"     => true,
-                                             "ValueDisplay"      => false,
-                                             "IndicatorSections" => $array,
-                                             "SectionsMargin"    => 0];
+                                        "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
+                                        "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
+                                        "CaptionR"          => 0,
+                                        "CaptionG"          => 0,
+                                        "CaptionB"          => 0,
+                                        "DrawLeftHead"      => false,
+                                        "DrawRightHead"     => true,
+                                        "ValueDisplay"      => false,
+                                        "IndicatorSections" => $array,
+                                        "SectionsMargin"    => 0];
                   if (is_array($array)) {
                      foreach ($array as $arr) {
                         if ($arr['End'] > $arr['Start']) {
@@ -192,16 +192,16 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
                   }
                } else {
                   $IndicatorSettings = ["Values"            => [100, 201],
-                                             "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
-                                             "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
-                                             "CaptionR"          => 0,
-                                             "CaptionG"          => 0,
-                                             "CaptionB"          => 0,
-                                             "DrawLeftHead"      => false,
-                                             "DrawRightHead"     => false,
-                                             "ValueDisplay"      => false,
-                                             "IndicatorSections" => $array,
-                                             "SectionsMargin"    => 0];
+                                        "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
+                                        "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
+                                        "CaptionR"          => 0,
+                                        "CaptionG"          => 0,
+                                        "CaptionB"          => 0,
+                                        "DrawLeftHead"      => false,
+                                        "DrawRightHead"     => false,
+                                        "ValueDisplay"      => false,
+                                        "IndicatorSections" => $array,
+                                        "SectionsMargin"    => 0];
                   if (is_array($array)) {
                      foreach ($array as $arr) {
                         if ($arr['End'] > $arr['Start']) {
