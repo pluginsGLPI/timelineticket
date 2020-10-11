@@ -309,16 +309,12 @@ class PluginTimelineticketToolbox {
 
       $list_status = Ticket::getAllStatusArray();
 
-      $status = "new";
       foreach ($a_states as $array) {
          $delay                  += $array['delay'];
          $a_state_delays[$delay] = $array['old_status'];
          $a_state_num[]          = $delay;
       }
       $a_state_num[] = $delay;
-      $last_delay    = $delay;
-
-      $a_groups = $ptItem->find(["tickets_id" => $ticket->getField('id')], "`date`");
 
       echo "<table class='tab_cadre_fixe' width='100%'>";
       echo "<tr class='tab_bg_1'>";
@@ -343,9 +339,9 @@ class PluginTimelineticketToolbox {
       echo "</tr>";
 
       if ($type == 'group') {
-         $a_details = PluginTimelineticketToolbox::getDetails($ticket, 'group', false);
+         $a_details = self::getDetails($ticket, 'group', false);
       } else if ($type == 'user') {
-         $a_details = PluginTimelineticketToolbox::getDetails($ticket, 'user', false);
+         $a_details = self::getDetails($ticket, 'user', false);
       }
 
       foreach ($a_details as $items_id => $a_detail) {

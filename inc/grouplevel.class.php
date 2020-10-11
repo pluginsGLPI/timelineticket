@@ -163,10 +163,10 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
       $used = ($item->fields["groups"] == '' ? [] : json_decode($item->fields["groups"], true));
 
       Group::dropdown(['name'        => '_groups_id_assign',
-                            'used'        => $used,
-                            'entity'      => $item->fields['entities_id'],
-                            'entity_sons' => $item->fields["is_recursive"],
-                            'condition'   => '`is_assign`']);
+                       'used'        => $used,
+                       'entity'      => $item->fields['entities_id'],
+                       'entity_sons' => $item->fields["is_recursive"],
+                       'condition'   => ['is_assign' => 1]]);
 
       echo "</td>";
       echo "<td><input type='hidden' name='id' value='" . $item->getID() . "'>";

@@ -226,6 +226,7 @@ if ($res && $nbtot > 0) {
          showTitle($output_type, $num, __('Duration by', 'timelineticket')."&nbsp;".$key, '', false);
       }
    }
+   showTitle($output_type, $num, __('Total waiting duration of ticket', 'timelineticket'), 'waiting_duration', false);
    showTitle($output_type, $num, __('Total duration of ticket', 'timelineticket'), 'TOTAL', false);
    echo Search::showEndLine($output_type);
 
@@ -383,7 +384,7 @@ if ($res && $nbtot > 0) {
                || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
          echo Search::showItem($output_type, Html::timestampToString($data["takeintoaccount_delay_stat"]), $num, $row_num);
       } else {
-         echo Search::showItem($output_type, Html::formatNumber($data["takeintoaccount_delay_stat"] / 3600, false, 5), $num, $row_num);
+         echo Search::showItem($output_type, convertTimestamp($data["takeintoaccount_delay_stat"]), $num, $row_num);
       }
       echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_slas', $data["slas_id_ttr"]), $num, $row_num);
 
@@ -392,6 +393,29 @@ if ($res && $nbtot > 0) {
          foreach ($mylevels as $key => $val) {
             if (array_key_exists($key, $timelevels)) {
                $time = $timelevels[$key];
+               
+               $a_details = PluginTimelineticketToolbox::getDetails($ticket, 'group', false);
+               $waiting_group = 0;
+               foreach ($a_details as $items_id => $a_detail) {
+
+                  if (in_array($items_id,$val)) {
+                     $a_status = [];
+                     foreach ($a_detail as $data) {
+                        if (!isset($a_status[$data['Status']])) {
+                           $a_status[$data['Status']] = 0;
+                        }
+                        $a_status[$data['Status']] += ($data['End'] - $data['Start']);
+                     }
+                     $list_status = Ticket::getAllStatusArray();
+                     foreach ($list_status as $status => $name) {
+                        if (isset($a_status[$status]) && $status == Ticket::WAITING) {
+                           $waiting_group += $a_status[$status];
+                        }
+                     }
+                  }
+               }
+               $time = $time - $waiting_group;
+               
             } else {
                $time = 0;
             }
@@ -412,7 +436,7 @@ if ($res && $nbtot > 0) {
                echo Search::showItem($output_type, Html::timestampToString($timetask), $num, $row_num);
             } else {
                echo Search::showItem($output_type, $nbtasks, $num, $row_num);
-               echo Search::showItem($output_type, Html::formatNumber($timetask / 3600, false, 5), $num, $row_num);
+               echo Search::showItem($output_type, convertTimestamp($timetask), $num, $row_num);
             }
 
             if ($output_type == Search::HTML_OUTPUT
@@ -420,17 +444,26 @@ if ($res && $nbtot > 0) {
                || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
                echo Search::showItem($output_type, Html::timestampToString($time), $num, $row_num);
             } else {
-               echo Search::showItem($output_type, Html::formatNumber($time / 3600, false, 5), $num, $row_num);
+               echo Search::showItem($output_type, convertTimestamp($time), $num, $row_num);
             }
          }
       }
+      $waiting = $ticket->fields["waiting_duration"];
+      if ($output_type == Search::HTML_OUTPUT
+          || $output_type == Search::PDF_OUTPUT_PORTRAIT
+          || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
+         echo Search::showItem($output_type, Html::timestampToString($waiting), $num, $row_num);
+      } else {
+         echo Search::showItem($output_type, convertTimestamp($waiting), $num, $row_num);
+      }
+      
       $total = $ticket->fields["close_delay_stat"];
       if ($output_type == Search::HTML_OUTPUT
                   || $output_type == Search::PDF_OUTPUT_PORTRAIT
                || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
          echo Search::showItem($output_type, Html::timestampToString($total), $num, $row_num);
       } else {
-         echo Search::showItem($output_type, Html::formatNumber($total / 3600, false, 5), $num, $row_num);
+         echo Search::showItem($output_type, convertTimestamp($total), $num, $row_num);
       }
       echo Search::showEndLine($output_type);
    }
@@ -441,6 +474,32 @@ if ($output_type == Search::HTML_OUTPUT) {
    Html::footer();
 }
 
+
+function convertTimestamp($tps) {
+   // Calcul du jour
+   $j = $tps / 86400;
+   $j = floor($j);
+   // Calcul des heures
+   //   $h      = $tps / 86400;
+   //   $h      = $h - $j;
+   //   $h      *= 24;
+   //   $heures = floor($h); // On crée une nouvelle variable pour garder $h qui va nous servir après.
+   // Calcul des minutes
+   //   $mn  = $h - $heures;
+   //   $mn  *= 60;
+   //   $min = floor($mn);
+   //   // Calcul des secondes
+   //   $s = $mn - $min;
+   //   $s *= 60;
+   //   $s = floor($s);
+
+   //   $j = date('d',$tps);
+   $heures = date('H',$tps);
+   $min = date('i',$tps);
+   $s = date('s',$tps);
+   // Echo
+   return sprintf('%s:%s:%s:%s', $j, $heures, $min, $s);
+}
 /**
  * Display the column title and allow the sort
  *
