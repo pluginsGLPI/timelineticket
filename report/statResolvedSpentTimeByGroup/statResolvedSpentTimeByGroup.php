@@ -426,6 +426,7 @@ if ($res && $nbtot > 0) {
 
                $a_details = PluginTimelineticketToolbox::getDetails($ticket, 'group', false);
                $waiting_group = 0;
+               $solved_group = 0;
                foreach ($a_details as $items_id => $a_detail) {
 
                   if (in_array($items_id,$val)) {
@@ -442,9 +443,15 @@ if ($res && $nbtot > 0) {
                            $waiting_group += $a_status[$status];
                         }
                      }
+                     foreach ($list_status as $status => $name) {
+                        if (isset($a_status[$status]) && $status == Ticket::SOLVED) {
+                           $solved_group += $a_status[$status];
+                        }
+                     }
                   }
                }
                $time = $time - $waiting_group;
+               $time = $time - $solved_group;
 
             } else {
                $time = 0;
@@ -488,7 +495,7 @@ if ($res && $nbtot > 0) {
          echo Search::showItem($output_type, convertTimestamp($waiting), $num, $row_num);
       }
 
-      $total = $ticket->fields["close_delay_stat"];
+      $total = $ticket->fields["solve_delay_stat"];
       if ($output_type == Search::HTML_OUTPUT
           || $output_type == Search::PDF_OUTPUT_PORTRAIT
           || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
