@@ -143,7 +143,7 @@ class PluginTimelineticketState extends CommonDBTM {
 
       $req = $DB->request($query);
       if (!$req->numrows()) {
-         echo "<tr class='tab_bg_1 center'><td>" . __('No item found') . "</td></tr>";
+//         echo "<tr class='tab_bg_1 center'><td>" . __('No item found') . "</td></tr>";
       } else {
          echo "<tr<td>";
 

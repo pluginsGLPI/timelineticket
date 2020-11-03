@@ -8,10 +8,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-25 09:41+0100\n"
-"PO-Revision-Date: 2019-02-25 08:43+0000\n"
+"POT-Creation-Date: 2020-10-13 16:53+0200\n"
+"PO-Revision-Date: 2020-10-13 14:55+0000\n"
 "Last-Translator: Xavier CAILLAUD <thetsmr@gmail.com>\n"
-"Language-Team: Latvian (Latvia) (http://www.transifex.com/tsmr/GLPI_timelineticket/language/lv_LV/)\n"
+"Language-Team: Latvian (Latvia) (http://www.transifex.com/infotelGLPI/GLPI_timelineticket/language/lv_LV/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -25,7 +25,7 @@ msgstr[0] "Pieteikuma laika skala"
 msgstr[1] "Pieteikuma laika skala"
 msgstr[2] "Pieteikuma laika skala"
 
-#: inc/assigngroup.class.php:119 inc/toolbox.class.php:328
+#: inc/assigngroup.class.php:119 inc/toolbox.class.php:324
 msgid "Groups in charge of the ticket"
 msgstr "Par pieteikumu atbildīgās grupas"
 
@@ -33,7 +33,7 @@ msgstr "Par pieteikumu atbildīgās grupas"
 msgid "Ticket assign group history"
 msgstr "Pieteikuma piesaistīto grupas vēsture"
 
-#: inc/assignuser.class.php:118 inc/toolbox.class.php:330
+#: inc/assignuser.class.php:118 inc/toolbox.class.php:326
 msgid "Technicians in charge of the ticket"
 msgstr "Tehniķi atbildīgie par pieteikumu"
 
@@ -89,30 +89,43 @@ msgstr "Saistīto grupu saraksts"
 msgid "Ticket states history"
 msgstr "Pieteikuma stāvokļu vēsture"
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:47
-msgid "statSpentTimeByGroup_report_title"
-msgstr "statistikaNolietotsLaiksGrupa_Atskaites_nosaukums"
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:47
+msgid "statResolvedSpentTimeByGroup_report_title"
+msgstr ""
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:221
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:224
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:224
 msgid "Tasks number by"
 msgstr ""
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:222
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:225
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:225
 msgid "Tasks duration by"
 msgstr ""
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:223
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:226
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
 msgid "Duration by"
 msgstr "Ilgums"
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:229
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:229
+msgid "Total waiting duration of ticket"
+msgstr ""
+
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:230
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:230
 msgid "Total duration of ticket"
 msgstr "Kopējais pieteikuma ilgums"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:47
+msgid "statSpentTimeByGroup_report_title"
+msgstr "statistikaNolietotsLaiksGrupa_Atskaites_nosaukums"
 
 #: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:47
 msgid "statSpentTimeProcessingByGroup_report_title"
 msgstr "statSpentTimeProcessingByGroup_report_title"
 
-#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:220
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:221
 msgid "Duration by \"in progress\""
 msgstr "Ilgums \"procesā\""

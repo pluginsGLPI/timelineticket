@@ -259,7 +259,7 @@ class PluginTimelineticketToolbox {
             $B          = 235;
             $statusname = '';
             $a_end      = end($data_f);
-            $last       = $a_end['End'];
+            $last       = isset($a_end['End'])?$a_end['End']:0;
             if ($ticket->fields['status'] != Ticket::CLOSED
                 && $last == $verylastdelayStateDB) {
                $R          = $a_end['R'];
