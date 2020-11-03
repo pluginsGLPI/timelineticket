@@ -215,10 +215,11 @@ if ($res && $nbtot > 0) {
    showTitle($output_type, $num, __('Category'), 'itilcategories_id', true);
    showTitle($output_type, $num, __('Title'), 'name', true);
    showTitle($output_type, $num, __('Date of solving'), 'solvedate', true);
+   showTitle($output_type, $num, __('Solved by', 'timelineticket'), '', false);
    showTitle($output_type, $num, __('Request source'), 'requesttypes_id', true);
    showTitle($output_type, $num, __('Take into account time'), 'takeintoaccount_delay_stat', true);
    showTitle($output_type, $num, __('SLA'), 'slas_id_ttr', true);
-   showTitle($output_type, $num, __('Time to resolve exceedeed'), 'is_late', true);
+   showTitle($output_type, $num, __('Time to resolve exceedeed'), '', true);
    if (!empty($mylevels)) {
       foreach ($mylevels as $key => $val) {
          //showTitle($output_type, $num, __('Tasks number by', 'timelineticket') . "&nbsp;" . $key, '', false);
@@ -387,6 +388,24 @@ if ($res && $nbtot > 0) {
       $out = $ticket->getLink();
       echo Search::showItem($output_type, $out, $num, $row_num);
       echo Search::showItem($output_type, Html::convDateTime($data['solvedate']), $num, $row_num);
+      
+      $users_id_solver = 0;
+      $iterator        = $DB->request([
+                                         'SELECT' => 'users_id',
+                                         'FROM'   => 'glpi_itilsolutions',
+                                         'WHERE'  => [
+                                            'items_id' => $data["id"],
+                                            'itemtype' => 'Ticket',
+                                            'status'   => CommonITILValidation::ACCEPTED,
+                                         ],
+                                         'ORDER'  => 'id DESC',
+                                         'LIMIT'  => 1
+                                      ]);
+      while ($datasolution = $iterator->next()) {
+         $users_id_solver = $datasolution['users_id'];
+      }
+      echo Search::showItem($output_type, getUserName($users_id_solver), $num, $row_num);
+      
       echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_requesttypes', $data["requesttypes_id"]), $num, $row_num);
 
       if ($output_type == Search::HTML_OUTPUT
@@ -569,9 +588,9 @@ function getOrderBy($default, $columns) {
    $sort  = isset($_REQUEST['sort']) ? $_REQUEST['sort'] : $default;
 
    //   $tab = getOrderByFields($default, $columns);
-   //   if (is_array($tab) && count($tab) > 0) {
-   return " ORDER BY " . $sort . " " . $order;
-   //   }
+   if (in_array($sort, $columns)) {
+      return " ORDER BY " . $sort . " " . $order;
+   }
    return '';
 }
 
