@@ -8,10 +8,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-25 09:41+0100\n"
-"PO-Revision-Date: 2019-02-25 08:43+0000\n"
+"POT-Creation-Date: 2020-10-13 16:53+0200\n"
+"PO-Revision-Date: 2020-10-13 14:55+0000\n"
 "Last-Translator: Xavier CAILLAUD <thetsmr@gmail.com>\n"
-"Language-Team: Spanish (Latin America) (http://www.transifex.com/tsmr/GLPI_timelineticket/language/es_419/)\n"
+"Language-Team: Spanish (Latin America) (http://www.transifex.com/infotelGLPI/GLPI_timelineticket/language/es_419/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -24,7 +24,7 @@ msgid_plural "Timeline of tickets"
 msgstr[0] "Línea de tiempo del ticket"
 msgstr[1] "Línea de tiempo de los tickets"
 
-#: inc/assigngroup.class.php:119 inc/toolbox.class.php:328
+#: inc/assigngroup.class.php:119 inc/toolbox.class.php:324
 msgid "Groups in charge of the ticket"
 msgstr "Grupos responsables del ticket"
 
@@ -32,7 +32,7 @@ msgstr "Grupos responsables del ticket"
 msgid "Ticket assign group history"
 msgstr "Historial de tickets asignados por grupo"
 
-#: inc/assignuser.class.php:118 inc/toolbox.class.php:330
+#: inc/assignuser.class.php:118 inc/toolbox.class.php:326
 msgid "Technicians in charge of the ticket"
 msgstr "Técnicos responsables del ticket"
 
@@ -87,30 +87,43 @@ msgstr "Lista de grupos asociados"
 msgid "Ticket states history"
 msgstr "Histórico de estados de tickets"
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:47
-msgid "statSpentTimeByGroup_report_title"
-msgstr "estadisticasTiempoGastadosPorGrupo_informe_titulo"
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:47
+msgid "statResolvedSpentTimeByGroup_report_title"
+msgstr ""
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:221
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:224
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:224
 msgid "Tasks number by"
 msgstr ""
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:222
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:225
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:225
 msgid "Tasks duration by"
 msgstr ""
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:223
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:226
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
 msgid "Duration by"
 msgstr "Por duración"
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:229
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:229
+msgid "Total waiting duration of ticket"
+msgstr ""
+
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:230
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:230
 msgid "Total duration of ticket"
 msgstr "Duración total de ticket"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:47
+msgid "statSpentTimeByGroup_report_title"
+msgstr "estadisticasTiempoGastadosPorGrupo_informe_titulo"
 
 #: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:47
 msgid "statSpentTimeProcessingByGroup_report_title"
 msgstr "estadisticaTiempoProcesadoPorGrupo_informe_titulo"
 
-#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:220
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:221
 msgid "Duration by \"in progress\""
 msgstr "Duración en \"en proceso\" "
