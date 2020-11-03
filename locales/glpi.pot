@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI - Timelineticket plugin 9.5+1.0\n"
+"Project-Id-Version: GLPI - Timelineticket plugin 0.90+1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-13 16:53+0200\n"
+"POT-Creation-Date: 2020-11-03 09:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -91,33 +91,35 @@ msgstr ""
 msgid "statResolvedSpentTimeByGroup_report_title"
 msgstr ""
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:224
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:224
-msgid "Tasks number by"
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:218
+msgid "Solved by"
 msgstr ""
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:225
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:225
-msgid "Tasks duration by"
-msgstr ""
-
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:226
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:227
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
 msgid "Duration by"
 msgstr ""
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:229
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:230
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:229
 msgid "Total waiting duration of ticket"
 msgstr ""
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:230
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:231
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:230
 msgid "Total duration of ticket"
 msgstr ""
 
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:47
 msgid "statSpentTimeByGroup_report_title"
+msgstr ""
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:224
+msgid "Tasks number by"
+msgstr ""
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:225
+msgid "Tasks duration by"
 msgstr ""
 
 #: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:47
