@@ -267,10 +267,10 @@ if ($res && $nbtot > 0) {
                   $calendar     = new Calendar();
                   $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
                   if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
-                     $delay = $calendar->getActiveTimeBetween($group["date"], $data["solvedate"]);
+                     $delay = $calendar->getActiveTimeBetween($group["date"], $data["closedate"]);
 
                   } else {
-                     $delay = strtotime($data["solvedate"]) - strtotime($group["date"]);
+                     $delay = strtotime($data["closedate"]) - strtotime($group["date"]);
                   }
 
                   if ($delay < 0) {
@@ -286,10 +286,10 @@ if ($res && $nbtot > 0) {
                   $calendar     = new Calendar();
                   $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
                   if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
-                     $delay = $calendar->getActiveTimeBetween($group["date"], $data["solvedate"]);
+                     $delay = $calendar->getActiveTimeBetween($group["date"], $data["closedate"]);
 
                   } else {
-                     $delay = strtotime($data["solvedate"]) - strtotime($group["date"]);
+                     $delay = strtotime($data["closedate"]) - strtotime($group["date"]);
                   }
 
                   if ($delay < 0) {
@@ -303,6 +303,7 @@ if ($res && $nbtot > 0) {
             }
          }
       }
+
       $timelevels = [];
       if (!empty($mylevels)
           && !empty($timegroups)) {
@@ -376,19 +377,31 @@ if ($res && $nbtot > 0) {
       $row_num++;
       $num = 1;
       echo Search::showNewLine($output_type);
+      //show ID ticket
       echo Search::showItem($output_type, $data['id'], $num, $row_num);
+      //show Entity ticket
       echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_entities', $data['entities_id']), $num, $row_num);
+      //show ticket status
       echo Search::showItem($output_type, Ticket::getStatus($data["status"]), $num, $row_num);
+      //show creation date ticket
       echo Search::showItem($output_type, Html::convDateTime($data['date']), $num, $row_num);
+      //show modification date ticket
       echo Search::showItem($output_type, Html::convDateTime($data['date_mod']), $num, $row_num);
+      //show priority ticket
       echo Search::showItem($output_type, Ticket::getPriorityName($data['priority']), $num, $row_num);
+      //show requester ticket
       echo Search::showItem($output_type, $userdata, $num, $row_num);
+      //show type ticket
       echo Search::showItem($output_type, Ticket::getTicketTypeName($data['type']), $num, $row_num);
+      //show category ticket
       echo Search::showItem($output_type, Dropdown::getDropdownName("glpi_itilcategories", $data["itilcategories_id"]), $num, $row_num);
+      //show title and link ticket
       $out = $ticket->getLink();
       echo Search::showItem($output_type, $out, $num, $row_num);
+      //show solve date ticket
       echo Search::showItem($output_type, Html::convDateTime($data['solvedate']), $num, $row_num);
-      
+
+      //show solver ticket
       $users_id_solver = 0;
       $iterator        = $DB->request([
                                          'SELECT' => 'users_id',
@@ -396,7 +409,7 @@ if ($res && $nbtot > 0) {
                                          'WHERE'  => [
                                             'items_id' => $data["id"],
                                             'itemtype' => 'Ticket',
-                                            'status'   => CommonITILValidation::ACCEPTED,
+                                            'status'   => [CommonITILValidation::ACCEPTED,CommonITILValidation::WAITING],
                                          ],
                                          'ORDER'  => 'id DESC',
                                          'LIMIT'  => 1
@@ -405,7 +418,7 @@ if ($res && $nbtot > 0) {
          $users_id_solver = $datasolution['users_id'];
       }
       echo Search::showItem($output_type, getUserName($users_id_solver), $num, $row_num);
-      
+      //show request source ticket
       echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_requesttypes', $data["requesttypes_id"]), $num, $row_num);
 
       if ($output_type == Search::HTML_OUTPUT
@@ -419,7 +432,6 @@ if ($res && $nbtot > 0) {
       echo Search::showItem($output_type, Dropdown::getYesNo($is_late), $num, $row_num);
       $time = 0;
       if (!empty($mylevels)) {
-
          foreach ($mylevels as $key => $val) {
             if (array_key_exists($key, $timelevels)) {
                $time = $timelevels[$key];
@@ -427,6 +439,7 @@ if ($res && $nbtot > 0) {
                $a_details = PluginTimelineticketToolbox::getDetails($ticket, 'group', false);
                $waiting_group = 0;
                $solved_group = 0;
+               $time_passed = 0;
                foreach ($a_details as $items_id => $a_detail) {
 
                   if (in_array($items_id,$val)) {
@@ -442,17 +455,24 @@ if ($res && $nbtot > 0) {
                         if (isset($a_status[$status]) && $status == Ticket::WAITING) {
                            $waiting_group += $a_status[$status];
                         }
-                     }
-                     foreach ($list_status as $status => $name) {
+
                         if (isset($a_status[$status]) && $status == Ticket::SOLVED) {
                            $solved_group += $a_status[$status];
                         }
+                        if (isset($a_status[$status]) && $status != Ticket::SOLVED && $status != Ticket::CLOSED && $status != Ticket::WAITING && $status != 0) {
+                           $time_passed += $a_status[$status];
+                        }
+
                      }
+
                   }
                }
+
                $time = $time - $waiting_group;
+
                $time = $time - $solved_group;
 
+               $time = $time_passed;
             } else {
                $time = 0;
             }
@@ -475,6 +495,9 @@ if ($res && $nbtot > 0) {
             //   echo Search::showItem($output_type, $nbtasks, $num, $row_num);
             //   echo Search::showItem($output_type, convertTimestamp($timetask), $num, $row_num);
             //}
+            if($time<0){
+               $time = $time_passed;
+            }
 
             if ($output_type == Search::HTML_OUTPUT
                 || $output_type == Search::PDF_OUTPUT_PORTRAIT
