@@ -103,7 +103,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
          if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
             if ($ticket->fields['closedate']) {
                $dateend = $calendar->getActiveTimeBetween($ticket->fields['time_to_resolve'],
-                                                          $ticket->fields['closedate']);
+                                                          $ticket->fields['solvedate']);
             } else {
                $dateend = $calendar->getActiveTimeBetween($ticket->fields['time_to_resolve'],
                                                           date('Y-m-d H:i:s'));
@@ -111,18 +111,20 @@ class PluginTimelineticketDisplay extends CommonDBTM {
          } else {
             // cas 24/24 - 7/7
             if ($ticket->fields['closedate']) {
-               $dateend = strtotime($ticket->fields['closedate']) - strtotime($ticket->fields['time_to_resolve']);
+               $dateend = strtotime($ticket->fields['solvedate']) - strtotime($ticket->fields['time_to_resolve']);
             } else {
                $dateend = strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['time_to_resolve']);
             }
          }
-         echo "<tr>";
-         echo "<th>" . __('Late') . "</th>";
-         echo "</tr>";
-         echo "<tr>";
-         echo "<td align='center' class='tab_bg_2_2'>" .
-              Html::timestampToString($dateend, true) . "</td>";
-         echo "</tr>";
+         if($dateend > 0) {
+            echo "<tr>";
+            echo "<th>" . __('Late') . "</th>";
+            echo "</tr>";
+            echo "<tr>";
+            echo "<td align='center' class='tab_bg_2_2'>" .
+                 Html::timestampToString($dateend, true) . "</td>";
+            echo "</tr>";
+         }
       }
 
       echo "</table>";

@@ -342,7 +342,7 @@ class PluginTimelineticketState extends CommonDBTM {
                                                           $ticket->fields['time_to_resolve']);
                if ($ticket->fields['closedate']) {
                   $dateend = $calendar->getActiveTimeBetween($ticket->fields['time_to_resolve'],
-                                                             $ticket->fields['closedate']);
+                                                             $ticket->fields['solvedate']);
                } else {
                   $dateend = $calendar->getActiveTimeBetween($ticket->fields['time_to_resolve'],
                                                              date('Y-m-d H:i:s'));
@@ -351,7 +351,7 @@ class PluginTimelineticketState extends CommonDBTM {
                // cas 24/24 - 7/7
                $duedate = strtotime($ticket->fields['time_to_resolve']) - strtotime($ticket->fields['date']);
                if ($ticket->fields['closedate']) {
-                  $dateend = strtotime($ticket->fields['closedate']) - strtotime($ticket->fields['time_to_resolve']);
+                  $dateend = strtotime($ticket->fields['solvedate']) - strtotime($ticket->fields['time_to_resolve']);
                } else {
                   $dateend = strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['time_to_resolve']);
                }
@@ -359,7 +359,7 @@ class PluginTimelineticketState extends CommonDBTM {
             echo "<tr class='tab_bg_2'>";
             echo "<td width='100' class='tab_bg_2_2'>";
             echo __('Late');
-            if ($params['totaltime'] > 0) {
+            if ($params['totaltime'] > 0 && $dateend > 0) {
                echo "<br/>(" . round(($dateend * 100) / $params['totaltime'], 2) . "%)";
             }
             echo "</td>";
