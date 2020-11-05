@@ -216,6 +216,7 @@ if ($res && $nbtot > 0) {
    showTitle($output_type, $num, __('Title'), 'name', true);
    showTitle($output_type, $num, __('Date of solving'), 'solvedate', true);
    showTitle($output_type, $num, __('Solved by', 'timelineticket'), '', false);
+   showTitle($output_type, $num, __('Solved by (Group)', 'timelineticket'), '', false);
    showTitle($output_type, $num, __('Request source'), 'requesttypes_id', true);
    showTitle($output_type, $num, __('Take into account time'), 'takeintoaccount_delay_stat', true);
    showTitle($output_type, $num, __('SLA'), 'slas_id_ttr', true);
@@ -418,6 +419,17 @@ if ($res && $nbtot > 0) {
          $users_id_solver = $datasolution['users_id'];
       }
       echo Search::showItem($output_type, getUserName($users_id_solver), $num, $row_num);
+      //show group solver ticket
+
+      $groups = "";
+
+      foreach ($ticket->getGroups(CommonITILActor::ASSIGN) as $current_group) {
+         $groups.= Dropdown::getDropdownName("glpi_groups", $current_group["groups_id"]);
+         $groups.= "<br>";
+      }
+
+      echo Search::showItem($output_type, $groups, $num, $row_num);
+
       //show request source ticket
       echo Search::showItem($output_type, Dropdown::getDropdownName('glpi_requesttypes', $data["requesttypes_id"]), $num, $row_num);
 
