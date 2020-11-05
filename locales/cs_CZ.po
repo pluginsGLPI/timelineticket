@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-13 16:53+0200\n"
-"PO-Revision-Date: 2020-10-13 14:55+0000\n"
-"Last-Translator: Xavier CAILLAUD <thetsmr@gmail.com>\n"
+"POT-Creation-Date: 2020-11-05 11:07+0100\n"
+"PO-Revision-Date: 2020-11-05 10:08+0000\n"
+"Last-Translator: Alban Lesellier <alban.lesellier@infotel.com>\n"
 "Language-Team: Czech (Czech Republic) (http://www.transifex.com/infotelGLPI/GLPI_timelineticket/language/cs_CZ/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -67,11 +67,11 @@ msgstr "Varování: může se stát že rekonstrukce skupin nebude odpovídat re
 msgid "Input time on groups / users when ticket is waiting"
 msgstr "Vstupní čas na skupinách/uživatelích když požadavek čeká"
 
-#: inc/display.class.php:60 inc/display.class.php:223
+#: inc/display.class.php:60 inc/display.class.php:225
 msgid "Timeline"
 msgstr "Časová osa"
 
-#: inc/display.class.php:165 inc/display.class.php:195 inc/state.class.php:157
+#: inc/display.class.php:167 inc/display.class.php:197 inc/state.class.php:157
 msgid "Delay"
 msgstr "Prodleva"
 
@@ -95,27 +95,25 @@ msgstr "Historie stavů požadavku"
 msgid "statResolvedSpentTimeByGroup_report_title"
 msgstr ""
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:224
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:224
-msgid "Tasks number by"
-msgstr "Čísla úkolů podle"
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:218
+msgid "Solved by"
+msgstr ""
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:225
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:225
-msgid "Tasks duration by"
-msgstr "Trvání úkolů podle"
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:219
+msgid "Solved by (Group)"
+msgstr ""
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:226
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:228
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
 msgid "Duration by"
 msgstr "Trvání"
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:229
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:231
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:229
 msgid "Total waiting duration of ticket"
 msgstr ""
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:230
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:232
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:230
 msgid "Total duration of ticket"
 msgstr "Celková doba trvání požadavku"
@@ -123,6 +121,14 @@ msgstr "Celková doba trvání požadavku"
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:47
 msgid "statSpentTimeByGroup_report_title"
 msgstr "Čas (v hodinách), strávený na uzavřených požadavcích podle úrovní služeb"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:224
+msgid "Tasks number by"
+msgstr "Čísla úkolů podle"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:225
+msgid "Tasks duration by"
+msgstr "Trvání úkolů podle"
 
 #: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:47
 msgid "statSpentTimeProcessingByGroup_report_title"
