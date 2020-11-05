@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-13 16:53+0200\n"
-"PO-Revision-Date: 2020-10-13 14:55+0000\n"
-"Last-Translator: Xavier CAILLAUD <thetsmr@gmail.com>\n"
+"POT-Creation-Date: 2020-11-05 11:07+0100\n"
+"PO-Revision-Date: 2020-11-05 10:08+0000\n"
+"Last-Translator: Alban Lesellier <alban.lesellier@infotel.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/infotelGLPI/GLPI_timelineticket/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -66,11 +66,11 @@ msgstr "Atenção: pode ser que a reconstrução de grupos não reflita a realid
 msgid "Input time on groups / users when ticket is waiting"
 msgstr "Tempo de entrada em grupos / usuários quando o ticket está aguardando"
 
-#: inc/display.class.php:60 inc/display.class.php:223
+#: inc/display.class.php:60 inc/display.class.php:225
 msgid "Timeline"
 msgstr "Linha do Tempo"
 
-#: inc/display.class.php:165 inc/display.class.php:195 inc/state.class.php:157
+#: inc/display.class.php:167 inc/display.class.php:197 inc/state.class.php:157
 msgid "Delay"
 msgstr "Atraso"
 
@@ -92,27 +92,25 @@ msgstr ""
 msgid "statResolvedSpentTimeByGroup_report_title"
 msgstr ""
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:224
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:224
-msgid "Tasks number by"
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:218
+msgid "Solved by"
 msgstr ""
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:225
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:225
-msgid "Tasks duration by"
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:219
+msgid "Solved by (Group)"
 msgstr ""
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:226
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:228
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
 msgid "Duration by"
 msgstr "Duração"
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:229
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:231
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:229
 msgid "Total waiting duration of ticket"
 msgstr ""
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:230
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:232
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:230
 msgid "Total duration of ticket"
 msgstr "Tempo total do chamado"
@@ -120,6 +118,14 @@ msgstr "Tempo total do chamado"
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:47
 msgid "statSpentTimeByGroup_report_title"
 msgstr "statSpentTimeByGroup_report_title"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:224
+msgid "Tasks number by"
+msgstr ""
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:225
+msgid "Tasks duration by"
+msgstr ""
 
 #: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:47
 msgid "statSpentTimeProcessingByGroup_report_title"
