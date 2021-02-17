@@ -231,7 +231,7 @@ class PluginTimelineticketState extends CommonDBTM {
                $R                                 = 235;
                $G                                 = 235;
                $B                                 = 235;
-               $caption                           = '';
+               $caption                           = ' ';
                if ($statusSection == $data['old_status']) {
                   $R = $a_status_color[$statusSection]['R'];
                   $G = $a_status_color[$statusSection]['G'];
@@ -379,7 +379,7 @@ class PluginTimelineticketState extends CommonDBTM {
                                         [
                                            "Start"   => 0,
                                            "End"     => $duedate,
-                                           "Caption" => "",
+                                           "Caption" => " ",
                                            "R"       => 235,
                                            "G"       => 235,
                                            "B"       => 235
@@ -387,7 +387,7 @@ class PluginTimelineticketState extends CommonDBTM {
                                         [
                                            "Start"   => $duedate,
                                            "End"     => ($dateend + $duedate),
-                                           "Caption" => "",
+                                           "Caption" => " ",
                                            "R"       => 255,
                                            "G"       => 0,
                                            "B"       => 0
@@ -409,7 +409,7 @@ class PluginTimelineticketState extends CommonDBTM {
                                         [
                                            "Start"   => 0,
                                            "End"     => $duedate,
-                                           "Caption" => "",
+                                           "Caption" => " ",
                                            "R"       => 235,
                                            "G"       => 235,
                                            "B"       => 235
@@ -417,7 +417,7 @@ class PluginTimelineticketState extends CommonDBTM {
                                         [
                                            "Start"   => $duedate,
                                            "End"     => ($dateend + $duedate),
-                                           "Caption" => "",
+                                           "Caption" => " ",
                                            "R"       => 255,
                                            "G"       => 0,
                                            "B"       => 0

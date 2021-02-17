@@ -166,7 +166,7 @@ class PluginTimelineticketToolbox {
                   $a_itemsections[$a_dbitem[$items_id]][] = [
                      'Start'   => $gbegin,
                      'End'     => $delay,
-                     "Caption" => "",
+                     "Caption" => " ",
                      "Status"  => $statusname,
                      "R"       => $color_R,
                      "G"       => $color_G,
@@ -177,7 +177,7 @@ class PluginTimelineticketToolbox {
                   $a_itemsections[$a_dbitem[$items_id]][] = [
                      'Start'   => $gbegin,
                      'End'     => $delay,
-                     "Caption" => "",
+                     "Caption" => " ",
                      "Status"  => $statusname,
                      "R"       => $color_R,
                      "G"       => $color_G,
@@ -188,7 +188,7 @@ class PluginTimelineticketToolbox {
                   $a_itemsections[$a_dbitem[$items_id]][] = [
                      'Start'   => $gbegin,
                      'End'     => $gdelay,
-                     "Caption" => "",
+                     "Caption" => " ",
                      "Status"  => $statusname,
                      "R"       => $color_R,
                      "G"       => $color_G,
@@ -203,7 +203,7 @@ class PluginTimelineticketToolbox {
                   $a_itemsections[$a_dbitem[$items_id]][] = [
                      'Start'   => $last_statedelay,
                      'End'     => $gbegin,
-                     "Caption" => "",
+                     "Caption" => " ",
                      "Status"  => "",
                      "R"       => 235,
                      "G"       => 235,
@@ -214,7 +214,7 @@ class PluginTimelineticketToolbox {
                   $a_itemsections[$a_dbitem[$items_id]][] = [
                      'Start'   => $gbegin,
                      'End'     => $delay,
-                     "Caption" => "",
+                     "Caption" => " ",
                      "Status"  => $statusname,
                      "R"       => $color_R,
                      "G"       => $color_G,
@@ -226,7 +226,7 @@ class PluginTimelineticketToolbox {
                   $a_itemsections[$a_dbitem[$items_id]][] = [
                      'Start'   => $gbegin,
                      'End'     => $delay,
-                     "Caption" => "",
+                     "Caption" => " ",
                      "Status"  => $statusname,
                      "R"       => $color_R,
                      "G"       => $color_G,
@@ -237,7 +237,7 @@ class PluginTimelineticketToolbox {
                   $a_itemsections[$a_dbitem[$items_id]][] = [
                      'Start'   => $gbegin,
                      'End'     => $gdelay,
-                     "Caption" => "",
+                     "Caption" => " ",
                      "Status"  => $statusname,
                      "R"       => $color_R,
                      "G"       => $color_G,
@@ -271,7 +271,7 @@ class PluginTimelineticketToolbox {
                $a_itemsections[$items_id][] = [
                   'Start'   => $last,
                   'End'     => $totaltime,
-                  "Caption" => "",
+                  "Caption" => " ",
                   "Status"  => $statusname,
                   "R"       => $R,
                   "G"       => $G,
