@@ -103,6 +103,9 @@ function plugin_init_timelineticket() {
           || Session::haveRight('plugin_timelineticket_ticket', UPDATE)) {// Config page
          $PLUGIN_HOOKS['config_page']['timelineticket'] = 'front/config.form.php';
       }
+      if (class_exists('PluginMydashboardMenu') && $Plugin->isActivated('mydashboard')) {
+         $PLUGIN_HOOKS['mydashboard']['timelineticket'] = ["PluginTimelineticketDashboard"];
+      }
    }
 }
 
