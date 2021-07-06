@@ -1,0 +1,122 @@
+# Croatian translation of GLPI - Timelineticket plugin.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Milo Ivir <mail@milotype.de>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: GLPI - Timelineticket plugin 0.90+1.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-02-04 15:35+0100\n"
+"PO-Revision-Date: 2020-02-14 00:30+0100\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 1.8.12\n"
+"Last-Translator: Milo Ivir <mail@milotype.de>\n"
+"Language: hr_HR\n"
+
+#: setup.php:48 inc/display.class.php:48
+msgid "Timeline of ticket"
+msgid_plural "Timeline of tickets"
+msgstr[0] "Vremenska crta naloga"
+msgstr[1] "Vremenska crta naloga"
+msgstr[2] "Vremenska crta naloga"
+
+#: inc/assigngroup.class.php:119 inc/toolbox.class.php:328
+msgid "Groups in charge of the ticket"
+msgstr "Grupe zadužene za nalog"
+
+#: inc/assigngroup.class.php:257
+msgid "Ticket assign group history"
+msgstr "Povijest naloga dodijeljeni grupi"
+
+#: inc/assignuser.class.php:118 inc/toolbox.class.php:330
+msgid "Technicians in charge of the ticket"
+msgstr "Tehničari zaduženi za nalog"
+
+#: inc/assignuser.class.php:214
+msgid "Ticket assign technician history"
+msgstr "Povijest naloga dodijeljeni tehničaru"
+
+#: inc/config.class.php:55
+msgid "(Can take many time if you have many tickets)"
+msgstr "(Može dugo trajati, ako imaš mnoge naloge)"
+
+#: inc/config.class.php:62
+msgctxt "button"
+msgid "Reconstruct states timeline for all tickets"
+msgstr "Obnovi vremensku crtu stanja za sve naloge"
+
+#: inc/config.class.php:63
+msgctxt "button"
+msgid "Reconstruct groups timeline for all tickets"
+msgstr "Obnovi vremensku crtu grupe za sve naloge"
+
+#: inc/config.class.php:64
+msgid ""
+"Warning : it may be that the reconstruction of groups does not reflect "
+"reality because it concern only groups which have the Requester flag to No "
+"and Assigned flag to Yes"
+msgstr ""
+"Upozorenje: može biti da obnova grupa ne odražava stvarnost, jer se odnosi "
+"samo na grupe koje imaju oznaku „Podnositelj\" postavljenu na „Ne” i oznaku "
+"„Dodijeljeno” postavljenu na „Da”"
+
+#: inc/config.class.php:82
+msgid "Input time on groups / users when ticket is waiting"
+msgstr "Upiši vrijeme za grupe/korisnike kad je nalog na čekanju"
+
+#: inc/display.class.php:60 inc/display.class.php:223
+msgid "Timeline"
+msgstr "Vremenska crta"
+
+#: inc/display.class.php:165 inc/display.class.php:195 inc/state.class.php:157
+msgid "Delay"
+msgstr "Kašnjenje"
+
+#: inc/grouplevel.class.php:48
+msgid "Service level"
+msgid_plural "Service levels"
+msgstr[0] "Razina usluge"
+msgstr[1] "Razine usluge"
+msgstr[2] "Razine usluge"
+
+#: inc/grouplevel.class.php:58 inc/grouplevel.class.php:127
+msgid "List of associated groups"
+msgstr "Popis povezanih grupa"
+
+#: inc/state.class.php:121
+msgid "Ticket states history"
+msgstr "Povijest stanja naloga"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:47
+msgid "statSpentTimeByGroup_report_title"
+msgstr "Utrošeno vrijeme po grupama"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:221
+msgid "Tasks number by"
+msgstr "Broj zadatka prema"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:222
+msgid "Tasks duration by"
+msgstr "Trajanje zadatka prema"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:223
+msgid "Duration by"
+msgstr "Trajanje prema"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
+msgid "Total duration of ticket"
+msgstr "Ukupno trajanje naloga"
+
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:47
+msgid "statSpentTimeProcessingByGroup_report_title"
+msgstr "Utrošeno vrijeme za obradu po grupama"
+
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:220
+msgid "Duration by \"in progress\""
+msgstr "Trajanje prema „u tijeku”"
