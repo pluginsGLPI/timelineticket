@@ -82,7 +82,7 @@ function plugin_timelineticket_install() {
       $query = "CREATE TABLE `glpi_plugin_timelineticket_states` (
                   `id` int(11) NOT NULL AUTO_INCREMENT,
                   `tickets_id` int(11) NOT NULL DEFAULT '0',
-                  `date` timestamp DEFAULT NULL,
+                  `date` timestamp NULL DEFAULT NULL,
                   `old_status` varchar(255) DEFAULT NULL,
                   `new_status` varchar(255) DEFAULT NULL,
                   `delay` INT( 11 ) NULL,
@@ -96,7 +96,7 @@ function plugin_timelineticket_install() {
       $query = "CREATE TABLE `glpi_plugin_timelineticket_assigngroups` (
                   `id` int(11) NOT NULL AUTO_INCREMENT,
                   `tickets_id` int(11) NOT NULL DEFAULT '0',
-                  `date` timestamp DEFAULT NULL,
+                  `date` timestamp NULL DEFAULT NULL,
                   `groups_id` varchar(255) DEFAULT NULL,
                   `begin` INT( 11 ) NULL,
                   `delay` INT( 11 ) NULL,
@@ -112,7 +112,7 @@ function plugin_timelineticket_install() {
       $query = "CREATE TABLE `glpi_plugin_timelineticket_assignusers` (
                   `id` int(11) NOT NULL AUTO_INCREMENT,
                   `tickets_id` int(11) NOT NULL DEFAULT '0',
-                  `date` timestamp DEFAULT NULL,
+                  `date` timestamp NULL DEFAULT NULL,
                   `users_id` varchar(255) DEFAULT NULL,
                   `begin` INT(11) NULL,
                   `delay` INT(11) NULL,

@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS `glpi_plugin_timelineticket_states`;
 CREATE TABLE `glpi_plugin_timelineticket_states` (
    `id` int(11) NOT NULL AUTO_INCREMENT,
    `tickets_id` int(11) NOT NULL DEFAULT '0',
-   `date` timestamp DEFAULT NULL,
+   `date` timestamp NULL DEFAULT NULL,
    `old_status` varchar(255) DEFAULT NULL,
    `new_status` varchar(255) DEFAULT NULL,
    `delay` int(11) DEFAULT NULL,
@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS `glpi_plugin_timelineticket_assigngroups`;
 CREATE TABLE `glpi_plugin_timelineticket_assigngroups` (
    `id` int(11) NOT NULL AUTO_INCREMENT,
    `tickets_id` int(11) NOT NULL DEFAULT '0',
-   `date` timestamp DEFAULT NULL,
+   `date` timestamp NULL DEFAULT NULL,
    `groups_id` varchar(255) DEFAULT NULL,
    `begin` int(11) DEFAULT NULL,
    `delay` int(11) DEFAULT NULL,
@@ -34,7 +34,7 @@ DROP TABLE IF EXISTS `glpi_plugin_timelineticket_assignusers`;
 CREATE TABLE `glpi_plugin_timelineticket_assignusers` (
    `id` int(11) NOT NULL AUTO_INCREMENT,
    `tickets_id` int(11) NOT NULL DEFAULT '0',
-   `date` timestamp DEFAULT NULL,
+   `date` timestamp NULL DEFAULT NULL,
    `users_id` varchar(255) DEFAULT NULL,
    `begin` int(11) DEFAULT NULL,
    `delay` int(11) DEFAULT NULL,
