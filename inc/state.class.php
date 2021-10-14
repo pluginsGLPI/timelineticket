@@ -72,7 +72,10 @@ class PluginTimelineticketState extends CommonDBTM {
             $delay = 0;
             // Utilisation calendrier
          } else if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
-            $delay = $calendar->getActiveTimeBetween($datedebut, $datefin);
+            $delay = $calendar->getActiveTimeBetween(
+               PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($datedebut),
+               PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($datefin)
+            );
          } else {
             // cas 24/24 - 7/7
             $delay = strtotime($datefin) - strtotime($datedebut);
