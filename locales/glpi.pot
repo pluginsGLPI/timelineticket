@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI - Timelineticket plugin 0.90+1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-29 14:15+0000\n"
+"POT-Creation-Date: 2021-10-14 12:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,19 +24,19 @@ msgid_plural "Timeline of tickets"
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/assigngroup.class.php:119 inc/toolbox.class.php:324
+#: inc/assigngroup.class.php:125 inc/toolbox.class.php:324
 msgid "Groups in charge of the ticket"
 msgstr ""
 
-#: inc/assigngroup.class.php:257
+#: inc/assigngroup.class.php:263
 msgid "Ticket assign group history"
 msgstr ""
 
-#: inc/assignuser.class.php:118 inc/toolbox.class.php:326
+#: inc/assignuser.class.php:124 inc/toolbox.class.php:326
 msgid "Technicians in charge of the ticket"
 msgstr ""
 
-#: inc/assignuser.class.php:214
+#: inc/assignuser.class.php:220
 msgid "Ticket assign technician history"
 msgstr ""
 
@@ -77,7 +77,7 @@ msgstr ""
 msgid "Timeline"
 msgstr ""
 
-#: inc/display.class.php:167 inc/display.class.php:197 inc/state.class.php:157
+#: inc/display.class.php:167 inc/display.class.php:197 inc/state.class.php:160
 msgid "Delay"
 msgstr ""
 
@@ -91,7 +91,7 @@ msgstr[1] ""
 msgid "List of associated groups"
 msgstr ""
 
-#: inc/state.class.php:121
+#: inc/state.class.php:124
 msgid "Ticket states history"
 msgstr ""
 
