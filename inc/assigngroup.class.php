@@ -54,7 +54,10 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       if ($type == 'new') {
          $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
          if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
-            $begin = $calendar->getActiveTimeBetween($ticket->fields['date'], $date);
+            $begin = $calendar->getActiveTimeBetween(
+               PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($ticket->fields['date']), 
+               PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($date)
+            );
          } else {
             // cas 24/24 - 7/7
             $begin = strtotime($date) - strtotime($ticket->fields['date']);
@@ -73,7 +76,10 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
             $input        = current($a_dbentry);
             $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
             if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
-               $input['delay'] = $calendar->getActiveTimeBetween($input['date'], $date);
+               $input['delay'] = $calendar->getActiveTimeBetween(
+                  PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($input['date']),
+                  PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($date)
+               );
             } else {
                // cas 24/24 - 7/7
                $input['delay'] = strtotime($date) - strtotime($input['date']);

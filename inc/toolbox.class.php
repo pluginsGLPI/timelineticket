@@ -371,5 +371,21 @@ class PluginTimelineticketToolbox {
       echo "</table>";
    }
 
+
+   static function convertDateToRightTimezoneForCalendarUse($myDate) {
+      // We convert the both dates because $date passed in fonction are timezoned but not hours of calendars
+      $currTimezone = new DateTime(date("Y-m-d"));
+      $configTimezone = Config::getConfigurationValues('core', ['timezone']);
+      $baseTimezone = 'UTC';
+      $tz = ini_get('date.timezone');
+      if (!empty($configTimezone['timezone']) && !is_null($configTimezone['timezone'])) {
+         $baseTimezone = $configTimezone['timezone'];
+      } else if (!empty($tz)) {
+         $baseTimezone = $configTimezone['timezone'];
+      }
+      $globalConfTimezone = new DateTime('2008-06-21', new DateTimeZone($baseTimezone));
+      $timeOffset = date_offset_get($currTimezone) - date_offset_get($globalConfTimezone);
+      return date("Y-m-d H:i:s", (strtotime($myDate) - $timeOffset));
+   }
 }
 
