@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI - Timelineticket plugin 0.90+1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-14 14:41+0000\n"
+"POT-Creation-Date: 2021-12-09 12:27+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -65,12 +65,16 @@ msgstr ""
 msgid "Input time on groups / users when ticket is waiting"
 msgstr ""
 
-#: inc/dashboard.class.php:55
-msgid "Number of time where a technician has been affected to a ticket"
+#: inc/dashboard.class.php:52
+msgid "Line charts"
 msgstr ""
 
-#: inc/dashboard.class.php:71
-msgid "Number of affection by technician to a ticket "
+#: inc/dashboard.class.php:53 inc/dashboard.class.php:73
+msgid "Number of assignments per technician to a ticket"
+msgstr ""
+
+#: inc/dashboard.class.php:55
+msgid "Number of time where a technician has been affected to a ticket"
 msgstr ""
 
 #: inc/display.class.php:60 inc/display.class.php:225
