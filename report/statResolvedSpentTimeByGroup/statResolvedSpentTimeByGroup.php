@@ -160,14 +160,15 @@ if ($nbtot == 0) {
    foreach ($_POST as $key => $val) {
       if (is_array($val)) {
          foreach ($val as $k => $v) {
-            echo "<input type='hidden' name='" . $key . "[$k]' value='$v' >";
+            $name =  $key . "[$k]";
+            echo Html::hidden($name, ['value' => $v]);
             if (!empty($param)) {
                $param .= "&";
             }
             $param .= $key . "[" . $k . "]=" . urlencode($v);
          }
       } else {
-         echo "<input type='hidden' name='$key' value='$val' >";
+         echo Html::hidden($key, ['value' => $val]);
          if (!empty($param)) {
             $param .= "&";
          }
@@ -245,7 +246,7 @@ if ($res && $nbtot > 0) {
          foreach ($ticket->getUsers(CommonITILActor::REQUESTER) as $d) {
             $k = $d['users_id'];
             if ($k) {
-               $userdata .= $dbu->getUserName($k);
+               $userdata .= getUserName($k);
             }
             if ($ticket->countUsers(CommonITILActor::REQUESTER) > 1) {
                $userdata .= "<br>";

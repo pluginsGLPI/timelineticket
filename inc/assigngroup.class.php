@@ -217,10 +217,10 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
                   }
                }
 
-               $filename = $uid = Session::getLoginUserID(false) . "_testgroup" . $groups_id;
+               $filename = Session::getLoginUserID(false) . "_testgroup" . $groups_id;
                $myPicture->render(GLPI_GRAPH_DIR . "/" . $filename . ".png");
 
-               echo "<img src='" . $CFG_GLPI['root_doc'] . "/front/graph.send.php?file=" . $filename . ".png'><br/>";
+               echo "<img src='" . $CFG_GLPI['root_doc'] . "/plugins/timelineticket/front/graph.send.php?file=" . $filename . ".png'><br/>";
                echo "</td>";
                echo "</tr>";
             }

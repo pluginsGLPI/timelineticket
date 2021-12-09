@@ -322,10 +322,10 @@ class PluginTimelineticketState extends CommonDBTM {
                }
             }
 
-            $filename = $uid = Session::getLoginUserID(false) . "_test" . $status;
+            $filename = Session::getLoginUserID(false) . "_test" . $status;
             $myPicture->render(GLPI_GRAPH_DIR . "/" . $filename . ".png");
 
-            echo "<img src='" . $CFG_GLPI['root_doc'] . "/front/graph.send.php?file=" . $filename . ".png'><br/>";
+            echo "<img src='" . $CFG_GLPI['root_doc'] . "/plugins/timelineticket/front/graph.send.php?file=" . $filename . ".png'><br/>";
             echo "</td>";
             echo "</tr>";
          }
@@ -430,10 +430,10 @@ class PluginTimelineticketState extends CommonDBTM {
                $Indicator->draw(2, 2, 814, 25, $IndicatorSettings);
             }
 
-            $filename = $uid = Session::getLoginUserID(false) . "_testduedate";
+            $filename = Session::getLoginUserID(false) . "_testduedate";
             $myPicture->render(GLPI_GRAPH_DIR . "/" . $filename . ".png");
 
-            echo "<img src='" . $CFG_GLPI['root_doc'] . "/front/graph.send.php?file=" . $filename . ".png'><br/>";
+            echo "<img src='" . $CFG_GLPI['root_doc'] . "/plugins/timelineticket/front/graph.send.php?file=" . $filename . ".png'><br/>";
             echo "</td>";
             echo "</tr>";
          }

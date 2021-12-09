@@ -201,13 +201,12 @@ class PluginTimelineticketDisplay extends CommonDBTM {
                          WHERE `tickets_id` = '" . $ticket->getID() . "'";
 
          $result = $DB->query($query);
-         $dbu    = new DbUtils();
          while ($data = $DB->fetchAssoc($result)) {
 
             echo "<tr class='tab_bg_1'>";
             echo "<td>" . $data['id'] . "</td>";
             echo "<td>" . Html::convDateTime($data['date']) . "</td>";
-            echo "<td>" . $dbu->getUserName($data['users_id']) . "</td>";
+            echo "<td>" . getUserName($data['users_id']) . "</td>";
             echo "<td>" . Html::timestampToString($data['begin']) . "</td>";
             echo "<td>" . Html::timestampToString($data['delay']) . "</td>";
             echo "</tr>";

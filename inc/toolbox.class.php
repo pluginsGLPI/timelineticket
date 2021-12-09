@@ -356,8 +356,7 @@ class PluginTimelineticketToolbox {
          if ($type == 'group') {
             echo "<td>" . Dropdown::getDropdownName("glpi_groups", $items_id) . "</td>";
          } else if ($type == 'user') {
-            $dbu = new DbUtils();
-            echo "<td>" . $dbu->getUserName($items_id) . "</td>";
+            echo "<td>" . getUserName($items_id) . "</td>";
          }
          foreach ($list_status as $status => $name) {
             echo "<td>";

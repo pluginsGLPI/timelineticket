@@ -60,7 +60,7 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
                          'list'  => true]];
    }
 
-   function displaySpecificTypeField($ID, $field = []) {
+   function displaySpecificTypeField($ID, $field = [], array $options = []) {
       global $CFG_GLPI;
 
       switch ($field['type']) {
@@ -169,8 +169,10 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
                             'condition'   => ['is_assign' => 1]]);
 
       echo "</td>";
-      echo "<td><input type='hidden' name='id' value='" . $item->getID() . "'>";
-      echo "<input type='submit' class='submit' name='add_groups' value='" . _sx('button', 'Add') . "'></td>";
+      echo "<td>";
+      echo Html::hidden('id', ['value' => $item->getID()]);
+      echo Html::submit(_sx('button', 'Add'), ['name' => 'add_groups', 'class' => 'btn btn-primary']);
+      echo "</td>";
       echo "</tr>";
       echo "</table>";
       Html::closeForm();

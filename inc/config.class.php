@@ -59,9 +59,11 @@ class PluginTimelineticketConfig extends CommonDBTM {
       echo "<tr class='tab_bg_1'>";
       echo "<td align='center'>";
 
-      echo "<br/><input type='submit' name='reconstructStates' class='submit' value=\"" . _sx('button', 'Reconstruct states timeline for all tickets', 'timelineticket') . "\" >";
-      echo "<br/><br/><input type='submit' name='reconstructGroups' class='submit' value=\"" . _sx('button', 'Reconstruct groups timeline for all tickets', 'timelineticket') . "\" >";
-      echo "<br/><br/><div class='red'>" . __('Warning : it may be that the reconstruction of groups does not reflect reality because it concern only groups which have the Requester flag to No and Assigned flag to Yes', 'timelineticket') . "</div>";
+      echo Html::submit(_sx('button', 'Reconstruct states timeline for all tickets', 'timelineticket'), ['name' => 'reconstructStates', 'class' => 'btn btn-primary']);
+      echo Html::submit(_sx('button', 'Reconstruct groups timeline for all tickets', 'timelineticket'), ['name' => 'reconstructGroups', 'class' => 'btn btn-primary']);
+      echo "<br/><br/><div class='alert alert-important alert-warning d-flex'>";
+      echo  __('Warning : it may be that the reconstruction of groups does not reflect reality because it concern only groups which have the Requester flag to No and Assigned flag to Yes', 'timelineticket');
+      echo "</div>";
 
       echo "</td>";
       echo "</table>";
@@ -69,13 +71,13 @@ class PluginTimelineticketConfig extends CommonDBTM {
    }
 
 
-   function showForm() {
+   function showConfigForm() {
 
       echo "<form method='POST' action=\"" . $this->getFormURL() . "\">";
 
       echo "<table class='tab_cadre_fixe'>";
 
-      echo "<tr><th colspan='2'>";
+      echo "<tr><th>";
       echo __('Flags');
       echo "</th></tr>";
 
@@ -84,10 +86,10 @@ class PluginTimelineticketConfig extends CommonDBTM {
       Dropdown::showYesNo("add_waiting", $this->fields["add_waiting"]);
       echo "</td></tr>";
 
-      echo "<tr><th colspan='2'>";
-      echo "<input type='hidden' name='id' value='1'>";
-      echo "<input type=\"submit\" name=\"update\" class=\"submit\"
-         value=\"" . _sx('button', 'Save') . "\" ></th></tr>";
+      echo "<tr class='tab_bg_1'><td>";
+      echo Html::hidden('id', ['value' => 1]);
+      echo Html::submit(_sx('button', 'Save'), ['name' => 'update', 'class' => 'btn btn-primary']);
+      echo "</td></tr>";
       echo "</table>";
       Html::closeForm();
    }

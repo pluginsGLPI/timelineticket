@@ -88,7 +88,7 @@ function plugin_timelineticket_install() {
                   `delay` INT( 11 ) NULL,
                   PRIMARY KEY (`id`),
                   KEY `tickets_id` (`tickets_id`)
-                ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
 
       $DB->query($query) or die($DB->error());
    }
@@ -102,7 +102,7 @@ function plugin_timelineticket_install() {
                   `delay` INT( 11 ) NULL,
                   PRIMARY KEY (`id`),
                   KEY `tickets_id` (`tickets_id`)
-                ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
 
       $DB->query($query) or die($DB->error());
 
@@ -118,7 +118,7 @@ function plugin_timelineticket_install() {
                   `delay` INT(11) NULL,
                   PRIMARY KEY (`id`),
                   KEY `tickets_id` (`tickets_id`)
-                ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
 
       $DB->query($query) or die($DB->error());
    }
@@ -128,12 +128,12 @@ function plugin_timelineticket_install() {
                `id` int(11) NOT NULL AUTO_INCREMENT,
                `entities_id` int(11) NOT NULL DEFAULT '0',
                `is_recursive` tinyint(1) NOT NULL default '0',
-               `name` varchar(255) collate utf8_unicode_ci default NULL,
-               `groups` longtext collate utf8_unicode_ci,
+               `name` varchar(255) collate utf8mb4_unicode_ci default NULL,
+               `groups` longtext collate utf8mb4_unicode_ci,
                `rank` smallint(6) NOT NULL default '0',
-               `comment` text collate utf8_unicode_ci,
+               `comment` text collate utf8mb4_unicode_ci,
                PRIMARY KEY (`id`)
-             ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
       $DB->query($query) or die($DB->error());
    }
 
@@ -142,7 +142,7 @@ function plugin_timelineticket_install() {
               `id` int(11) NOT NULL AUTO_INCREMENT,
               `add_waiting` int(11) NOT NULL DEFAULT '1',
               PRIMARY KEY  (`id`)
-            ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
       $DB->query($query) or die($DB->error());
    }
 

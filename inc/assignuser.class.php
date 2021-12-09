@@ -128,11 +128,10 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
       echo "</th>";
       echo "</tr>";
 
-      $dbu = new DbUtils();
       foreach ($IndicatorSections as $users_id => $array) {
          echo "<tr class='tab_bg_2'>";
          echo "<td width='100'>";
-         echo $dbu->getUserName($users_id);
+         echo getUserName($users_id);
          echo "</td>";
          echo "<td>";
          if ($ticket->fields['status'] != Ticket::CLOSED
@@ -177,10 +176,10 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
             }
          }
 
-         $filename = $uid = Session::getLoginUserID(false) . "_testuser" . $users_id;
+         $filename = Session::getLoginUserID(false) . "_testuser" . $users_id;
          $myPicture->render(GLPI_GRAPH_DIR . "/" . $filename . ".png");
 
-         echo "<img src='" . $CFG_GLPI['root_doc'] . "/front/graph.send.php?file=" . $filename . ".png'><br/>";
+         echo "<img src='" . $CFG_GLPI['root_doc'] . "/front/plugins/timelineticket/graph.send.php?file=" . $filename . ".png'><br/>";
          echo "</td>";
          echo "</tr>";
       }
@@ -213,7 +212,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
             }
             $users[$date . '_users_id'] = [
                'timestamp' => $date,
-               'label'     => $dbu->getUserName($data['users_id']) . " (" . Html::timestampToString($data['delay'], true) . ")",
+               'label'     => getUserName($data['users_id']) . " (" . Html::timestampToString($data['delay'], true) . ")",
                'class'     => $class];
 
          }

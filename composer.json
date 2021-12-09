@@ -5,6 +5,6 @@
         "glpi-project/tools": "^0.1.0"
     },
     "require": {
-        "szymach/c-pchart": "^3.0"
+        "szymach/c-pchart": "^3.12"
     }
 }
