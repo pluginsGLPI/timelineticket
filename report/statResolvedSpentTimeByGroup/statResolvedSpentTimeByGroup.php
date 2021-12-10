@@ -414,8 +414,9 @@ if ($res && $nbtot > 0) {
                                          'ORDER'  => 'id DESC',
                                          'LIMIT'  => 1
                                       ]);
-      while ($datasolution = $iterator->next()) {
+         foreach ($iterator as $datasolution) {
          $users_id_solver = $datasolution['users_id'];
+         iterator->next();
       }
       echo Search::showItem($output_type, getUserName($users_id_solver), $num, $row_num);
 
