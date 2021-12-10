@@ -82,7 +82,7 @@ class PluginTimelineticketGrouplevel extends CommonDropdown {
                                              'id'                => $ID,
                                              '_groups_id_assign' => $val
                                        ],
-                                       $CFG_GLPI["root_doc"] . "/pics/delete.png");
+                                       'fa-trash-alt fa-1x');
                   echo " </td>";
                   echo "</tr>";
 

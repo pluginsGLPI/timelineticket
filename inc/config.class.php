@@ -50,7 +50,7 @@ class PluginTimelineticketConfig extends CommonDBTM {
       echo "<table class='tab_cadre_fixe'>";
 
       echo "<tr>";
-      echo "<th>";
+      echo "<th class='center'>";
       echo __('Setup');
       echo "&nbsp;" . __('(Can take many time if you have many tickets)', 'timelineticket');
       echo "</th>";

@@ -473,14 +473,23 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
    * Function to reconstruct timeline for all tickets
    */
 
-   function reconstrucTimeline() {
+   function reconstrucTimeline($id = 0) {
       global $DB;
 
-      $query = "TRUNCATE `" . $this->getTable() . "`";
-      $DB->query($query);
-
-      $query  = "SELECT id
-               FROM `glpi_tickets`";
+      if ($id == 0 ) {
+         $query = "TRUNCATE `" . $this->getTable() . "`";
+         $DB->query($query);
+      } else {
+         $query = "DELETE FROM `" . $this->getTable() . "` 
+                  WHERE `tickets_id` = $id";
+         $DB->query($query);
+      }
+      $where = "";
+      if ($id > 0 ) {
+         $where = "WHERE `id` = $id ";
+      }
+      $query  = "SELECT `id`
+               FROM `glpi_tickets` $where";
       $result = $DB->query($query);
 
       while ($data = $DB->fetchArray($result)) {

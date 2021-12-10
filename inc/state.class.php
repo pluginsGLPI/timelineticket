@@ -444,12 +444,18 @@ class PluginTimelineticketState extends CommonDBTM {
    /*
     * Function to reconstruct timeline for all tickets
     */
-   function reconstructTimeline() {
+   function reconstructTimeline($id = 0) {
       global $DB;
 
       $ticket = new Ticket();
-      $query  = "TRUNCATE `" . $this->getTable() . "`";
-      $DB->query($query);
+      if ($id == 0 ) {
+         $query = "TRUNCATE `" . $this->getTable() . "`";
+         $DB->query($query);
+      } else {
+         $query = "DELETE FROM `" . $this->getTable() . "` 
+                  WHERE `tickets_id` = $id";
+         $DB->query($query);
+      }
 
       $status_translation = [];
 
@@ -480,7 +486,13 @@ class PluginTimelineticketState extends CommonDBTM {
 
       //      $_SESSION['glpi_plugins'] = $save_plugin_session;
 
+      $where = "";
+      if ($id > 0 ) {
+         $where = "WHERE `id` = $id ";
+      }
+
       $query  = "SELECT * FROM `glpi_tickets`
+                $where
                ORDER BY `date`";
       $result = $DB->query($query);
       while ($data = $DB->fetchArray($result)) {

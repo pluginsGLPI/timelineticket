@@ -111,7 +111,7 @@ class PluginTimelineticketToolbox {
 
       $a_states       = [];
       $a_item_palette = [];
-      $a_dbstates     = $ptState->find(["tickets_id" => $ticket->getField('id')], ["date", "id"]);
+      $a_dbstates     = $ptState->find(["tickets_id" => $ticket->getID()], ["date", "id"]);
       $end_previous   = 0;
       foreach ($a_dbstates as $a_dbstate) {
          $end_previous += $a_dbstate['delay'];
@@ -128,7 +128,7 @@ class PluginTimelineticketToolbox {
          $a_states[$totaltime] = $a_dbstate['new_status'];
       }
       $a_itemsections = [];
-      $a_dbitems      = $ptItem->find(["tickets_id" => $ticket->getField('id')], ["date"]);
+      $a_dbitems      = $ptItem->find(["tickets_id" => $ticket->getID()], ["date"]);
       foreach ($a_dbitems as $a_dbitem) {
 
          if ($type == 'group') {
@@ -159,7 +159,7 @@ class PluginTimelineticketToolbox {
             $gdelay = $a_dbitem['begin'] + $a_dbitem['delay'];
          }
          $mem       = 0;
-         $old_delay = 0;
+
          foreach ($a_states as $delay => $statusname) {
             if ($mem == 1) {
                if ($gdelay > $delay) { // all time of the state
@@ -246,7 +246,6 @@ class PluginTimelineticketToolbox {
                   $mem                                    = 2;
                }
             }
-            $old_delay = $delay;
          }
       }
       if ($withblank) {
@@ -259,13 +258,13 @@ class PluginTimelineticketToolbox {
             $B          = 235;
             $statusname = '';
             $a_end      = end($data_f);
-            $last       = isset($a_end['End'])?$a_end['End']:0;
+            $last       = $a_end['End'] ?? 0;
             if ($ticket->fields['status'] != Ticket::CLOSED
                 && $last == $verylastdelayStateDB) {
-               $R          = isset($a_end['R'])?$a_end['R']:235;
-               $G          = isset($a_end['G'])?$a_end['G']:235;
-               $B          = isset($a_end['B'])?$a_end['B']:235;
-               $statusname = isset($a_end['Status'])?$a_end['Status']:$statusname;
+               $R          = $a_end['R'] ?? 235;
+               $G          = $a_end['G'] ?? 235;
+               $B          = $a_end['B'] ?? 235;
+               $statusname = $a_end['Status'] ?? $statusname;
             }
             if ($last < $totaltime) {
                $a_itemsections[$items_id][] = [
@@ -301,7 +300,7 @@ class PluginTimelineticketToolbox {
          $ptItem = new PluginTimelineticketAssignUser();
       }
 
-      $a_states = $ptState->find(["tickets_id" => $ticket->getField('id')], ["date"]);
+      $a_states = $ptState->find(["tickets_id" => $ticket->getID()], ["date"]);
 
       $a_state_delays = [];
       $a_state_num    = [];
@@ -373,17 +372,17 @@ class PluginTimelineticketToolbox {
 
    static function convertDateToRightTimezoneForCalendarUse($myDate) {
       // We convert the both dates because $date passed in fonction are timezoned but not hours of calendars
-      $currTimezone = new DateTime(date("Y-m-d"));
+      $currTimezone   = new DateTime(date("Y-m-d"));
       $configTimezone = Config::getConfigurationValues('core', ['timezone']);
-      $baseTimezone = 'UTC';
-      $tz = ini_get('date.timezone');
+      $baseTimezone   = 'UTC';
+      $tz             = ini_get('date.timezone');
       if (!empty($configTimezone['timezone']) && !is_null($configTimezone['timezone'])) {
          $baseTimezone = $configTimezone['timezone'];
       } else if (!empty($tz)) {
          $baseTimezone = $configTimezone['timezone'];
       }
       $globalConfTimezone = new DateTime('2008-06-21', new DateTimeZone($baseTimezone));
-      $timeOffset = date_offset_get($currTimezone) - date_offset_get($globalConfTimezone);
+      $timeOffset         = date_offset_get($currTimezone) - date_offset_get($globalConfTimezone);
       return date("Y-m-d H:i:s", (strtotime($myDate) - $timeOffset));
    }
 }

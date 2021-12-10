@@ -75,9 +75,20 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
 
    static function showForTicket(Ticket $ticket) {
-      global $DB;
+      global $CFG_GLPI, $DB;
+
+
 
       echo "<table class='tab_cadre_fixe'>";
+      echo "<tr><th class='center'>";
+      $target = $CFG_GLPI['root_doc'] . "/plugins/timelineticket/front/config.form.php";
+      Html::showSimpleForm($target, 'delete_review_from_list',
+                           _sx('button', 'Reconstruct history for this ticket', 'timelineticket'),
+                           ['tickets_id' => $ticket->getID(),
+                            'reconstructTicket' => 'reconstructTicket'],
+//                           'fa-spinner fa-2x'
+      );
+      echo "</th></tr>";
       echo "<tr><th>" . __('Summary') . "</th></tr>";
 
       echo "<tr class='tab_bg_1 center'><td>" . _n('Time range', 'Time ranges', 2) . "&nbsp;: ";
