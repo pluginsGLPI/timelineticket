@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-05 11:07+0100\n"
-"PO-Revision-Date: 2020-11-05 10:08+0000\n"
+"POT-Creation-Date: 2021-03-29 14:15+0000\n"
+"PO-Revision-Date: 2021-03-29 14:21+0000\n"
 "Last-Translator: Alban Lesellier <alban.lesellier@infotel.com>\n"
 "Language-Team: Russian (Russia) (http://www.transifex.com/infotelGLPI/GLPI_timelineticket/language/ru_RU/)\n"
 "MIME-Version: 1.0\n"
@@ -67,6 +67,14 @@ msgstr "Предупреждение : перестроение группы н�
 #: inc/config.class.php:82
 msgid "Input time on groups / users when ticket is waiting"
 msgstr "Время входа в группы / пользователи, когда заявка в ожидании"
+
+#: inc/dashboard.class.php:55
+msgid "Number of time where a technician has been affected to a ticket"
+msgstr ""
+
+#: inc/dashboard.class.php:71
+msgid "Number of affection by technician to a ticket "
+msgstr ""
 
 #: inc/display.class.php:60 inc/display.class.php:225
 msgid "Timeline"

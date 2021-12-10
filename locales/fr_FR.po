@@ -1,9 +1,9 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Timelineticket Development Team
 # This file is distributed under the same license as the GLPI - Timelineticket plugin package.
-# 
+#
 # Translators:
-# Alban Lesellier <alban.lesellier@infotel.com>, 2020
+# Alban Lesellier <alban.lesellier@infotel.com>, 2020-2021
 # Amandine Manceau, 2017
 # Xavier CAILLAUD <thetsmr@gmail.com>, 2017,2019-2020
 # Xavier CAILLAUD <thetsmr@gmail.com>, 2013,2016
@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-05 11:07+0100\n"
-"PO-Revision-Date: 2020-11-05 10:10+0000\n"
+"POT-Creation-Date: 2021-03-29 14:15+0000\n"
+"PO-Revision-Date: 2021-12-10 16:55+0100\n"
 "Last-Translator: Alban Lesellier <alban.lesellier@infotel.com>\n"
 "Language-Team: French (France) (http://www.transifex.com/infotelGLPI/GLPI_timelineticket/language/fr_FR/)\n"
 "MIME-Version: 1.0\n"
@@ -20,6 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: fr_FR\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.0\n"
 
 #: setup.php:48 inc/display.class.php:48
 msgid "Timeline of ticket"
@@ -58,15 +59,20 @@ msgid "Reconstruct groups timeline for all tickets"
 msgstr "Reconstruire la chronologie des groupes pour tous les tickets"
 
 #: inc/config.class.php:64
-msgid ""
-"Warning : it may be that the reconstruction of groups does not reflect "
-"reality because it concern only groups which have the Requester flag to No "
-"and Assigned flag to Yes"
+msgid "Warning : it may be that the reconstruction of groups does not reflect reality because it concern only groups which have the Requester flag to No and Assigned flag to Yes"
 msgstr "Attention : il se peut que la reconstruction des groupes ne reflète pas la réalité car il concerne uniquement les groupes ayant le flag Demandeur à Non et le flag Attribué à Oui"
 
 #: inc/config.class.php:82
 msgid "Input time on groups / users when ticket is waiting"
 msgstr "Inputer du temps au groupes / techniciens assignés quand le ticket est en En attente"
+
+#: inc/dashboard.class.php:55
+msgid "Number of time where a technician has been affected to a ticket"
+msgstr "Nombre de fois où un technicien a été affecté à un ticket"
+
+#: inc/dashboard.class.php:71
+msgid "Number of affection by technician to a ticket "
+msgstr "Nombre d'affectation par technicien pour un ticket "
 
 #: inc/display.class.php:60 inc/display.class.php:225
 msgid "Timeline"
@@ -102,18 +108,15 @@ msgstr "Résolu par"
 msgid "Solved by (Group)"
 msgstr "Résolu par (Groupe)"
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:228
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:228 report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
 msgid "Duration by"
 msgstr "Temps passé par"
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:231
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:229
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:231 report/statSpentTimeByGroup/statSpentTimeByGroup.php:229
 msgid "Total waiting duration of ticket"
 msgstr "Durée totale de mise en attente du ticket"
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:232
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:230
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:232 report/statSpentTimeByGroup/statSpentTimeByGroup.php:230
 msgid "Total duration of ticket"
 msgstr "Temps total du ticket"
 

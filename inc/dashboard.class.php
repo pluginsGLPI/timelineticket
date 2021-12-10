@@ -50,9 +50,9 @@ class PluginTimelineticketDashboard extends CommonGLPI {
    function getWidgetsForItem() {
       $widgets = [
          __('Line charts', "mydashboard") => [
-            $this->getType() . "1" => ["title"   => __("Number of assignments per technician to a ticket", "timelineticket"),
+            $this->getType() . "1" => ["title"   => __("Number of assignments per technician to a ticket", "mydashboard"),
                                        "icon"    => "fas fa-chart-bar",
-                                       "comment" => __("Number of time where a technician has been affected to a ticket", 'timelineticket')]
+                                       "comment" => __("Number of time where a technician has been affected to a ticket", 'mydashboard')]
          ],
       ];
       return $widgets;
@@ -70,7 +70,7 @@ class PluginTimelineticketDashboard extends CommonGLPI {
             if ($plugin->isActivated("timelineticket")) {
                $name    = 'AffectionTechBarChart';
                $widget = new PluginMydashboardHtml();
-               $title  = __("Number of assignments per technician to a ticket", "timelineticket");
+               $title  = __("Number of assignments per technician to a ticket", "mydashboard");
                $widget->setWidgetComment("");
 
                $preference = new PluginMydashboardPreference();
