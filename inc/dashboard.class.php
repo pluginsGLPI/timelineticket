@@ -51,7 +51,7 @@ class PluginTimelineticketDashboard extends CommonGLPI {
       $widgets = [
          __('Line charts', "mydashboard") => [
             $this->getType() . "1" => ["title"   => __("Number of assignments per technician to a ticket", "mydashboard"),
-                                       "icon"    => "fas fa-chart-bar",
+                                       "icon"    => "ti ti-chart-bar",
                                        "comment" => __("Number of time where a technician has been affected to a ticket", 'mydashboard')]
          ],
       ];

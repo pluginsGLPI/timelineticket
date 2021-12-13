@@ -325,7 +325,7 @@ class PluginTimelineticketState extends CommonDBTM {
             $filename = Session::getLoginUserID(false) . "_test" . $status;
             $myPicture->render(GLPI_GRAPH_DIR . "/" . $filename . ".png");
 
-            echo "<img src='" . $CFG_GLPI['root_doc'] . "/plugins/timelineticket/front/graph.send.php?file=" . $filename . ".png'><br/>";
+            echo "<img src='" . PLUGIN_TIMELINETICKET_WEBDIR . "/front/graph.send.php?file=" . $filename . ".png'><br/>";
             echo "</td>";
             echo "</tr>";
          }
@@ -433,7 +433,7 @@ class PluginTimelineticketState extends CommonDBTM {
             $filename = Session::getLoginUserID(false) . "_testduedate";
             $myPicture->render(GLPI_GRAPH_DIR . "/" . $filename . ".png");
 
-            echo "<img src='" . $CFG_GLPI['root_doc'] . "/plugins/timelineticket/front/graph.send.php?file=" . $filename . ".png'><br/>";
+            echo "<img src='" . PLUGIN_TIMELINETICKET_WEBDIR . "/front/graph.send.php?file=" . $filename . ".png'><br/>";
             echo "</td>";
             echo "</tr>";
          }

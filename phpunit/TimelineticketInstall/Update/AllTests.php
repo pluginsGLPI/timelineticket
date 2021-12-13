@@ -71,7 +71,7 @@ class Update extends PHPUnit_Framework_TestCase {
       $DB->query($query);
       
       // ** Insert in DB
-      $res = $DB->runFile(GLPI_ROOT ."/plugins/timelineticket/phpunit/TimelineticketInstall/Update/mysql/i-".$version.".sql");
+      $res = $DB->runFile(PLUGIN_TIMELINETICKET_DIR ."/phpunit/TimelineticketInstall/Update/mysql/i-".$version.".sql");
       $this->assertTrue($res, "Fail: SQL Error during insert version ".$version);
       
       passthru("cd ../tools/ && /usr/local/bin/php -f cli_install.php");

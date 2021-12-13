@@ -111,9 +111,9 @@ if (!$DB->tableExists("glpi_configs")) {
 
 $plugin = new Plugin();
    
-include (GLPI_ROOT . "/plugins/timelineticket/install/update.php");
-include (GLPI_ROOT . "/plugins/timelineticket/locales/en_GB.php");
-include (GLPI_ROOT . "/plugins/timelineticket/hook.php");
+include (PLUGIN_TIMELINETICKET_DIR . "/install/update.php");
+include (PLUGIN_TIMELINETICKET_DIR . "/locales/en_GB.php");
+include (PLUGIN_TIMELINETICKET_DIR . "/hook.php");
 $current_version = pluginTimelineticketGetCurrentVersion(PLUGIN_TIMELINETICKET_VERSION);
 
 $migration = new CliMigration($current_version);

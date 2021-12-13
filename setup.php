@@ -40,7 +40,9 @@
 define("PLUGIN_TIMELINETICKET_VERSION", "10.0+1.0");
 
 if (!defined("PLUGIN_TIMELINETICKET_DIR")) {
-   define("PLUGIN_TIMELINETICKET_DIR", GLPI_ROOT . "/plugins/timelineticket");
+   define("PLUGIN_TIMELINETICKET_DIR", Plugin::getPhpDir("timelineticket"));
+   define("PLUGIN_TIMELINETICKET_NOTFULL_DIR", Plugin::getPhpDir("timelineticket",false));
+   define("PLUGIN_TIMELINETICKET_WEBDIR", Plugin::getWebDir("timelineticket"));
 }
 
 function plugin_version_timelineticket() {

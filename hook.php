@@ -72,8 +72,8 @@ function plugin_timelineticket_getAddSearchOptions($itemtype) {
 function plugin_timelineticket_install() {
    global $DB;
 
-   include_once (GLPI_ROOT."/plugins/timelineticket/inc/profile.class.php");
-   include_once (GLPI_ROOT."/plugins/timelineticket/inc/config.class.php");
+   include_once (PLUGIN_TIMELINETICKET_DIR."/inc/profile.class.php");
+   include_once (PLUGIN_TIMELINETICKET_DIR."/inc/config.class.php");
    $migration = new Migration(160);
 
    // installation
@@ -190,7 +190,7 @@ function plugin_timelineticket_item_stats($item) {
 function plugin_timelineticket_uninstall() {
    global $DB;
 
-   include_once(GLPI_ROOT . "/plugins/timelineticket/inc/profile.class.php");
+   include_once(PLUGIN_TIMELINETICKET_DIR . "/inc/profile.class.php");
 
    $tables = ["glpi_plugin_timelineticket_states",
        "glpi_plugin_timelineticket_assigngroups",

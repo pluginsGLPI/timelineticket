@@ -81,7 +81,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
       echo "<table class='tab_cadre_fixe'>";
       echo "<tr><th class='center'>";
-      $target = $CFG_GLPI['root_doc'] . "/plugins/timelineticket/front/config.form.php";
+      $target = PLUGIN_TIMELINETICKET_WEBDIR . "/front/config.form.php";
       Html::showSimpleForm($target, 'delete_review_from_list',
                            _sx('button', 'Reconstruct history for this ticket', 'timelineticket'),
                            ['tickets_id' => $ticket->getID(),
