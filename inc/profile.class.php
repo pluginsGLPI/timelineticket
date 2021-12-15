@@ -57,7 +57,7 @@ class PluginTimelineticketProfile extends Profile {
    function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
       if ($item->getType() == 'Profile'
           && $item->fields['interface'] == 'central') {
-         return self::createTabEntry('TimelineTicket');
+         return _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket");
       }
    }
 
