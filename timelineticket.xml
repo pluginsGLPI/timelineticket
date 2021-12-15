@@ -3,7 +3,7 @@
    <name>Timelineticket</name>
    <key>timelineticket</key>
    <state>stable</state>
-   <logo></logo>
+    <logo>https://raw.githubusercontent.com/InfotelGLPI/timelineticket/master/timelineticket.png</logo>
    <description>
       <short>
          <fr><![CDATA[Ce plugin vous permet d'ajouter un onglet Chronologie sur les tickets]]></fr>
@@ -123,6 +123,5 @@
          </cs>
    </tags>
    <screenshots>
-      <screenshot></screenshot>
    </screenshots>
 </root>
