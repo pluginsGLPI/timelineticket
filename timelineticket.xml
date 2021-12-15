@@ -3,7 +3,7 @@
    <name>Timelineticket</name>
    <key>timelineticket</key>
    <state>stable</state>
-    <logo>https://raw.githubusercontent.com/InfotelGLPI/timelineticket/master/timelineticket.png</logo>
+    <logo>https://raw.githubusercontent.com/pluginsGLPI/timelineticket/master/timelineticket.png</logo>
    <description>
       <short>
          <fr><![CDATA[Ce plugin vous permet d'ajouter un onglet Chronologie sur les tickets]]></fr>
@@ -40,7 +40,7 @@
        <version>
            <num>10.0+1.0-rc1</num>
            <compatibility>~10.0</compatibility>
-           <download_url>https://github.com/InfotelGLPI/timelineticket/releases/download/10.0+1.0-rc1/glpi-timelineticket-10.0+1.0-rc1.tar.bz2</download_url>
+           <download_url>https://github.com/pluginsGLPI/timelineticket/releases/download/10.0+1.0-rc1/glpi-timelineticket-10.0+1.0-rc1.tar.bz2</download_url>
        </version>
        <version>
            <num>9.5+1.1</num>
