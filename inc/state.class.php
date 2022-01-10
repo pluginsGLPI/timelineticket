@@ -161,6 +161,8 @@ class PluginTimelineticketState extends CommonDBTM {
          echo "</tr>";
 
          $cnt = 0;
+         $total =0;
+         $date ="";
          foreach ($req as $data) {
             if ($data['old_status'] != '') {
                if ($cnt == 0) {
@@ -170,6 +172,7 @@ class PluginTimelineticketState extends CommonDBTM {
                      echo "<td>" . Ticket::getStatus($data['new_status']) . "</td>";
                      echo "<td class='right'>" . Html::timestampToString((date('U') - strtotime($data['date'])), true) . "</td>";
                      echo "</tr>";
+                     $total += (date('U') - strtotime($data['date']));
                   }
                }
 
@@ -178,9 +181,20 @@ class PluginTimelineticketState extends CommonDBTM {
                echo "<td>" . Ticket::getStatus($data['old_status']) . "</td>";
                echo "<td class='right'>" . Html::timestampToString($data['delay'], true) . "</td>";
                echo "</tr>";
+
+               $total += $data['delay'];
             }
             $cnt++;
+            $date = date_format(date_create($data['date']),'d-m-Y H:i');
          }
+
+
+
+         echo "<tr class='tab_bg_1'>";
+         echo "<td>".$date."</td>";
+         echo "<td>" . __("Total") . "</td>";
+         echo "<td class='right'>" . Html::timestampToString($total, true) . "</td>";
+         echo "</tr>";
 
          echo "</table>";
          echo "</td>";

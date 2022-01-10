@@ -458,6 +458,9 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
          // Utilisation calendrier
       } else if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
          $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
+         if($delay == 0 || is_null($delay)){
+            $delay = 1;
+         }
       } else {
          // cas 24/24 - 7/7
          $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
