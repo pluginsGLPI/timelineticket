@@ -52,7 +52,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       $calendar = new Calendar();
 
       if ($type == 'new') {
-         $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+         $calendars_id = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
          if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
             $begin = $calendar->getActiveTimeBetween(
                PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($ticket->fields['date']), 
@@ -74,7 +74,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
                                    "delay"      => NULL], [], 1);
          if (count($a_dbentry) == 1) {
             $input        = current($a_dbentry);
-            $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+            $calendars_id = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
             if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
                $input['delay'] = $calendar->getActiveTimeBetween(
                   PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($input['date']),
@@ -281,7 +281,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
          $ticket        = new Ticket();
          $ticket->getFromDB($item->fields['tickets_id']);
          $calendar     = new Calendar();
-         $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+         $calendars_id = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
          $datedebut    = $ticket->fields['date'];
          if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
             $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
@@ -326,7 +326,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
             foreach ($ticket->getGroups(CommonITILActor::ASSIGN) as $d) {
                $ptAssignGroup = new PluginTimelineticketAssignGroup();
                $calendar      = new Calendar();
-               $calendars_id  = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+               $calendars_id  = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
                $datedebut     = $ticket->fields['date'];
                if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
                   $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
@@ -350,7 +350,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
             foreach ($ticket->getGroups(CommonITILActor::ASSIGN) as $d) {
 
                $calendar      = new Calendar();
-               $calendars_id  = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+               $calendars_id  = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
                $ptAssignGroup = new PluginTimelineticketAssignGroup();
                $query         = "SELECT MAX(`date`) AS datedebut, id
                          FROM `" . $ptAssignGroup->getTable() . "`
@@ -390,7 +390,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
             foreach ($ticket->getGroups(CommonITILActor::ASSIGN) as $d) {
 
                $calendar      = new Calendar();
-               $calendars_id  = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+               $calendars_id  = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
                $ptAssignGroup = new PluginTimelineticketAssignGroup();
                $query         = "SELECT MAX(`date`) AS datedebut, id
                          FROM `" . $ptAssignGroup->getTable() . "`
@@ -435,7 +435,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       $ticket->getFromDB($item->fields['tickets_id']);
 
       $calendar     = new Calendar();
-      $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+      $calendars_id = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
 
       $query = "SELECT MAX(`date`) AS datedebut, id
                 FROM `" . $ptAssignGroup->getTable() . "`

@@ -66,7 +66,7 @@ class PluginTimelineticketState extends CommonDBTM {
          $datefin = $date;
 
          $calendar     = new Calendar();
-         $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+         $calendars_id = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
 
          if (!$datedebut) {
             $delay = 0;
@@ -352,7 +352,7 @@ class PluginTimelineticketState extends CommonDBTM {
 
          if (($time - $time_to_resolve) > 0) {
             $calendar     = new Calendar();
-            $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+            $calendars_id = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
 
             if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
                $duedate = $calendar->getActiveTimeBetween($ticket->fields['date'],

@@ -93,7 +93,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
 
       echo "<tr class='tab_bg_1 center'><td>" . _n('Time range', 'Time ranges', 2) . "&nbsp;: ";
       $calendar     = new Calendar();
-      $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+      $calendars_id = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
       if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
          echo $calendar->getLink();
       } else {
@@ -109,7 +109,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
           && (strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['time_to_resolve'])) > 0) {
 
          $calendar     = new Calendar();
-         $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+         $calendars_id = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
 
          if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
             if ($ticket->fields['closedate']) {
@@ -283,7 +283,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
          $sla->getFromDB($ticket->fields['slas_id_ttr']);
          $totaltime = $sla->getActiveTimeBetween($start, $end);
       } else {
-         $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+         $calendars_id = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
          if ($calendars_id != 0) { // Ticket entity have calendar
 
             $calendar->getFromDB($calendars_id);

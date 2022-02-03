@@ -322,7 +322,7 @@ function plugin_timelineticket_giveItem($type, $ID, $data, $num) {
                $ticket->getFromDB($data["ITEM_0"]);
 
                $calendar = new Calendar();
-               $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+               $calendars_id = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
                $datedebut = $ptAssignGroup->fields['date'];
                $enddate = $_SESSION["glpi_currenttime"];
                if ($ticket->fields['status'] == Ticket::CLOSED) {

@@ -267,7 +267,7 @@ if ($res && $nbtot > 0) {
                   $timegroups[$group["groups_id"]] += $group["delay"];
                } else {
                   $calendar     = new Calendar();
-                  $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+                  $calendars_id = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
                   if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
                      $delay = $calendar->getActiveTimeBetween($group["date"], $data["closedate"]);
 
@@ -286,7 +286,7 @@ if ($res && $nbtot > 0) {
                   $timegroups[$group["groups_id"]] = $group["delay"];
                } else {
                   $calendar     = new Calendar();
-                  $calendars_id = Entity::getUsedConfig('calendars_id', $ticket->fields['entities_id']);
+                  $calendars_id = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
                   if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
                      $delay = $calendar->getActiveTimeBetween($group["date"], $data["closedate"]);
 
