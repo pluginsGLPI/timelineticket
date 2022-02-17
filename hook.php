@@ -80,12 +80,12 @@ function plugin_timelineticket_install() {
 
    if (!$DB->tableExists("glpi_plugin_timelineticket_states")) {
       $query = "CREATE TABLE `glpi_plugin_timelineticket_states` (
-                  `id` int(11) NOT NULL AUTO_INCREMENT,
-                  `tickets_id` int(11) NOT NULL DEFAULT '0',
+                  `id` int unsigned NOT NULL AUTO_INCREMENT,
+                  `tickets_id` int unsigned NOT NULL DEFAULT '0',
                   `date` timestamp NULL DEFAULT NULL,
                   `old_status` varchar(255) DEFAULT NULL,
                   `new_status` varchar(255) DEFAULT NULL,
-                  `delay` INT( 11 ) NULL,
+                  `delay` int unsigned NULL,
                   PRIMARY KEY (`id`),
                   KEY `tickets_id` (`tickets_id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
@@ -94,12 +94,12 @@ function plugin_timelineticket_install() {
    }
    if (!$DB->tableExists("glpi_plugin_timelineticket_assigngroups")) {
       $query = "CREATE TABLE `glpi_plugin_timelineticket_assigngroups` (
-                  `id` int(11) NOT NULL AUTO_INCREMENT,
-                  `tickets_id` int(11) NOT NULL DEFAULT '0',
+                  `id` int unsigned NOT NULL AUTO_INCREMENT,
+                  `tickets_id` int unsigned NOT NULL DEFAULT '0',
                   `date` timestamp NULL DEFAULT NULL,
                   `groups_id` varchar(255) DEFAULT NULL,
-                  `begin` INT( 11 ) NULL,
-                  `delay` INT( 11 ) NULL,
+                  `begin` int unsigned NULL,
+                  `delay` int unsigned NULL,
                   PRIMARY KEY (`id`),
                   KEY `tickets_id` (`tickets_id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
@@ -110,12 +110,12 @@ function plugin_timelineticket_install() {
 
    if (!$DB->tableExists("glpi_plugin_timelineticket_assignusers")) {
       $query = "CREATE TABLE `glpi_plugin_timelineticket_assignusers` (
-                  `id` int(11) NOT NULL AUTO_INCREMENT,
-                  `tickets_id` int(11) NOT NULL DEFAULT '0',
+                  `id` int unsigned NOT NULL AUTO_INCREMENT,
+                  `tickets_id` int unsigned NOT NULL DEFAULT '0',
                   `date` timestamp NULL DEFAULT NULL,
                   `users_id` varchar(255) DEFAULT NULL,
-                  `begin` INT(11) NULL,
-                  `delay` INT(11) NULL,
+                  `begin` int unsigned NULL,
+                  `delay` int unsigned NULL,
                   PRIMARY KEY (`id`),
                   KEY `tickets_id` (`tickets_id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
@@ -125,12 +125,12 @@ function plugin_timelineticket_install() {
 
    if (!$DB->tableExists("glpi_plugin_timelineticket_grouplevels")) {
       $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_grouplevels` (
-               `id` int(11) NOT NULL AUTO_INCREMENT,
-               `entities_id` int(11) NOT NULL DEFAULT '0',
-               `is_recursive` tinyint(1) NOT NULL default '0',
+               `id` int unsigned NOT NULL AUTO_INCREMENT,
+               `entities_id` int unsigned NOT NULL DEFAULT '0',
+               `is_recursive` tinyint  NOT NULL default '0',
                `name` varchar(255) collate utf8mb4_unicode_ci default NULL,
                `groups` longtext collate utf8mb4_unicode_ci,
-               `rank` smallint(6) NOT NULL default '0',
+               `rank` smallint NOT NULL default '0',
                `comment` text collate utf8mb4_unicode_ci,
                PRIMARY KEY (`id`)
              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
@@ -139,8 +139,8 @@ function plugin_timelineticket_install() {
 
    if (!$DB->tableExists("glpi_plugin_timelineticket_configs")) {
       $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_configs` (
-              `id` int(11) NOT NULL AUTO_INCREMENT,
-              `add_waiting` int(11) NOT NULL DEFAULT '1',
+              `id` int unsigned NOT NULL AUTO_INCREMENT,
+              `add_waiting` int unsigned NOT NULL DEFAULT '1',
               PRIMARY KEY  (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
       $DB->query($query) or die($DB->error());
