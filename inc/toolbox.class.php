@@ -381,7 +381,7 @@ class PluginTimelineticketToolbox {
       if (!empty($configTimezone['timezone']) && !is_null($configTimezone['timezone'])) {
          $baseTimezone = $configTimezone['timezone'];
       } else if (!empty($tz)) {
-         $baseTimezone = $configTimezone['timezone'];
+         $baseTimezone = $tz;
       }
       $globalConfTimezone = new DateTime('2008-06-21', new DateTimeZone($baseTimezone));
       $timeOffset = date_offset_get($currTimezone) - date_offset_get($globalConfTimezone);
