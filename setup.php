@@ -71,8 +71,7 @@ function plugin_init_timelineticket() {
    // add autoload for vendor
    include_once(PLUGIN_TIMELINETICKET_DIR . "/vendor/autoload.php");
 
-   $Plugin = new Plugin();
-   if ($Plugin->isActivated('timelineticket')) { // check if plugin is active
+   if (Plugin::isPluginActive('timelineticket')) { // check if plugin is active
 
       $PLUGIN_HOOKS['change_profile']['timelineticket'] = ['PluginTimelineticketProfile', 'initProfile'];
 
@@ -106,7 +105,7 @@ function plugin_init_timelineticket() {
           || Session::haveRight('plugin_timelineticket_ticket', UPDATE)) {// Config page
          $PLUGIN_HOOKS['config_page']['timelineticket'] = 'front/config.form.php';
       }
-      if ($Plugin->isActivated('mydashboard')) {
+      if (Plugin::isPluginActive('mydashboard')) {
          $PLUGIN_HOOKS['mydashboard']['timelineticket'] = ["PluginTimelineticketDashboard"];
       }
    }

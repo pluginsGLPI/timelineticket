@@ -66,8 +66,7 @@ class PluginTimelineticketDashboard extends CommonGLPI {
 
       switch ($widgetId) {
          case $this->getType() . "1":
-            $plugin = new Plugin();
-            if ($plugin->isActivated("timelineticket")) {
+            if (Plugin::isPluginActive("timelineticket")) {
                $name    = 'AffectionTechBarChart';
                $widget = new PluginMydashboardHtml();
                $title  = __("Number of assignments per technician to a ticket", "mydashboard");
