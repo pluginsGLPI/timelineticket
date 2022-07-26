@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI - Timelineticket plugin 0.90+1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-06 09:50+0000\n"
+"POT-Creation-Date: 2022-07-26 14:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -69,7 +69,7 @@ msgstr ""
 msgid "Line charts"
 msgstr ""
 
-#: inc/dashboard.class.php:53 inc/dashboard.class.php:73
+#: inc/dashboard.class.php:53 inc/dashboard.class.php:72
 msgid "Number of assignments per technician to a ticket"
 msgstr ""
 
