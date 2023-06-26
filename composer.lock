@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3a8f989ec652a393491d9ef57fa7d68a",
+    "content-hash": "030ba8f8117fd91be520f30db519f7e7",
     "packages": [
         {
             "name": "szymach/c-pchart",
