@@ -12,8 +12,6 @@ CREATE TABLE `glpi_plugin_timelineticket_states` (
    KEY `tickets_id` (`tickets_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
-
-
 DROP TABLE IF EXISTS `glpi_plugin_timelineticket_assigngroups`;
 
 CREATE TABLE `glpi_plugin_timelineticket_assigngroups` (
@@ -26,8 +24,6 @@ CREATE TABLE `glpi_plugin_timelineticket_assigngroups` (
    PRIMARY KEY (`id`),
    KEY `tickets_id` (`tickets_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
-
-
 
 DROP TABLE IF EXISTS `glpi_plugin_timelineticket_assignusers`;
 
@@ -42,8 +38,6 @@ CREATE TABLE `glpi_plugin_timelineticket_assignusers` (
    KEY `tickets_id` (`tickets_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
-
-
 DROP TABLE IF EXISTS `glpi_plugin_timelineticket_grouplevels`;
 
 CREATE TABLE `glpi_plugin_timelineticket_grouplevels` (
@@ -56,7 +50,6 @@ CREATE TABLE `glpi_plugin_timelineticket_grouplevels` (
    `comment` text collate utf8mb4_unicode_ci,
    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
-
 
 DROP TABLE IF EXISTS `glpi_plugin_timelineticket_configs`;
 
