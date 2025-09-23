@@ -41,7 +41,6 @@
 $USEDBREPLICATE        = 1;
 $DBCONNECTION_REQUIRED = 1;
 
-include("../../../../inc/includes.php");
 
 // Instantiate Report with Name
 $report = new PluginReportsAutoReport(__("statSpentTimeProcessingByGroup_report_title", "timelineticket"));

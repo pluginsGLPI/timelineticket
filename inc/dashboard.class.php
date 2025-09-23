@@ -54,9 +54,15 @@ class PluginTimelineticketDashboard extends CommonGLPI
     {
         $widgets = [
             PluginMydashboardMenu::$HELPDESK => [
-                $this->getType() . "1" => ["title"   => __("Number of assignments per technician to a ticket", "timelineticket"),
+                $this->getType() . "1" => ["title"   => __(
+                    "Number of assignments per technician to a ticket",
+                    "timelineticket"
+                ),
                                            "type"    => PluginMydashboardWidget::$BAR,
-                                           "comment" => __("Number of time where a technician has been affected to a ticket", 'timelineticket')]
+                                           "comment" => __(
+                                               "Number of time where a technician has been affected to a ticket",
+                                               'timelineticket'
+                                           )]
             ],
         ];
 
@@ -101,7 +107,8 @@ class PluginTimelineticketDashboard extends CommonGLPI
                     $opt  = $options['opt'];
                     $crit = $options['crit'];
                     if (!isset($opt['technicians_groups_id']) || (isset($opt["technicians_groups_id"])
-                                                                  && count($opt["technicians_groups_id"]) == 0) && count($_SESSION['glpigroups']) > 0) {
+                                                                  && count($opt["technicians_groups_id"]) == 0)
+                        && count($_SESSION['glpigroups']) > 0) {
                         $opt['technicians_groups_id'] = $_SESSION['glpigroups'];
                     }
                     $entities_id_criteria       = $crit['entity'];
@@ -224,7 +231,8 @@ class PluginTimelineticketDashboard extends CommonGLPI
             $query_group_member = "SELECT `glpi_groups_users`.`users_id`"
                                   . "FROM `glpi_groups_users` "
                                   . "LEFT JOIN `glpi_groups` ON (`glpi_groups_users`.`groups_id` = `glpi_groups`.`id`) "
-                                  . "WHERE `glpi_groups_users`.`groups_id` IN (" . $groups . ") AND `glpi_groups`.`is_assign` = 1 "
+                                  . "WHERE `glpi_groups_users`.`groups_id` IN (" . $groups . ") 
+                                  AND `glpi_groups`.`is_assign` = 1 "
                                   . " GROUP BY `glpi_groups_users`.`users_id`";
 
             $result_gu = $DB->doQuery($query_group_member);
@@ -270,7 +278,8 @@ class PluginTimelineticketDashboard extends CommonGLPI
                                  {$condition_tech} "
                                     . $entities_criteria . $type_criteria
                                     . ")";
-                    $querym_ai   .= " GROUP BY DATE_FORMAT(`glpi_plugin_timelineticket_assignusers`.`date`, '%m/%Y'),`glpi_plugin_timelineticket_assignusers`.`users_id`;
+                    $querym_ai   .= " GROUP BY DATE_FORMAT(`glpi_plugin_timelineticket_assignusers`.`date`, '%m/%Y'),
+                    `glpi_plugin_timelineticket_assignusers`.`users_id`;
                               ";
                     $result_ai_q = $DB->doQuery($querym_ai);
                     while ($data = $DB->fetchAssoc($result_ai_q)) {
@@ -326,7 +335,8 @@ class PluginTimelineticketDashboard extends CommonGLPI
                                     . $entities_criteria
                                     . ")";
                     $querym_ai   .= "GROUP BY  YEAR(`glpi_plugin_timelineticket_assignusers`.`date`) ,
-                                    WEEk(`glpi_plugin_timelineticket_assignusers`.`date`),`glpi_plugin_timelineticket_assignusers`.`users_id` ;
+                                    WEEk(`glpi_plugin_timelineticket_assignusers`.`date`),
+                                    `glpi_plugin_timelineticket_assignusers`.`users_id` ;
                               ";
                     $result_ai_q = $DB->doQuery($querym_ai);
                     while ($data = $DB->fetchAssoc($result_ai_q)) {

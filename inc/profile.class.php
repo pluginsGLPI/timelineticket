@@ -54,7 +54,7 @@ class PluginTimelineticketProfile extends Profile
      *    timelineticket
      */
 
-    static function getIcon() {
+    public static function getIcon() {
         return PluginTimelineticketDisplay::getIcon();
     }
 
