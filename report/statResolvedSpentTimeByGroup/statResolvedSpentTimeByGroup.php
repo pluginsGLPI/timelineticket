@@ -117,7 +117,7 @@ $query .= $dbu->getEntitiesRestrictRequest('AND', "glpi_tickets", '', '', false)
 $query .= $date->getSqlCriteriasRestriction();
 $query .= getOrderBy('solvedate', $columns);
 
-$res = $DB->query($query);
+$res = $DB->doQuery($query);
 
 $nbtot = ($res ? $DB->numrows($res) : 0);
 if ($limit) {
@@ -126,7 +126,7 @@ if ($limit) {
       $start = 0;
    }
    if ($start > 0 || $start + $limit < $nbtot) {
-      $res = $DB->query($query . " LIMIT $start,$limit");
+      $res = $DB->doQuery($query . " LIMIT $start,$limit");
    }
 } else {
    $start = 0;

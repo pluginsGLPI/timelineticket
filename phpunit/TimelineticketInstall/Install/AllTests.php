@@ -47,9 +47,9 @@ class Install extends PHPUnit_Framework_TestCase {
       if (file_exists("save.sql") AND $verify == '0') {
          
          $query = "SHOW TABLES";
-         $result = $DB->query($query);
+         $result = $DB->doQuery($query);
          while ($data=$DB->fetchArray($result)) {
-            $DB->query("DROP TABLE ".$data[0]);
+            $DB->doQuery("DROP TABLE ".$data[0]);
          }
          
          $res = $DB->runFile("save.sql");
@@ -62,10 +62,10 @@ class Install extends PHPUnit_Framework_TestCase {
          
       } else {      
          $query = "SHOW TABLES";
-         $result = $DB->query($query);
+         $result = $DB->doQuery($query);
          while ($data=$DB->fetchArray($result)) {
             if (strstr($data[0], "timelineticket")) {
-               $DB->query("DROP TABLE ".$data[0]);
+               $DB->doQuery("DROP TABLE ".$data[0]);
             }
          }
          

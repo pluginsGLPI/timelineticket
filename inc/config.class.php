@@ -105,12 +105,14 @@ class PluginTimelineticketConfig extends CommonDBTM {
                        'add_waiting' => 1]);
       }
    }
-
+    static function getIcon() {
+        return "ti-history";
+    }
    function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
 
       // can exists for template
       if ($item->getType() == 'PluginTimelineticketGrouplevel') {
-         return _sx('button', 'Add an item');
+         return self::createTabEntry(_sx('button', 'Add an item'));
       }
       return '';
    }

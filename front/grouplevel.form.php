@@ -37,7 +37,6 @@
    ------------------------------------------------------------------------
  */
 
-include('../../../inc/includes.php');
 
 $dropdown = new PluginTimelineticketGrouplevel();
 include(GLPI_ROOT . "/front/dropdown.common.form.php");

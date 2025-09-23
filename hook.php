@@ -89,7 +89,7 @@ function plugin_timelineticket_install()
                   KEY `tickets_id` (`tickets_id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
 
-        $DB->query($query) or die($DB->error());
+        $DB->doQuery($query) or die($DB->error());
     }
     if (!$DB->tableExists("glpi_plugin_timelineticket_assigngroups")) {
         $query = "CREATE TABLE `glpi_plugin_timelineticket_assigngroups` (
@@ -103,7 +103,7 @@ function plugin_timelineticket_install()
                   KEY `tickets_id` (`tickets_id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
 
-        $DB->query($query) or die($DB->error());
+        $DB->doQuery($query) or die($DB->error());
     }
 
     if (!$DB->tableExists("glpi_plugin_timelineticket_assignusers")) {
@@ -118,7 +118,7 @@ function plugin_timelineticket_install()
                   KEY `tickets_id` (`tickets_id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
 
-        $DB->query($query) or die($DB->error());
+        $DB->doQuery($query) or die($DB->error());
     }
 
     if (!$DB->tableExists("glpi_plugin_timelineticket_grouplevels")) {
@@ -132,7 +132,7 @@ function plugin_timelineticket_install()
                `comment` text collate utf8mb4_unicode_ci,
                PRIMARY KEY (`id`)
              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
-        $DB->query($query) or die($DB->error());
+        $DB->doQuery($query) or die($DB->error());
     }
 
     if (!$DB->tableExists("glpi_plugin_timelineticket_configs")) {
@@ -141,7 +141,7 @@ function plugin_timelineticket_install()
               `add_waiting` int unsigned NOT NULL DEFAULT '1',
               PRIMARY KEY  (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
-        $DB->query($query) or die($DB->error());
+        $DB->doQuery($query) or die($DB->error());
     }
 
     $status =  ['new'           => Ticket::INCOMING,
@@ -158,21 +158,21 @@ function plugin_timelineticket_install()
             $query = "UPDATE `$table`
                    SET `old_status` = '$new'
                    WHERE `old_status` = '$old'";
-            $DB->queryOrDie($query, "0.84 status in $table $old to $new");
+            $DB->doQuery($query);
 
             $query = "UPDATE `$table`
                    SET `new_status` = '$new'
                    WHERE `new_status` = '$old'";
-            $DB->queryOrDie($query, "0.84 status in $table $old to $new");
+            $DB->doQuery($query);
         }
     }
 
     $query = "ALTER TABLE `glpi_plugin_timelineticket_states` CHANGE `delay` `delay` int(11) DEFAULT NULL;";
-    $DB->query($query) or die($DB->error());
+    $DB->doQuery($query) or die($DB->error());
     $query = "ALTER TABLE `glpi_plugin_timelineticket_assigngroups` CHANGE `delay` `delay` int(11) DEFAULT NULL;";
-    $DB->query($query) or die($DB->error());
+    $DB->doQuery($query) or die($DB->error());
     $query = "ALTER TABLE `glpi_plugin_timelineticket_assignusers` CHANGE `delay` `delay` int(11) DEFAULT NULL;";
-    $DB->query($query) or die($DB->error());
+    $DB->doQuery($query) or die($DB->error());
 
     PluginTimelineticketConfig::createFirstConfig();
 
@@ -207,8 +207,7 @@ function plugin_timelineticket_uninstall()
         "glpi_plugin_timelineticket_configs"];
 
     foreach ($tables as $table) {
-        $query = "DROP TABLE IF EXISTS `$table`;";
-        $DB->query($query) or die($DB->error());
+         $DB->dropTable($table, true);
     }
 
     //Delete rights associated with the plugin

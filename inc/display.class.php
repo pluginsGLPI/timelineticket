@@ -181,7 +181,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
                          FROM `glpi_plugin_timelineticket_assigngroups`
                          WHERE `tickets_id` = '" . $ticket->getID() . "'";
 
-         $result = $DB->query($query);
+         $result = $DB->doQuery($query);
          while ($data = $DB->fetchAssoc($result)) {
 
             echo "<tr class='tab_bg_1'>";
@@ -211,7 +211,7 @@ class PluginTimelineticketDisplay extends CommonDBTM {
                          FROM `glpi_plugin_timelineticket_assignusers`
                          WHERE `tickets_id` = '" . $ticket->getID() . "'";
 
-         $result = $DB->query($query);
+         $result = $DB->doQuery($query);
          while ($data = $DB->fetchAssoc($result)) {
 
             echo "<tr class='tab_bg_1'>";
@@ -227,12 +227,14 @@ class PluginTimelineticketDisplay extends CommonDBTM {
       }
    }
 
-
+    static function getIcon() {
+        return "ti ti-history";
+    }
    function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
 
       if ($item->getType() == 'Ticket'
           && $_SESSION['glpiactiveprofile']['interface'] == 'central') {
-         return __('Timeline', 'timelineticket');
+         return self::createTabEntry(__('Timeline', 'timelineticket'));
       }
       return '';
    }

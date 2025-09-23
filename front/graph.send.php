@@ -37,6 +37,8 @@
    ------------------------------------------------------------------------
  */
 
+use Glpi\Exception\Http\BadRequestHttpException;
+
 include ('../../../inc/includes.php');
 
 Session ::checkLoginUser();
@@ -56,6 +58,6 @@ if (($uid = Session::getLoginUserID(false))
       list($fname,$extension)=explode(".", $filename);
       Toolbox::sendFile(GLPI_GRAPH_DIR."/".$_GET["file"], 'glpi.'.$extension);
    } else {
-      Html::displayErrorAndDie(__('Unauthorized access to this file'), true);
+       throw new BadRequestHttpException('Unauthorized access to this file');
    }
 }

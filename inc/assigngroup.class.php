@@ -235,13 +235,14 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
    static function showGroupTimeline(Ticket $ticket) {
       global $DB;
 
-      $query = "SELECT *
-                FROM `glpi_plugin_timelineticket_assigngroups`
-                WHERE `tickets_id` = '" . $ticket->getField('id') . "'
-                ORDER BY `id` ASC";
 
-      $req = $DB->request($query);
-      if ($req->numrows()) {
+
+      $req = $DB->request([
+          'FROM' => 'glpi_plugin_timelineticket_assigngroups',
+          'WHERE' => ['tickets_id' => $ticket->getField('id')],
+          'ORDER' => ['id ASC'],
+      ]);
+       if (count($req)) {
          echo "<tr class='tab_bg_2'>";
          echo "<td>";
          $groups = [];
@@ -250,10 +251,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
          foreach ($req as $data) {
             $nb++;
             $date  = strtotime($data['date']);
-            $class = 'checked';
-            if ($size == $nb) {
-               $class = 'now';
-            }
+            $class = ($size == $nb) ? 'now' : 'checked';
             $groups[$date . '_groups_id'] = [
                'timestamp' => $date,
                'label'     => Dropdown::getDropdownName("glpi_groups", $data['groups_id']) . " (" . Html::timestampToString($data['delay'], true) . ")",
@@ -358,7 +356,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
                            AND `groups_id`='" . $d["groups_id"] . "'
                            AND `delay` IS NULL";
 
-               $result    = $DB->query($query);
+               $result    = $DB->doQuery($query);
                $datedebut = '';
                $input     = [];
                if ($result && $DB->numrows($result)) {
@@ -398,7 +396,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
                            AND `groups_id`='" . $d["groups_id"] . "'
                            AND `delay` IS NULL";
 
-               $result    = $DB->query($query);
+               $result    = $DB->doQuery($query);
                $datedebut = '';
                $input     = [];
                if ($result && $DB->numrows($result)) {
@@ -443,7 +441,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
                   AND `groups_id`='" . $item->fields['groups_id'] . "'
                   AND `delay` IS NULL";
 
-      $result    = $DB->query($query);
+      $result    = $DB->doQuery($query);
       $datedebut = '';
       $input     = [];
       if ($result && $DB->numrows($result)) {
@@ -481,11 +479,11 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
 
       if ($id == 0 ) {
          $query = "TRUNCATE `" . $this->getTable() . "`";
-         $DB->query($query);
+         $DB->doQuery($query);
       } else {
          $query = "DELETE FROM `" . $this->getTable() . "` 
                   WHERE `tickets_id` = $id";
-         $DB->query($query);
+         $DB->doQuery($query);
       }
       $where = "";
       if ($id > 0 ) {
@@ -493,7 +491,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
       }
       $query  = "SELECT `id`
                FROM `glpi_tickets` $where";
-      $result = $DB->query($query);
+      $result = $DB->doQuery($query);
 
       while ($data = $DB->fetchArray($result)) {
 
@@ -503,7 +501,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM {
          $queryGroup .= " AND `itemtype` = 'Ticket'";
          $queryGroup .= " ORDER BY date_mod ASC";
 
-         $resultGroup = $DB->query($queryGroup);
+         $resultGroup = $DB->doQuery($queryGroup);
 
          if ($resultGroup) {
             while ($dataGroup = $DB->fetchArray($resultGroup)) {

@@ -227,7 +227,7 @@ class PluginTimelineticketDashboard extends CommonGLPI
                                   . "WHERE `glpi_groups_users`.`groups_id` IN (" . $groups . ") AND `glpi_groups`.`is_assign` = 1 "
                                   . " GROUP BY `glpi_groups_users`.`users_id`";
 
-            $result_gu = $DB->query($query_group_member);
+            $result_gu = $DB->doQuery($query_group_member);
 
             while ($data = $DB->fetchAssoc($result_gu)) {
                 $techlist[] = $data['users_id'];
@@ -272,7 +272,7 @@ class PluginTimelineticketDashboard extends CommonGLPI
                                     . ")";
                     $querym_ai   .= " GROUP BY DATE_FORMAT(`glpi_plugin_timelineticket_assignusers`.`date`, '%m/%Y'),`glpi_plugin_timelineticket_assignusers`.`users_id`;
                               ";
-                    $result_ai_q = $DB->query($querym_ai);
+                    $result_ai_q = $DB->doQuery($querym_ai);
                     while ($data = $DB->fetchAssoc($result_ai_q)) {
                   //               $time_per_tech[$techid][$key] += (self::TotalTpsPassesArrondis($data['actiontime_date'] / 3600 / 8));
                         if ($data['numberAssignation'] > 0) {
@@ -328,7 +328,7 @@ class PluginTimelineticketDashboard extends CommonGLPI
                     $querym_ai   .= "GROUP BY  YEAR(`glpi_plugin_timelineticket_assignusers`.`date`) ,
                                     WEEk(`glpi_plugin_timelineticket_assignusers`.`date`),`glpi_plugin_timelineticket_assignusers`.`users_id` ;
                               ";
-                    $result_ai_q = $DB->query($querym_ai);
+                    $result_ai_q = $DB->doQuery($querym_ai);
                     while ($data = $DB->fetchAssoc($result_ai_q)) {
                   //               $time_per_tech[$techid][$key] += (self::TotalTpsPassesArrondis($data['actiontime_date'] / 3600 / 8));
                         if ($data['numberAssignation'] > 0) {
@@ -375,7 +375,7 @@ class PluginTimelineticketDashboard extends CommonGLPI
                     $querym_ai   .= "GROUP BY  DATE_FORMAT(`glpi_plugin_timelineticket_assignusers`.`date`,'%d %m %Y'), 
                `glpi_plugin_timelineticket_assignusers`.`users_id`;
                               ";
-                    $result_ai_q = $DB->query($querym_ai);
+                    $result_ai_q = $DB->doQuery($querym_ai);
                     while ($data = $DB->fetchAssoc($result_ai_q)) {
                   //               $time_per_tech[$techid][$key] += (self::TotalTpsPassesArrondis($data['actiontime_date'] / 3600 / 8));
                         if ($data['numberAssignation'] > 0) {

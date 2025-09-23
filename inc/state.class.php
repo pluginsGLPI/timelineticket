@@ -58,7 +58,7 @@ class PluginTimelineticketState extends CommonDBTM {
                    FROM `" . $this->getTable() . "`
                    WHERE `tickets_id` = '$idticket' ";
 
-         $result    = $DB->query($query);
+         $result    = $DB->doQuery($query);
          $datedebut = '';
          if ($result && $DB->numrows($result)) {
             $datedebut = $DB->result($result, 0, 'datedebut');
@@ -89,121 +89,132 @@ class PluginTimelineticketState extends CommonDBTM {
    }
 
 
-   static function showStateTimeline(Ticket $ticket) {
-      global $DB;
+    static function showStateTimeline(Ticket $ticket) {
+        global $DB;
 
-      $query = "SELECT *
-                FROM `glpi_plugin_timelineticket_states`
-                WHERE `tickets_id` = '" . $ticket->getField('id') . "'
-                ORDER BY `id` ASC";
+        $req = $DB->request([
+            'FROM'   => 'glpi_plugin_timelineticket_states',
+            'WHERE'  => ['tickets_id' => $ticket->getField('id')],
+            'ORDER'  => 'id ASC'
+        ]);
 
-      $req = $DB->request($query);
-      if ($req->numrows()) {
-         echo "<tr class='tab_bg_2'>";
-         echo "<td>";
-         $states = [];
-         $nb     = 0;
-         foreach ($req as $data) {
-            $date  = strtotime($data['date']);
-            $now   = time();
-            $class = 'checked';
-            if (0 == $nb) {
-               $class = 'creation';
+        if (count($req)) {
+            echo "<tr class='tab_bg_2'>";
+            echo "<td>";
+            $states = [];
+            $nb     = 0;
+            $new    = null;
+
+            foreach ($req as $data) {
+                $date  = strtotime($data['date']);
+                $now   = time();
+                $class = 'checked';
+                if (0 == $nb) {
+                    $class = 'creation';
+                }
+                $states[$date . '_old_status'] = [
+                    'timestamp' => $date,
+                    'label'     => Ticket::getStatus($data['old_status']) . " (" . Html::timestampToString($data['delay'],
+                            true) . ")",
+                    'class'     => $class
+                ];
+                $new = $data['new_status'];
+                $nb++;
             }
-            $states[$date . '_old_status'] = [
-               'timestamp' => $date,
-               'label'     => Ticket::getStatus($data['old_status']) . " (" . Html::timestampToString($data['delay'], true) . ")",
-               'class'     => $class];
-            $new                           = $data['new_status'];
-            $nb++;
-         }
-         $states[$now . '_old_status'] = [
-            'timestamp' => time(),
-            'label'     => Ticket::getStatus($new) . " (" . Html::timestampToString((date('U') - strtotime($data['date'])), true) . ")",
-            'class'     => 'now'];
-         $title                        = __('Ticket states history', 'timelineticket');
-         echo "<div class='center'>";
-         Html::showDatesTimelineGraph([
-                                         'title'   => $title,
-                                         'dates'   => $states,
-                                         'add_now' => false,
-                                      ]);
-         echo "</div>";
-         echo "</td>";
-         echo "</tr>";
 
-      }
-   }
+            $states[$now . '_old_status'] = [
+                'timestamp' => time(),
+                'label'     => Ticket::getStatus($new) . " (" . Html::timestampToString((date(
+                    'U') - strtotime($data['date'])), true) . ")",
+                'class'     => 'now'
+            ];
+
+            $title = __('Ticket states history', 'timelineticket');
+            echo "<div class='center'>";
+            Html::showDatesTimelineGraph([
+                'title'   => $title,
+                'dates'   => $states,
+                'add_now' => false,
+            ]);
+            echo "</div>";
+            echo "</td>";
+            echo "</tr>";
+        }
+    }
 
 
-   static function showHistory(Ticket $ticket) {
-      global $DB;
 
-      $query = "SELECT *
-                FROM `glpi_plugin_timelineticket_states`
-                WHERE `tickets_id` = '" . $ticket->getField('id') . "'
-                ORDER BY `id` DESC";
+    static function showHistory(Ticket $ticket) {
+        global $DB;
 
-      $req = $DB->request($query);
-      if (!$req->numrows()) {
-         echo "<tr class='tab_bg_1 center'><td>" . __('No item found') . "</td></tr>";
-      } else {
-         echo "<tr<td>";
+        $ticketId = $ticket->getField('id');
 
-         echo "<tr><th>" . __('Result details') . "</th></tr>";
-         echo "<tr class='tab_bg_2'><td>";
+        $req = $DB->request([
+            'FROM'  => 'glpi_plugin_timelineticket_states',
+            'WHERE' => ['tickets_id' => $ticketId],
+            'ORDER' => ['id DESC']
+        ]);
 
-         echo "<table class='tab_cadrehov' width='100%'>";
-         echo "<tr>";
-         echo "<th>" . __('End date') . "</th>";
-         echo "<th>" . __('Status') . "</th>";
-         echo "<th>" . __('Delay', 'timelineticket') . "</th>";
-         echo "</tr>";
+        if (count($req) === 0) {
+            echo "<tr class='tab_bg_1 center'><td>" . __('No item found') . "</td></tr>";
+        } else {
+            echo "<tr><td>";
 
-         $cnt = 0;
-         $total =0;
-         $date ="";
-         foreach ($req as $data) {
-            if ($data['old_status'] != '') {
-               if ($cnt == 0) {
-                  if ($data['new_status'] != Ticket::CLOSED) {
-                     echo "<tr class='tab_bg_1'>";
-                     echo "<td></td>";
-                     echo "<td>" . Ticket::getStatus($data['new_status']) . "</td>";
-                     echo "<td class='right'>" . Html::timestampToString((date('U') - strtotime($data['date'])), true) . "</td>";
-                     echo "</tr>";
-                     $total += (date('U') - strtotime($data['date']));
-                  }
-               }
+            echo "<tr><th>" . __('Result details') . "</th></tr>";
+            echo "<tr class='tab_bg_2'><td>";
 
-               echo "<tr class='tab_bg_1'>";
-               echo "<td>" . Html::convDateTime($data['date']) . "</td>";
-               echo "<td>" . Ticket::getStatus($data['old_status']) . "</td>";
-               echo "<td class='right'>" . Html::timestampToString($data['delay'], true) . "</td>";
-               echo "</tr>";
+            echo "<table class='tab_cadrehov' width='100%'>";
+            echo "<tr>";
+            echo "<th>" . __('End date') . "</th>";
+            echo "<th>" . __('Status') . "</th>";
+            echo "<th>" . __('Delay', 'timelineticket') . "</th>";
+            echo "</tr>";
 
-               $total += $data['delay'];
+            $cnt = 0;
+            $total = 0;
+            $date = "";
+
+            foreach ($req as $data) {
+                if ($data['old_status'] != '') {
+                    if ($cnt == 0) {
+                        if ($data['new_status'] != Ticket::CLOSED) {
+                            echo "<tr class='tab_bg_1'>";
+                            echo "<td></td>";
+                            echo "<td>" . Ticket::getStatus($data['new_status']) . "</td>";
+                            echo "<td class='right'>" . Html::timestampToString(
+                                (date('U') - strtotime($data['date'])), true) . "</td>";
+                            echo "</tr>";
+                            $total += (date('U') - strtotime($data['date']));
+                        }
+                    }
+
+                    echo "<tr class='tab_bg_1'>";
+                    echo "<td>" . Html::convDateTime($data['date']) . "</td>";
+                    echo "<td>" . Ticket::getStatus($data['old_status']) . "</td>";
+                    echo "<td class='right'>" . Html::timestampToString($data['delay'], true) . "</td>";
+                    echo "</tr>";
+
+                    $total += $data['delay'];
+                }
+                $cnt++;
+                $date = date_format(date_create($data['date']), 'd-m-Y H:i');
             }
-            $cnt++;
-            $date = date_format(date_create($data['date']),'d-m-Y H:i');
-         }
+
+            echo "<tr class='tab_bg_1'>";
+            echo "<td>" . $date . "</td>";
+            echo "<td>" . __("Total") . "</td>";
+            echo "<td class='right'>" . Html::timestampToString($total, true) . "</td>";
+            echo "</tr>";
+
+            echo "</table>";
+            echo "</td>";
+            echo "</tr>";
+        }
+    }
 
 
 
-         echo "<tr class='tab_bg_1'>";
-         echo "<td>".$date."</td>";
-         echo "<td>" . __("Total") . "</td>";
-         echo "<td class='right'>" . Html::timestampToString($total, true) . "</td>";
-         echo "</tr>";
-
-         echo "</table>";
-         echo "</td>";
-         echo "</tr>";
-      }
-   }
-
-
-   function showTimeline(Ticket $ticket, $params = []) {
+    function showTimeline(Ticket $ticket, $params = []) {
       global $CFG_GLPI;
 
       /* Create and populate the pData object */
@@ -464,11 +475,11 @@ class PluginTimelineticketState extends CommonDBTM {
       $ticket = new Ticket();
       if ($id == 0 ) {
          $query = "TRUNCATE `" . $this->getTable() . "`";
-         $DB->query($query);
+         $DB->doQuery($query);
       } else {
          $query = "DELETE FROM `" . $this->getTable() . "` 
                   WHERE `tickets_id` = $id";
-         $DB->query($query);
+         $DB->doQuery($query);
       }
 
       $status_translation = [];
@@ -508,7 +519,7 @@ class PluginTimelineticketState extends CommonDBTM {
       $query  = "SELECT * FROM `glpi_tickets`
                 $where
                ORDER BY `date`";
-      $result = $DB->query($query);
+      $result = $DB->doQuery($query);
       while ($data = $DB->fetchArray($result)) {
          $ticket->getFromDB($data['id']);
          $this->createFollowup($ticket, $data['date'], '', Ticket::INCOMING);
@@ -518,7 +529,7 @@ class PluginTimelineticketState extends CommonDBTM {
                      AND `items_id`='" . $data['id'] . "'
                      AND `id_search_option`='12'
                ORDER BY `id`";
-         $resultl = $DB->query($queryl);
+         $resultl = $DB->doQuery($queryl);
          $first   = 0;
          while ($datal = $DB->fetchArray($resultl)) {
 

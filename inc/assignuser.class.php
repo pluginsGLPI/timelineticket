@@ -190,13 +190,14 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
    static function showUserTimeline(Ticket $ticket) {
       global $DB;
 
-      $query = "SELECT *
-                FROM `glpi_plugin_timelineticket_assignusers`
-                WHERE `tickets_id` = '" . $ticket->getField('id') . "'
-                ORDER BY `id` ASC";
-
       $dbu = new DbUtils();
-      $req = $DB->request($query);
+      $req = $DB->request([
+          'FROM' => 'glpi_plugin_timelineticket_assignusers',
+          'WHERE' => [
+              'tickets_id' => $ticket->getField('id'),
+          ],
+          'ORDER'  => 'id ASC'
+      ]);
       if ($req->numrows()) {
          echo "<tr class='tab_bg_2'>";
          echo "<td>";
@@ -212,7 +213,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
             }
             $users[$date . '_users_id'] = [
                'timestamp' => $date,
-               'label'     => getUserName($data['users_id']) . " (" . Html::timestampToString($data['delay'], true) . ")",
+               'label'     => getUserName($data['users_id']) . " (" . Html::timestampToString($data['delay']) . ")",
                'class'     => $class];
 
          }
@@ -314,7 +315,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
                            AND `users_id`='" . $d["users_id"] . "'
                            AND `delay` IS NULL";
 
-               $result    = $DB->query($query);
+               $result    = $DB->doQuery($query);
                $datedebut = '';
                $input     = [];
                if ($result && $DB->numrows($result)) {
@@ -354,7 +355,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
                            AND `users_id`='" . $d["users_id"] . "'
                            AND `delay` IS NULL";
 
-               $result    = $DB->query($query);
+               $result    = $DB->doQuery($query);
                $datedebut = '';
                $input     = [];
                if ($result && $DB->numrows($result)) {
@@ -398,7 +399,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM {
                   AND `users_id`='" . $item->fields['users_id'] . "'
                   AND `delay` IS NULL";
 
-      $result    = $DB->query($query);
+      $result    = $DB->doQuery($query);
       $datedebut = '';
       $input     = [];
       if ($result && $DB->numrows($result)) {
