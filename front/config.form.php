@@ -39,7 +39,7 @@
 
 include ('../../../inc/includes.php');
 
-Html::header(PluginTimelineticketDisplay::getTypeName(2), $_SERVER["PHP_SELF"], "plugins", "timelineticket");
+Html::header(__('Setup'), '', "config", "plugin");
 
 if (Session::haveRight("config", READ)
       || Session::haveRight("plugin_timelineticket_ticket", UPDATE)) {

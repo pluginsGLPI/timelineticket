@@ -37,17 +37,16 @@
    ------------------------------------------------------------------------
  */
 
-function pluginTimelineticketGetCurrentVersion($version) {
-   global $DB;
+function pluginTimelineticketGetCurrentVersion($version)
+{
+    global $DB;
 
-   return '0';
-
+    return '0';
 }
 
 
 
-function pluginTimelineticketUpdate($current_version, $migrationname = 'Migration') {
-   global $DB;
-
+function pluginTimelineticketUpdate($current_version, $migrationname = 'Migration')
+{
+    global $DB;
 }
-

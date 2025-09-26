@@ -41,7 +41,6 @@
 $USEDBREPLICATE        = 1;
 $DBCONNECTION_REQUIRED = 1;
 
-include("../../../../inc/includes.php");
 
 // Instantiate Report with Name
 $report = new PluginReportsAutoReport(__("statSpentTimeProcessingByGroup_report_title", "timelineticket"));
@@ -119,7 +118,7 @@ if (isset($_POST['requesttypes_id']) && $_POST['requesttypes_id'] > 0) {
 }
 $query .= getOrderBy('closedate', $columns);
 
-$res   = $DB->query($query);
+$res   = $DB->doQuery($query);
 $nbtot = ($res ? $DB->numrows($res) : 0);
 if ($limit) {
    $start = (isset($_GET["start"]) ? $_GET["start"] : 0);
@@ -127,7 +126,7 @@ if ($limit) {
       $start = 0;
    }
    if ($start > 0 || $start + $limit < $nbtot) {
-      $res = $DB->query($query . " LIMIT $start,$limit");
+      $res = $DB->doQuery($query . " LIMIT $start,$limit");
    }
 } else {
    $start = 0;

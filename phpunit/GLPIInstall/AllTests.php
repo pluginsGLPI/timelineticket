@@ -49,15 +49,15 @@ class GLPIInstall extends PHPUnit_Framework_TestCase {
       global $DB;
 
       $query = "SHOW FULL TABLES WHERE TABLE_TYPE LIKE 'VIEW'";
-      $result = $DB->query($query);
+      $result = $DB->doQuery($query);
       while ($data=$DB->fetchArray($result)) {
-         $DB->query("DROP VIEW ".$data[0]);
+         $DB->doQuery("DROP VIEW ".$data[0]);
       }
 
       $query = "SHOW TABLES";
-      $result = $DB->query($query);
+      $result = $DB->doQuery($query);
       while ($data=$DB->fetchArray($result)) {
-         $DB->query("DROP TABLE ".$data[0]);
+         $DB->doQuery("DROP TABLE ".$data[0]);
       }
 
       include_once (GLPI_ROOT . "/inc/dbmysql.class.php");
@@ -67,15 +67,15 @@ class GLPIInstall extends PHPUnit_Framework_TestCase {
       $DB  = new DB();
       $res = $DB->runFile(GLPI_ROOT ."/install/mysql/glpi-0.84.1-empty.sql");
       $this->assertTrue($res, "Fail: SQL Error during install");
-      $DB->query("UPDATE `glpi_configs` SET `version`='0.84.3' WHERE `id`='1'");
+      $DB->doQuery("UPDATE `glpi_configs` SET `version`='0.84.3' WHERE `id`='1'");
 
       // update default language
       $query = "UPDATE `glpi_configs`
                 SET `language` = 'fr_FR'";
-      $this->assertTrue($DB->query($query), "Fail: can't set default language");
+      $this->assertTrue($DB->doQuery($query), "Fail: can't set default language");
       $query = "UPDATE `glpi_users`
                 SET `language` = 'fr_FR'";
-      $this->assertTrue($DB->query($query), "Fail: can't set users language");
+      $this->assertTrue($DB->doQuery($query), "Fail: can't set users language");
 
       $GLPIlog = new GLPIlogs();
       $GLPIlog->testSQLlogs();

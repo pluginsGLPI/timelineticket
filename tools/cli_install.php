@@ -38,16 +38,15 @@
  */
 
 if (in_array('--help', $_SERVER['argv'])) {
-   die("usage: ".$_SERVER['argv'][0]."\n");
+    die("usage: ".$_SERVER['argv'][0]."\n");
 }
 
 chdir(dirname($_SERVER["SCRIPT_FILENAME"]));
 
 if (!defined('GLPI_ROOT')) {
-   define('GLPI_ROOT', '../../..');
+    define('GLPI_ROOT', '../../..');
 }
 
-include (GLPI_ROOT . "/inc/includes.php");
 
 // Init debug variable
 $_SESSION['glpi_use_mode'] = Session::DEBUG_MODE;
@@ -64,67 +63,72 @@ error_reporting(E_ALL | E_STRICT);
 
 $DB = new DB();
 if (!$DB->connected) {
-   die("No DB connection\n");
+    die("No DB connection\n");
 }
 
 /* ----------------------------------------------------------------- */
 /**
  * Extends class Migration to redefine display mode
 **/
-class CliMigration extends Migration {
+class CliMigration extends Migration
+{
 
-   private   $deb;
+    private $deb;
 
-   function __construct($ver) {
+    function __construct($ver)
+    {
 
-      $this->deb     = time();
-      $this->version = $ver;
-   }
-
-
-   function displayMessage ($msg) {
-
-      $msg .= " (".Html::timestampToString(time()-$this->deb).")";
-      echo str_pad($msg, 100)."\r";
-   }
+        $this->deb     = time();
+        $this->version = $ver;
+    }
 
 
-   function displayTitle($title) {
-      echo "\n".str_pad(" $title ", 100, '=', STR_PAD_BOTH)."\n";
-   }
+    function displayMessage($msg)
+    {
+
+        $msg .= " (".Html::timestampToString(time()-$this->deb).")";
+        echo str_pad($msg, 100)."\r";
+    }
 
 
-   function displayWarning($msg, $red=false) {
+    function displayTitle($title)
+    {
+        echo "\n".str_pad(" $title ", 100, '=', STR_PAD_BOTH)."\n";
+    }
 
-      if ($red) {
-         $msg = "** $msg";
-      }
-      echo str_pad($msg, 100)."\n";
-   }
+
+    function displayWarning($msg, $red = false)
+    {
+
+        if ($red) {
+            $msg = "** $msg";
+        }
+        echo str_pad($msg, 100)."\n";
+    }
 }
 
 /*---------------------------------------------------------------------*/
 
 if (!$DB->tableExists("glpi_configs")) {
-   die("GLPI not installed\n");
+    die("GLPI not installed\n");
 }
 
 $plugin = new Plugin();
    
-include (PLUGIN_TIMELINETICKET_DIR . "/install/update.php");
-include (PLUGIN_TIMELINETICKET_DIR . "/locales/en_GB.php");
-include (PLUGIN_TIMELINETICKET_DIR . "/hook.php");
+include(PLUGIN_TIMELINETICKET_DIR . "/install/update.php");
+include(PLUGIN_TIMELINETICKET_DIR . "/locales/en_GB.php");
+include(PLUGIN_TIMELINETICKET_DIR . "/hook.php");
 $current_version = pluginTimelineticketGetCurrentVersion(PLUGIN_TIMELINETICKET_VERSION);
 
 $migration = new CliMigration($current_version);
 
 if (!isset($current_version)) {
-   $current_version = 0;
+    $current_version = 0;
 }
 if ($current_version == '0') {
-   $migration->displayWarning("***** Install process of plugin TIMELINETICKET *****");
+    $migration->displayWarning("***** Install process of plugin TIMELINETICKET *****");
 } else {
-   $migration->displayWarning("***** Update process of plugin TIMELINETICKET *****");
+    $migration->displayWarning("***** Update process of plugin TIMELINETICKET *****");
 }
 
 $migration->displayWarning("Current Timelineticket version: $current_version");
@@ -136,12 +140,12 @@ ini_set("memory_limit", "-1");
 
 $mess = '';
 if (($current_version != PLUGIN_TIMELINETICKET_VERSION)
-     AND $current_version!='0') {
-   $mess = "Update done.";      
-} else if ($current_version == PLUGIN_TIMELINETICKET_VERSION) {
-   $mess = "No migration needed.";
+     and $current_version!='0') {
+    $mess = "Update done.";
+} elseif ($current_version == PLUGIN_TIMELINETICKET_VERSION) {
+    $mess = "No migration needed.";
 } else {
-   $mess = "installation done.";
+    $mess = "installation done.";
 }
 
 $plugin->getFromDBbyDir("timelineticket");

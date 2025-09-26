@@ -60,15 +60,15 @@ class Update extends PHPUnit_Framework_TestCase {
       $GLPIInstall->testInstall();
       
       $query = "SHOW TABLES";
-      $result = $DB->query($query);
+      $result = $DB->doQuery($query);
       while ($data=$DB->fetchArray($result)) {
          if (strstr($data[0], "timelineticket")) {
-            $DB->query("DROP TABLE ".$data[0]);
+            $DB->doQuery("DROP TABLE ".$data[0]);
          }
       }
       $query = "DELETE FROM `glpi_displaypreferences` 
          WHERE `itemtype` LIKE 'PluginTimelineticket%'";
-      $DB->query($query);
+      $DB->doQuery($query);
       
       // ** Insert in DB
       $res = $DB->runFile(PLUGIN_TIMELINETICKET_DIR ."/phpunit/TimelineticketInstall/Update/mysql/i-".$version.".sql");

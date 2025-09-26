@@ -54,11 +54,15 @@ class PluginTimelineticketProfile extends Profile
      *    timelineticket
      */
 
+    public static function getIcon() {
+        return PluginTimelineticketDisplay::getIcon();
+    }
+
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
         if ($item->getType() == 'Profile'
             && $item->fields['interface'] == 'central') {
-            return _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket");
+            return self::createTabEntry(_n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket"));
         }
     }
 

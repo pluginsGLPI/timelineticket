@@ -37,12 +37,14 @@
    ------------------------------------------------------------------------
  */
 
+global $CFG_GLPI;
 define("PLUGIN_TIMELINETICKET_VERSION", "10.0+1.2");
 
 if (!defined("PLUGIN_TIMELINETICKET_DIR")) {
     define("PLUGIN_TIMELINETICKET_DIR", Plugin::getPhpDir("timelineticket"));
     define("PLUGIN_TIMELINETICKET_NOTFULL_DIR", Plugin::getPhpDir("timelineticket", false));
-    define("PLUGIN_TIMELINETICKET_WEBDIR", Plugin::getWebDir("timelineticket"));
+    $root = $CFG_GLPI['root_doc'] . '/plugins/timelineticket';
+    define("PLUGIN_TIMELINETICKET_WEBDIR", $root);
 }
 
 function plugin_version_timelineticket()
@@ -54,8 +56,8 @@ function plugin_version_timelineticket()
             'author'       => 'Nelly Mahu-Lasson && David Durieux && Xavier Caillaud',
             'requirements' => [
                'glpi' => [
-                  'min' => '10.0',
-                  'max' => '11.0',
+                  'min' => '11.0',
+                  'max' => '12.0',
                   'dev' => false
                ]
             ]
