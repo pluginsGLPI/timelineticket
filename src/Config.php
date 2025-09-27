@@ -83,8 +83,7 @@ class Config extends CommonDBTM
         ), ['name' => 'reconstructGroups', 'class' => 'btn btn-primary']);
         echo "<br/><br/><div class='alert alert-important alert-warning d-flex'>";
         echo  __(
-            'Warning : it may be that the reconstruction of groups does not reflect reality because
-            it concern only groups which have the Requester flag to No and Assigned flag to Yes',
+            'Warning : it may be that the reconstruction of groups does not reflect reality because it concern only groups which have the Requester flag to No and Assigned flag to Yes',
             'timelineticket'
         );
         echo "</div>";
