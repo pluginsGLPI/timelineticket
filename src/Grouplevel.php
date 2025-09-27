@@ -37,11 +37,19 @@
    ------------------------------------------------------------------------
  */
 
+namespace GlpiPlugin\Timelineticket;
+
+use CommonDropdown;
+use DbUtils;
+use Dropdown;
+use Html;
+use Toolbox;
+
 if (!defined('GLPI_ROOT')) {
     die("Sorry. You can't access directly to this file");
 }
 
-class PluginTimelineticketGrouplevel extends CommonDropdown
+class Grouplevel extends CommonDropdown
 {
 
     public static function getTypeName($nb = 0)
@@ -79,7 +87,7 @@ class PluginTimelineticketGrouplevel extends CommonDropdown
                         echo "</td>";
                         echo "<td>";
                         Html::showSimpleForm(
-                            Toolbox::getItemTypeFormURL('PluginTimelineticketConfig'),
+                            Toolbox::getItemTypeFormURL(Config::class),
                             'delete_groups',
                             _x('button', 'Delete permanently'),
                             ['delete_groups'     => 'delete_groups',
@@ -149,7 +157,7 @@ class PluginTimelineticketGrouplevel extends CommonDropdown
 
         $ong = [];
         $this->addDefaultFormTab($ong);
-        $this->addStandardTab("PluginTimelineticketConfig", $ong, $options);
+        $this->addStandardTab(Config::class, $ong, $options);
 
         return $ong;
     }
@@ -158,7 +166,7 @@ class PluginTimelineticketGrouplevel extends CommonDropdown
     public static function showAddGroup($item)
     {
 
-        echo "<form action='" . Toolbox::getItemTypeFormURL('PluginTimelineticketConfig') . "' method='post'>";
+        echo "<form action='" . Toolbox::getItemTypeFormURL(Config::class) . "' method='post'>";
         echo "<table class='tab_cadre_fixe' cellpadding='5'>";
         echo "<tr class='tab_bg_1 center'>";
         echo "<th>" . __('Group') . "</th>";

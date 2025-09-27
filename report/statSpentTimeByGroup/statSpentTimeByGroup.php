@@ -38,6 +38,8 @@
  */
 
 //Options for GLPI 0.71 and newer : need slave db to access the report
+use GlpiPlugin\Timelineticket\Tool;
+
 $USEDBREPLICATE        = 1;
 $DBCONNECTION_REQUIRED = 1;
 
@@ -109,7 +111,7 @@ global $DB, $HEADER_LOADED;
 $title = $report->getFullTitle();
 $dbu   = new DbUtils();
 // SQL statement
-$query = "SELECT glpi_tickets.*  
+$query = "SELECT glpi_tickets.*
                FROM `glpi_tickets`
                WHERE `glpi_tickets`.`status` = '" . Ticket::CLOSED . "'";
 $query .= $dbu->getEntitiesRestrictRequest('AND', "glpi_tickets", '', '', false);
@@ -136,7 +138,7 @@ if ($nbtot == 0) {
       Html::header($title, $_SERVER['PHP_SELF'], "utils", "report");
       Report::title();
    }
-   echo "<div class='center red b'>" . __('No item found') . "</div>";
+   echo "<div class='center red b'>" . __s('No results found') . "</div>";
    Html::footer();
 } else if ($output_type == Search::PDF_OUTPUT_PORTRAIT
            || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
@@ -396,7 +398,7 @@ if ($res && $nbtot > 0) {
             if (array_key_exists($key, $timelevels)) {
                $time = $timelevels[$key];
 
-               $a_details = PluginTimelineticketToolbox::getDetails($ticket, 'group', false);
+               $a_details = Tool::getDetails($ticket, 'group', false);
                $waiting_group = 0;
                foreach ($a_details as $items_id => $a_detail) {
 

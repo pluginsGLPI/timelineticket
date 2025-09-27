@@ -37,11 +37,20 @@
    ------------------------------------------------------------------------
  */
 
+namespace GlpiPlugin\Timelineticket;
+
+use Config;
+use DateTime;
+use DateTimeZone;
+use Dropdown;
+use Html;
+use Ticket;
+
 if (!defined('GLPI_ROOT')) {
     die("Sorry. You can't access directly to this file");
 }
 
-class PluginTimelineticketToolbox
+class Tool
 {
 
 
@@ -49,10 +58,10 @@ class PluginTimelineticketToolbox
     * Return array with all data
     *
     * @param Ticket   $ticket
-    * @param type     $type 'user' or 'group'
-    * @param int|type $withblank option to fill blank zones
+    * @param      $type 'user' or 'group'
+    * @param int $withblank option to fill blank zones
     *
-    * @return type
+    * @return
     */
     static function getDetails(Ticket $ticket, $type, $withblank = 1)
     {
@@ -100,15 +109,15 @@ class PluginTimelineticketToolbox
             ];
         }
 
-        $ptState = new PluginTimelineticketState();
+        $ptState = new AssignState();
 
-        $a_ret     = PluginTimelineticketDisplay::getTotaltimeEnddate($ticket);
+        $a_ret     = Display::getTotaltimeEnddate($ticket);
         $totaltime = $a_ret['totaltime'];
 
         if ($type == 'group') {
-            $ptItem = new PluginTimelineticketAssignGroup();
+            $ptItem = new AssignGroup();
         } elseif ($type == 'user') {
-            $ptItem = new PluginTimelineticketAssignUser();
+            $ptItem = new AssignUser();
         }
 
         $a_states       = [];
@@ -294,12 +303,12 @@ class PluginTimelineticketToolbox
     public static function ShowDetail(Ticket $ticket, $type)
     {
 
-        $ptState = new PluginTimelineticketState();
+        $ptState = new AssignState();
 
         if ($type == 'group') {
-            $ptItem = new PluginTimelineticketAssignGroup();
+            $ptItem = new AssignGroup();
         } elseif ($type == 'user') {
-            $ptItem = new PluginTimelineticketAssignUser();
+            $ptItem = new AssignUser();
         }
 
         $a_states = $ptState->find(["tickets_id" => $ticket->getID()], ["date"]);

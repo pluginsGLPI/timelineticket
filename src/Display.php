@@ -37,11 +37,24 @@
    ------------------------------------------------------------------------
  */
 
+namespace GlpiPlugin\Timelineticket;
+
+use Calendar;
+use CommonDBTM;
+use CommonGLPI;
+use CommonITILObject;
+use Dropdown;
+use Entity;
+use Html;
+use Session;
+use SLA;
+use Ticket;
+
 if (!defined('GLPI_ROOT')) {
     die("Sorry. You can't access directly to this file");
 }
 
-class PluginTimelineticketDisplay extends CommonDBTM
+class Display extends CommonDBTM
 {
 
     public static function getTypeName($nb = 0)
@@ -89,7 +102,7 @@ class PluginTimelineticketDisplay extends CommonDBTM
         Html::showSimpleForm(
             $target,
             'delete_review_from_list',
-            _sx('button', 'Reconstruct history for this ticket', 'timelineticket'),
+            _x('button', "Reconstruct history for this ticket", 'timelineticket'),
             ['tickets_id' => $ticket->getID(),
                             'reconstructTicket' => 'reconstructTicket'],
             //                           'fa-spinner fa-2x'
@@ -107,7 +120,7 @@ class PluginTimelineticketDisplay extends CommonDBTM
         }
         echo "</td></tr>";
 
-        PluginTimelineticketState::showHistory($ticket);
+        AssignState::showHistory($ticket);
 
        // Display ticket have Due date
         if ($ticket->fields['time_to_resolve']
@@ -157,7 +170,7 @@ class PluginTimelineticketDisplay extends CommonDBTM
         echo "<th colspan='2'>" . __('Status') . "</th>";
         echo "</tr>";
 
-        $a_data = PluginTimelineticketDisplay::getTotaltimeEnddate($ticket);
+        $a_data = Display::getTotaltimeEnddate($ticket);
 
         $totaltime = $a_data['totaltime'];
         $end_date  = $a_data['end_date'];
@@ -165,16 +178,16 @@ class PluginTimelineticketDisplay extends CommonDBTM
         $params = ['totaltime' => $totaltime,
                       'end_date'  => $end_date];
 
-        $ptState = new PluginTimelineticketState();
+        $ptState = new AssignState();
         $ptState->showTimeline($ticket, $params);
-        $ptAssignGroup = new PluginTimelineticketAssignGroup();
+        $ptAssignGroup = new AssignGroup();
         $ptAssignGroup->showTimeline($ticket, $params);
-        $ptAssignUser = new PluginTimelineticketAssignUser();
+        $ptAssignUser = new AssignUser();
         $ptAssignUser->showTimeline($ticket, $params);
         echo "</table>";
 
-        PluginTimelineticketToolbox::ShowDetail($ticket, 'group');
-        PluginTimelineticketToolbox::ShowDetail($ticket, 'user');
+        Tool::ShowDetail($ticket, 'group');
+        Tool::ShowDetail($ticket, 'user');
 
         if ($_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
             echo "<br><table class='tab_cadre_fixe'>";
@@ -237,7 +250,7 @@ class PluginTimelineticketDisplay extends CommonDBTM
 
     public static function getIcon()
     {
-        return "ti ti-history";
+        return "ti ti-hourglass";
     }
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
@@ -265,7 +278,7 @@ class PluginTimelineticketDisplay extends CommonDBTM
 
         $totaltime = 0;
 
-        $ptState   = new PluginTimelineticketState();
+        $ptState   = new AssignState();
         $a_states  = $ptState->find(["tickets_id" => $ticket->getField('id')], ["date"]);
         $last_date = '';
         foreach ($a_states as $a_state) {
@@ -278,7 +291,7 @@ class PluginTimelineticketDisplay extends CommonDBTM
        //}
         if ($ticket->fields['status'] != Ticket::CLOSED
           && isset($a_state['date'])) {
-            $totaltime += PluginTimelineticketDisplay::getPeriodTime(
+            $totaltime += Display::getPeriodTime(
                 $ticket,
                 $a_state['date'],
                 date("Y-m-d H:i:s")

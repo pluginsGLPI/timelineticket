@@ -37,58 +37,50 @@
    ------------------------------------------------------------------------
  */
 
-include ('../../../inc/includes.php');
+use GlpiPlugin\Timelineticket\AssignGroup;
+use GlpiPlugin\Timelineticket\AssignState;
+use GlpiPlugin\Timelineticket\Config;
+use GlpiPlugin\Timelineticket\Grouplevel;
 
 Html::header(__('Setup'), '', "config", "plugin");
 
 if (Session::haveRight("config", READ)
       || Session::haveRight("plugin_timelineticket_ticket", UPDATE)) {
+    $ptConfig = new Config();
+    $grplevel = new Grouplevel();
 
-   $ptConfig = new PluginTimelineticketConfig();
-   $grplevel = new PluginTimelineticketGrouplevel();
-
-   if (isset($_POST["reconstructStates"])) {
-      ini_set("max_execution_time", "0");
-      ini_set("memory_limit", "-1");
-      $ptState = new PluginTimelineticketState();
-      $ptState->reconstructTimeline();
-      Html::back();
-
-   } else if (isset($_POST["reconstructGroups"])) {
-      ini_set("max_execution_time", "0");
-      ini_set("memory_limit", "-1");
-      $ptGroup = new PluginTimelineticketAssignGroup();
-      $ptGroup->reconstrucTimeline();
-      Html::back();
-
-   } else if (isset($_POST["reconstructTicket"])) {
-      ini_set("max_execution_time", "0");
-      ini_set("memory_limit", "-1");
-      $ptState = new PluginTimelineticketState();
-      $ptState->reconstructTimeline($_POST['tickets_id']);
-      $ptGroup = new PluginTimelineticketAssignGroup();
-      $ptGroup->reconstrucTimeline($_POST['tickets_id']);
-      Html::back();
-
-   } else if (isset($_POST["add_groups"])
+    if (isset($_POST["reconstructStates"])) {
+        ini_set("max_execution_time", "0");
+        ini_set("memory_limit", "-1");
+        $ptState = new AssignState();
+        $ptState->reconstructTimeline();
+        Html::back();
+    } elseif (isset($_POST["reconstructGroups"])) {
+        ini_set("max_execution_time", "0");
+        ini_set("memory_limit", "-1");
+        $ptGroup = new AssignGroup();
+        $ptGroup->reconstrucTimeline();
+        Html::back();
+    } elseif (isset($_POST["reconstructTicket"])) {
+        ini_set("max_execution_time", "0");
+        ini_set("memory_limit", "-1");
+        $ptState = new AssignState();
+        $ptState->reconstructTimeline($_POST['tickets_id']);
+        $ptGroup = new AssignGroup();
+        $ptGroup->reconstrucTimeline($_POST['tickets_id']);
+        Html::back();
+    } elseif (isset($_POST["add_groups"])
                || isset($_POST["delete_groups"])) {
+        $grplevel->update($_POST);
+        Html::back();
+    } elseif (isset($_POST["update"])) {
+        $ptConfig->update($_POST);
+        Html::back();
+    } else {
+        $ptConfig->showReconstructForm();
 
-      $grplevel->update($_POST);
-      Html::back();
-
-   } else if (isset($_POST["update"])) {
-
-      $ptConfig->update($_POST);
-      Html::back();
-
-   } else {
-
-      $ptConfig->showReconstructForm();
-
-      $ptConfig->getFromDB(1);
-      $ptConfig->showConfigForm();
-      Html::footer();
-
-   }
+        $ptConfig->getFromDB(1);
+        $ptConfig->showConfigForm();
+        Html::footer();
+    }
 }
-

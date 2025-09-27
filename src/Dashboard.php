@@ -27,10 +27,25 @@
  --------------------------------------------------------------------------
  */
 
+namespace GlpiPlugin\Timelineticket;
+
+use CommonGLPI;
+use DateInterval;
+use DatePeriod;
+use DateTime;
+use GlpiPlugin\Mydashboard\Charts\BarChart;
+use GlpiPlugin\Mydashboard\Helper;
+use GlpiPlugin\Mydashboard\Html;
+use GlpiPlugin\Mydashboard\Menu;
+use GlpiPlugin\Mydashboard\Preference;
+use GlpiPlugin\Mydashboard\Widget;
+use Plugin;
+use Session;
+
 /**
- * Class PluginTimelineticketDashboard
+ * Class Dashboard
  */
-class PluginTimelineticketDashboard extends CommonGLPI
+class Dashboard extends CommonGLPI
 {
     public $widgets = [];
     private $options;
@@ -38,7 +53,7 @@ class PluginTimelineticketDashboard extends CommonGLPI
     private $form;
 
     /**
-     * PluginTimelineticketDashboard constructor.
+     * Dashboard constructor.
      * @param array $options
      */
     public function __construct($options = [])
@@ -53,12 +68,12 @@ class PluginTimelineticketDashboard extends CommonGLPI
     public function getWidgetsForItem()
     {
         $widgets = [
-            PluginMydashboardMenu::$HELPDESK => [
+            Menu::$HELPDESK => [
                 $this->getType() . "1" => ["title"   => __(
                     "Number of assignments per technician to a ticket",
                     "timelineticket"
                 ),
-                                           "type"    => PluginMydashboardWidget::$BAR,
+                                           "type"    => Widget::$BAR,
                                            "comment" => __(
                                                "Number of time where a technician has been affected to a ticket",
                                                'timelineticket'
@@ -71,7 +86,6 @@ class PluginTimelineticketDashboard extends CommonGLPI
 
     /**
      * @param $widgetId
-     * @return PluginMydashboardDatatable
      */
     public function getWidgetContentForItem($widgetId, $opt = [])
     {
@@ -79,12 +93,12 @@ class PluginTimelineticketDashboard extends CommonGLPI
             case $this->getType() . "1":
                 if (Plugin::isPluginActive("timelineticket")) {
                     $name    = 'AffectionTechBarChart';
-                    $widget = new PluginMydashboardHtml();
+                    $widget = new Html();
                     $title  = __("Number of assignments per technician to a ticket", "timelineticket");
                     $comment = "";
                     $widget->setWidgetComment($comment);
 
-                    $preference = new PluginMydashboardPreference();
+                    $preference = new Preference();
                     $preference->getFromDB(Session::getLoginUserID());
                     $preferences = $preference->fields;
                     $criterias = ['entities_id',
@@ -101,7 +115,7 @@ class PluginTimelineticketDashboard extends CommonGLPI
                     $params  = ["preferences" =>$preferences,
                                 "criterias"   => $criterias,
                                 "opt"         => $opt];
-                    $options = PluginMydashboardHelper::manageCriterias($params);
+                    $options = Helper::manageCriterias($params);
 
 
                     $opt  = $options['opt'];
@@ -175,7 +189,7 @@ class PluginTimelineticketDashboard extends CommonGLPI
 //                                   'technicians_groups_id'         => $opt['technicians_groups_id'],
 //                                   'multiple_time'         => $opt['multiple_time'],
 //                                   'widget'      => $widgetId];
-                    $graph = PluginMydashboardBarChart::launchGraph($graph_datas, []);
+                    $graph = BarChart::launchGraph($graph_datas, []);
 
                     $params = ["widgetId"  => $widgetId,
                                "name"      => $name,
@@ -185,7 +199,7 @@ class PluginTimelineticketDashboard extends CommonGLPI
                                "export"    => true,
                                "canvas"    => true,
                                "nb"        =>20];
-                    $widget->setWidgetHeader(PluginMydashboardHelper::getGraphHeader($params));
+                    $widget->setWidgetHeader(Helper::getGraphHeader($params));
 
 
                     $widget->setWidgetTitle($title);
@@ -231,7 +245,7 @@ class PluginTimelineticketDashboard extends CommonGLPI
             $query_group_member = "SELECT `glpi_groups_users`.`users_id`"
                                   . "FROM `glpi_groups_users` "
                                   . "LEFT JOIN `glpi_groups` ON (`glpi_groups_users`.`groups_id` = `glpi_groups`.`id`) "
-                                  . "WHERE `glpi_groups_users`.`groups_id` IN (" . $groups . ") 
+                                  . "WHERE `glpi_groups_users`.`groups_id` IN (" . $groups . ")
                                   AND `glpi_groups`.`is_assign` = 1 "
                                   . " GROUP BY `glpi_groups_users`.`users_id`";
 
@@ -272,9 +286,9 @@ class PluginTimelineticketDashboard extends CommonGLPI
                               LEFT JOIN `glpi_tickets` ON (`glpi_tickets`.`id` = `glpi_plugin_timelineticket_assignusers`.`tickets_id` AND $is_deleted)";
                     $querym_ai   .= "WHERE ";
                     $querym_ai   .= "(
-                              
+
                                   (`glpi_plugin_timelineticket_assignusers`.`date`) >= '" . $opt['begin'] . "'
-                                 AND (`glpi_plugin_timelineticket_assignusers`.`date`) <= '" . $opt['end'] . "' 
+                                 AND (`glpi_plugin_timelineticket_assignusers`.`date`) <= '" . $opt['end'] . "'
                                  {$condition_tech} "
                                     . $entities_criteria . $type_criteria
                                     . ")";
@@ -321,14 +335,14 @@ class PluginTimelineticketDashboard extends CommonGLPI
 
 
                     $querym_ai   = "SELECT  COUNT(glpi_plugin_timelineticket_assignusers.id) as numberAssignation,
-                                    YEAR(`glpi_plugin_timelineticket_assignusers`.`date`) as dyear, 
+                                    YEAR(`glpi_plugin_timelineticket_assignusers`.`date`) as dyear,
                                     WEEk(`glpi_plugin_timelineticket_assignusers`.`date`) as dweek,
                                             `glpi_plugin_timelineticket_assignusers`.`users_id` as users_id
                               FROM `glpi_plugin_timelineticket_assignusers`
                               LEFT JOIN `glpi_tickets` ON (`glpi_tickets`.`id` = `glpi_plugin_timelineticket_assignusers`.`tickets_id` AND $is_deleted)";
                     $querym_ai   .= "WHERE ";
                     $querym_ai   .= "(
-                               
+
                                   (`glpi_plugin_timelineticket_assignusers`.`date`) >= '" . $opt['begin'] . "'
                                  AND (`glpi_plugin_timelineticket_assignusers`.`date`) <= '" . $opt['end'] . "'
                                  {$condition_tech}"
@@ -378,11 +392,11 @@ class PluginTimelineticketDashboard extends CommonGLPI
                     $querym_ai   .= "WHERE ";
                     $querym_ai   .= "(
                                  (`glpi_plugin_timelineticket_assignusers`.`date`) >= '" . $opt['begin'] . "'
-                                 AND (`glpi_plugin_timelineticket_assignusers`.`date`) <= '" . $opt['end'] . "' 
+                                 AND (`glpi_plugin_timelineticket_assignusers`.`date`) <= '" . $opt['end'] . "'
                                  {$condition_tech} "
                                     . $entities_criteria
                                     . ")";
-                    $querym_ai   .= "GROUP BY  DATE_FORMAT(`glpi_plugin_timelineticket_assignusers`.`date`,'%d %m %Y'), 
+                    $querym_ai   .= "GROUP BY  DATE_FORMAT(`glpi_plugin_timelineticket_assignusers`.`date`,'%d %m %Y'),
                `glpi_plugin_timelineticket_assignusers`.`users_id`;
                               ";
                     $result_ai_q = $DB->doQuery($querym_ai);

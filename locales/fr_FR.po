@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-11-15 14:02+0100\n"
-"PO-Revision-Date: 2022-11-15 14:03+0100\n"
+"PO-Revision-Date: 2025-09-27 12:20+0200\n"
 "Last-Translator: Xavier CAILLAUD <thetsmr@gmail.com>, 2017,2019-2020,2022\n"
 "Language-Team: French (France) (http://www.transifex.com/infotelGLPI/GLPI_timelineticket/language/fr_FR/)\n"
 "MIME-Version: 1.0\n"
@@ -115,15 +115,18 @@ msgstr "Résolu par"
 msgid "Solved by (Group)"
 msgstr "Résolu par (Groupe)"
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:229 report/statSpentTimeByGroup/statSpentTimeByGroup.php:227
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:229
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:227
 msgid "Duration by"
 msgstr "Temps passé par"
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:232 report/statSpentTimeByGroup/statSpentTimeByGroup.php:230
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:232
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:230
 msgid "Total waiting duration of ticket"
 msgstr "Durée totale de mise en attente du ticket"
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:233 report/statSpentTimeByGroup/statSpentTimeByGroup.php:231
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:233
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:231
 msgid "Total duration of ticket"
 msgstr "Temps total du ticket"
 

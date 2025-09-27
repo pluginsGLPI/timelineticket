@@ -38,11 +38,17 @@
  */
 
 global $CFG_GLPI;
-define("PLUGIN_TIMELINETICKET_VERSION", "10.0+1.2");
+
+use GlpiPlugin\Timelineticket\AssignGroup;
+use GlpiPlugin\Timelineticket\AssignUser;
+use GlpiPlugin\Timelineticket\Dashboard;
+use GlpiPlugin\Timelineticket\Display;
+use GlpiPlugin\Timelineticket\Profile;
+
+define("PLUGIN_TIMELINETICKET_VERSION", "11.0");
 
 if (!defined("PLUGIN_TIMELINETICKET_DIR")) {
     define("PLUGIN_TIMELINETICKET_DIR", Plugin::getPhpDir("timelineticket"));
-    define("PLUGIN_TIMELINETICKET_NOTFULL_DIR", Plugin::getPhpDir("timelineticket", false));
     $root = $CFG_GLPI['root_doc'] . '/plugins/timelineticket';
     define("PLUGIN_TIMELINETICKET_WEBDIR", $root);
 }
@@ -75,30 +81,30 @@ function plugin_init_timelineticket()
     include_once(PLUGIN_TIMELINETICKET_DIR . "/vendor/autoload.php");
 
     if (Plugin::isPluginActive('timelineticket')) { // check if plugin is active
-        $PLUGIN_HOOKS['change_profile']['timelineticket'] = ['PluginTimelineticketProfile', 'initProfile'];
+        $PLUGIN_HOOKS['change_profile']['timelineticket'] = [Profile::class, 'initProfile'];
 
         $PLUGIN_HOOKS['show_item_stats']['timelineticket']    = [
            'Ticket' => 'plugin_timelineticket_item_stats'
         ];
 
-        Plugin::registerClass('PluginTimelineticketProfile', ['addtabon' => 'Profile']);
+        Plugin::registerClass(Profile::class, ['addtabon' => 'Profile']);
 
         if (Session::haveRightsOr('plugin_timelineticket_ticket', [READ, UPDATE])) {
             Plugin::registerClass(
-                'PluginTimelineticketDisplay',
+                Display::class,
                 ['addtabon' => ['Ticket']]
             );
         }
         $PLUGIN_HOOKS['item_purge']['timelineticket'] = [
            'Ticket'       => 'plugin_timelineticket_ticket_purge',
-           'Group_Ticket' => ['PluginTimelineticketAssignGroup', 'deleteGroupTicket'],
-           'Ticket_User'  => ['PluginTimelineticketAssignUser', 'deleteUserTicket']
+           'Group_Ticket' => [AssignGroup::class, 'deleteGroupTicket'],
+           'Ticket_User'  => [AssignUser::class, 'deleteUserTicket']
         ];
 
         $PLUGIN_HOOKS['item_add']['timelineticket']    = [
            'Ticket'       => 'plugin_timelineticket_ticket_add',
-           'Group_Ticket' => ['PluginTimelineticketAssignGroup', 'addGroupTicket'],
-           'Ticket_User'  => ['PluginTimelineticketAssignUser', 'addUserTicket']
+           'Group_Ticket' => [AssignGroup::class, 'addGroupTicket'],
+           'Ticket_User'  => [AssignUser::class, 'addUserTicket']
         ];
         $PLUGIN_HOOKS['item_update']['timelineticket'] = [
            'Ticket' => 'plugin_timelineticket_ticket_update'
@@ -109,7 +115,7 @@ function plugin_init_timelineticket()
             $PLUGIN_HOOKS['config_page']['timelineticket'] = 'front/config.form.php';
         }
         if (Plugin::isPluginActive('mydashboard')) {
-            $PLUGIN_HOOKS['mydashboard']['timelineticket'] = ["PluginTimelineticketDashboard"];
+            $PLUGIN_HOOKS['mydashboard']['timelineticket'] = [Dashboard::class];
         }
     }
 }

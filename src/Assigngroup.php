@@ -37,18 +37,35 @@
    ------------------------------------------------------------------------
  */
 
+namespace GlpiPlugin\Timelineticket;
+
+use Calendar;
+use CommonDBTM;
+use CommonGLPI;
+use CommonITILActor;
+use CpChart\Data;
+use CpChart\Image;
+use CpChart\Chart\Indicator;
+use DbUtils;
+use Dropdown;
+use Entity;
+use Group;
+use Group_Ticket;
+use Html;
+use Session;
+use Ticket;
+use Toolbox;
+
 if (!defined('GLPI_ROOT')) {
     die("Sorry. You can't access directly to this file");
 }
 
-class PluginTimelineticketAssignGroup extends CommonDBTM
+class AssignGroup extends CommonDBTM
 {
-
-
-   /*
-    * type = new or delete
-    */
-    function createGroup(Ticket $ticket, $date, $groups_id, $type)
+    /*
+     * type = new or delete
+     */
+    public function createGroup(Ticket $ticket, $date, $groups_id, $type)
     {
 
         $calendar = new Calendar();
@@ -57,32 +74,32 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
             $calendars_id = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
             if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
                 $begin = $calendar->getActiveTimeBetween(
-                    PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($ticket->fields['date']),
-                    PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($date)
+                    Tool::convertDateToRightTimezoneForCalendarUse($ticket->fields['date']),
+                    Tool::convertDateToRightTimezoneForCalendarUse($date)
                 );
             } else {
-               // cas 24/24 - 7/7
+                // cas 24/24 - 7/7
                 $begin = strtotime($date) - strtotime($ticket->fields['date']);
             }
 
             $this->add(['tickets_id' => $ticket->getField("id"),
-                     'date'       => $date,
-                     'groups_id'  => $groups_id,
-                     'begin'      => $begin]);
+                'date'       => $date,
+                'groups_id'  => $groups_id,
+                'begin'      => $begin]);
         } elseif ($type == 'delete') {
             $a_dbentry = $this->find(["tickets_id" => $ticket->getField("id"),
-                                   "groups_id"  => $groups_id,
-                                   "delay"      => null], [], 1);
+                "groups_id"  => $groups_id,
+                "delay"      => null], [], 1);
             if (count($a_dbentry) == 1) {
                 $input        = current($a_dbentry);
                 $calendars_id = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
                 if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
                     $input['delay'] = $calendar->getActiveTimeBetween(
-                        PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($input['date']),
-                        PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($date)
+                        Tool::convertDateToRightTimezoneForCalendarUse($input['date']),
+                        Tool::convertDateToRightTimezoneForCalendarUse($date)
                     );
                 } else {
-                   // cas 24/24 - 7/7
+                    // cas 24/24 - 7/7
                     $input['delay'] = strtotime($date) - strtotime($input['date']);
                 }
                 $this->update($input);
@@ -91,23 +108,21 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
     }
 
 
-    function showTimeline(CommonGLPI $ticket, $params = [])
+    public function showTimeline(Ticket $ticket, $params = [])
     {
-        global $CFG_GLPI;
-
-       /* Create and populate the pData object */
-        $MyData = new CpChart\Data();
-       /* Create the pChart object */
-        $myPicture = new CpChart\Image(820, 29, $MyData);
-       /* Create the pIndicator object */
-        $Indicator = new CpChart\Chart\Indicator($myPicture);
+        /* Create and populate the pData object */
+        $MyData = new Data();
+        /* Create the pChart object */
+        $myPicture = new Image(820, 29, $MyData);
+        /* Create the pIndicator object */
+        $Indicator = new Indicator($myPicture);
         $myPicture->setFontProperties(["FontName" => "pf_arma_five.ttf", "FontSize" => 6]);
-       /* Define the indicator sections */
+        /* Define the indicator sections */
         $IndicatorSections = [];
         $_groupsfinished   = [];
 
         $a_groups_list     = [];
-        $IndicatorSections = PluginTimelineticketToolbox::getDetails($ticket, 'group');
+        $IndicatorSections = Tool::getDetails($ticket, 'group');
         foreach ($IndicatorSections as $groups_id => $data) {
             $a_groups_list[$groups_id] = $groups_id;
 
@@ -133,8 +148,8 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
 
         $mylevels = [];
         $dbu      = new DbUtils();
-        $restrict = $dbu->getEntitiesRestrictCriteria("glpi_plugin_timelineticket_grouplevels", '', '', true) +
-                  ["ORDER" => 'rank'];
+        $restrict = $dbu->getEntitiesRestrictCriteria("glpi_plugin_timelineticket_grouplevels", '', '', true)
+                  + ["ORDER" => 'rank'];
         $levels   = $dbu->getAllDataFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
         if (!empty($levels)) {
             foreach ($levels as $level) {
@@ -153,7 +168,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
                 }
             }
         }
-       //No levels
+        //No levels
         if (sizeof($ticketlevels) == 0) {
             foreach ($IndicatorSections as $groups_id => $array) {
                 $ticketlevels[0][] = $groups_id;
@@ -178,35 +193,35 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
                     if ($ticket->fields['status'] != Ticket::CLOSED
                     && $_groupsfinished[$groups_id] != 0) {
                         $IndicatorSettings = ["Values"            => [100, 201],
-                                        "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
-                                        "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
-                                        "CaptionR"          => 0,
-                                        "CaptionG"          => 0,
-                                        "CaptionB"          => 0,
-                                        "DrawLeftHead"      => false,
-                                        "DrawRightHead"     => true,
-                                        "ValueDisplay"      => false,
-                                        "IndicatorSections" => $array,
-                                        "SectionsMargin"    => 0];
+                            "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
+                            "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
+                            "CaptionR"          => 0,
+                            "CaptionG"          => 0,
+                            "CaptionB"          => 0,
+                            "DrawLeftHead"      => false,
+                            "DrawRightHead"     => true,
+                            "ValueDisplay"      => false,
+                            "IndicatorSections" => $array,
+                            "SectionsMargin"    => 0];
                         if (is_array($array)) {
                             foreach ($array as $arr) {
                                 if ($arr['End'] > $arr['Start']) {
-                                      $Indicator->draw(2, 2, 805, 25, $IndicatorSettings);
+                                    $Indicator->draw(2, 2, 805, 25, $IndicatorSettings);
                                 }
                             }
                         }
                     } else {
                         $IndicatorSettings = ["Values"            => [100, 201],
-                                        "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
-                                        "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
-                                        "CaptionR"          => 0,
-                                        "CaptionG"          => 0,
-                                        "CaptionB"          => 0,
-                                        "DrawLeftHead"      => false,
-                                        "DrawRightHead"     => false,
-                                        "ValueDisplay"      => false,
-                                        "IndicatorSections" => $array,
-                                        "SectionsMargin"    => 0];
+                            "CaptionPosition"   => INDICATOR_CAPTION_BOTTOM,
+                            "CaptionLayout"     => INDICATOR_CAPTION_DEFAULT,
+                            "CaptionR"          => 0,
+                            "CaptionG"          => 0,
+                            "CaptionB"          => 0,
+                            "DrawLeftHead"      => false,
+                            "DrawRightHead"     => false,
+                            "ValueDisplay"      => false,
+                            "IndicatorSections" => $array,
+                            "SectionsMargin"    => 0];
                         if (is_array($array)) {
                             foreach ($array as $arr) {
                                 if ($arr['End'] > $arr['Start']) {
@@ -226,21 +241,21 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
             }
         }
 
-       // Return list for unit tests
+        // Return list for unit tests
         return $IndicatorSections;
     }
 
 
-    static function showGroupTimeline(Ticket $ticket)
+    public static function showGroupTimeline(Ticket $ticket)
     {
         global $DB;
 
 
 
         $req = $DB->request([
-          'FROM' => 'glpi_plugin_timelineticket_assigngroups',
-          'WHERE' => ['tickets_id' => $ticket->getField('id')],
-          'ORDER' => ['id ASC'],
+            'FROM' => 'glpi_plugin_timelineticket_assigngroups',
+            'WHERE' => ['tickets_id' => $ticket->getField('id')],
+            'ORDER' => ['id ASC'],
         ]);
         if (count($req)) {
             echo "<tr class='tab_bg_2'>";
@@ -253,34 +268,34 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
                 $date  = strtotime($data['date']);
                 $class = ($size == $nb) ? 'now' : 'checked';
                 $groups[$date . '_groups_id'] = [
-                 'timestamp' => $date,
-                 'label'     => Dropdown::getDropdownName(
-                     "glpi_groups",
-                     $data['groups_id']
-                 ) . " (" . Html::timestampToString(
-                     $data['delay'],
-                     true
-                 ) . ")",
-                 'class'     => $class];
+                    'timestamp' => $date,
+                    'label'     => Dropdown::getDropdownName(
+                        "glpi_groups",
+                        $data['groups_id']
+                    ) . " (" . Html::timestampToString(
+                        $data['delay'],
+                        true
+                    ) . ")",
+                    'class'     => $class];
             }
             $title = __('Ticket assign group history', 'timelineticket');
             echo "<div class='center'>";
             Html::showDatesTimelineGraph([
-                                         'title'   => $title,
-                                         'dates'   => $groups,
-                                         'add_now' => false,
-                                      ]);
+                'title'   => $title,
+                'dates'   => $groups,
+                'add_now' => false,
+            ]);
             echo "</div>";
             echo "</td>";
             echo "</tr>";
         }
     }
 
-    static function addGroupTicket(Group_Ticket $item)
+    public static function addGroupTicket(Group_Ticket $item)
     {
 
         if ($item->fields['type'] == 2) {
-            $ptAssignGroup = new PluginTimelineticketAssignGroup();
+            $ptAssignGroup = new AssignGroup();
             $ticket        = new Ticket();
             $ticket->getFromDB($item->fields['tickets_id']);
             $calendar     = new Calendar();
@@ -289,12 +304,12 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
             if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
                 $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
             } else {
-               // cas 24/24 - 7/7
+                // cas 24/24 - 7/7
                 $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
             }
             $ok = 1;
 
-            $ptConfig = new PluginTimelineticketConfig();
+            $ptConfig = new Config();
             $ptConfig->getFromDB(1);
             if ($ptConfig->fields["add_waiting"] == 0
              && $ticket->fields["status"] == Ticket::WAITING) {
@@ -312,12 +327,12 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
     }
 
 
-    static function checkAssignGroup(Ticket $ticket)
+    public static function checkAssignGroup(Ticket $ticket)
     {
         global $DB;
 
         $ok       = 0;
-        $ptConfig = new PluginTimelineticketConfig();
+        $ptConfig = new Config();
         $ptConfig->getFromDB(1);
         if ($ptConfig->fields["add_waiting"] == 0) {
             $ok = 1;
@@ -328,14 +343,14 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
           && $ticket->oldvalues["status"] == Ticket::WAITING) {
             if ($ticket->countGroups(CommonITILActor::ASSIGN)) {
                 foreach ($ticket->getGroups(CommonITILActor::ASSIGN) as $d) {
-                    $ptAssignGroup = new PluginTimelineticketAssignGroup();
+                    $ptAssignGroup = new AssignGroup();
                     $calendar      = new Calendar();
                     $calendars_id  = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
                     $datedebut     = $ticket->fields['date'];
                     if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
                         $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
                     } else {
-                     // cas 24/24 - 7/7
+                        // cas 24/24 - 7/7
                         $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
                     }
 
@@ -354,7 +369,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
                 foreach ($ticket->getGroups(CommonITILActor::ASSIGN) as $d) {
                     $calendar      = new Calendar();
                     $calendars_id  = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
-                    $ptAssignGroup = new PluginTimelineticketAssignGroup();
+                    $ptAssignGroup = new AssignGroup();
                     $query         = "SELECT MAX(`date`) AS datedebut, id
                          FROM `" . $ptAssignGroup->getTable() . "`
                          WHERE `tickets_id` = '" . $ticket->getID() . "'
@@ -372,12 +387,12 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
                     }
 
                     if (!$datedebut) {
-                         $delay = 0;
-                         // Utilisation calendrier
+                        $delay = 0;
+                        // Utilisation calendrier
                     } elseif ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
                         $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
                     } else {
-               // cas 24/24 - 7/7
+                        // cas 24/24 - 7/7
                         $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
                     }
 
@@ -393,7 +408,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
                 foreach ($ticket->getGroups(CommonITILActor::ASSIGN) as $d) {
                     $calendar      = new Calendar();
                     $calendars_id  = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
-                    $ptAssignGroup = new PluginTimelineticketAssignGroup();
+                    $ptAssignGroup = new AssignGroup();
                     $query         = "SELECT MAX(`date`) AS datedebut, id
                          FROM `" . $ptAssignGroup->getTable() . "`
                          WHERE `tickets_id` = '" . $ticket->getID() . "'
@@ -411,12 +426,12 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
                     }
 
                     if (!$datedebut) {
-                         $delay = 0;
-                         // Utilisation calendrier
+                        $delay = 0;
+                        // Utilisation calendrier
                     } elseif ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
                         $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
                     } else {
-               // cas 24/24 - 7/7
+                        // cas 24/24 - 7/7
                         $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
                     }
 
@@ -428,12 +443,12 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
     }
 
 
-    static function deleteGroupTicket(Group_Ticket $item)
+    public static function deleteGroupTicket(Group_Ticket $item)
     {
         global $DB;
 
         $ticket        = new Ticket();
-        $ptAssignGroup = new PluginTimelineticketAssignGroup();
+        $ptAssignGroup = new AssignGroup();
 
         $ticket->getFromDB($item->fields['tickets_id']);
 
@@ -458,14 +473,14 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
 
         if (!$datedebut) {
             $delay = 0;
-           // Utilisation calendrier
+            // Utilisation calendrier
         } elseif ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
             $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
             if ($delay == 0 || is_null($delay)) {
                 $delay = 1;
             }
         } else {
-           // cas 24/24 - 7/7
+            // cas 24/24 - 7/7
             $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
         }
 
@@ -474,11 +489,11 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
     }
 
 
-   /*
-   * Function to reconstruct timeline for all tickets
-   */
+    /*
+    * Function to reconstruct timeline for all tickets
+    */
 
-    function reconstrucTimeline($id = 0)
+    public function reconstrucTimeline($id = 0)
     {
         global $DB;
 
@@ -486,7 +501,7 @@ class PluginTimelineticketAssignGroup extends CommonDBTM
             $query = "TRUNCATE `" . $this->getTable() . "`";
             $DB->doQuery($query);
         } else {
-            $query = "DELETE FROM `" . $this->getTable() . "` 
+            $query = "DELETE FROM `" . $this->getTable() . "`
                   WHERE `tickets_id` = $id";
             $DB->doQuery($query);
         }

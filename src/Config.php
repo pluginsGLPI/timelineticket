@@ -37,11 +37,18 @@
    ------------------------------------------------------------------------
  */
 
+namespace GlpiPlugin\Timelineticket;
+
+use CommonDBTM;
+use Dropdown;
+use Html;
+use CommonGLPI;
+
 if (!defined('GLPI_ROOT')) {
     die("Sorry. You can't access directly to this file");
 }
 
-class PluginTimelineticketConfig extends CommonDBTM
+class Config extends CommonDBTM
 {
 
     public function showReconstructForm()
@@ -66,6 +73,9 @@ class PluginTimelineticketConfig extends CommonDBTM
             'Reconstruct states timeline for all tickets',
             'timelineticket'
         ), ['name' => 'reconstructStates', 'class' => 'btn btn-primary']);
+
+        echo "&nbsp;";
+
         echo Html::submit(_sx(
             'button',
             'Reconstruct groups timeline for all tickets',
@@ -73,7 +83,7 @@ class PluginTimelineticketConfig extends CommonDBTM
         ), ['name' => 'reconstructGroups', 'class' => 'btn btn-primary']);
         echo "<br/><br/><div class='alert alert-important alert-warning d-flex'>";
         echo  __(
-            'Warning : it may be that the reconstruction of groups does not reflect reality because 
+            'Warning : it may be that the reconstruction of groups does not reflect reality because
             it concern only groups which have the Requester flag to No and Assigned flag to Yes',
             'timelineticket'
         );
@@ -123,15 +133,17 @@ class PluginTimelineticketConfig extends CommonDBTM
                        'add_waiting' => 1]);
         }
     }
+
     public static function getIcon()
     {
-        return "ti-history";
+        return Display::getIcon();
     }
+
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
 
        // can exists for template
-        if ($item->getType() == 'PluginTimelineticketGrouplevel') {
+        if ($item->getType() == Grouplevel::class) {
             return self::createTabEntry(_sx('button', 'Add an item'));
         }
         return '';
@@ -141,7 +153,7 @@ class PluginTimelineticketConfig extends CommonDBTM
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
 
-        PluginTimelineticketGrouplevel::showAddGroup($item);
+        Grouplevel::showAddGroup($item);
         return true;
     }
 }

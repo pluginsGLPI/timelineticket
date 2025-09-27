@@ -37,11 +37,23 @@
    ------------------------------------------------------------------------
  */
 
+namespace GlpiPlugin\Timelineticket;
+
+use Calendar;
+use CommonDBTM;
+use CpChart\Data;
+use CpChart\Image;
+use CpChart\Chart\Indicator;
+use Entity;
+use Html;
+use Session;
+use Ticket;
+
 if (!defined('GLPI_ROOT')) {
     die("Sorry. You can't access directly to this file");
 }
 
-class PluginTimelineticketState extends CommonDBTM
+class AssignState extends CommonDBTM
 {
 
 
@@ -80,8 +92,8 @@ class PluginTimelineticketState extends CommonDBTM
                // Utilisation calendrier
             } elseif ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
                 $delay = $calendar->getActiveTimeBetween(
-                    PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($datedebut),
-                    PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($datefin)
+                    Tool::convertDateToRightTimezoneForCalendarUse($datedebut),
+                    Tool::convertDateToRightTimezoneForCalendarUse($datefin)
                 );
             } else {
                // cas 24/24 - 7/7
@@ -101,7 +113,7 @@ class PluginTimelineticketState extends CommonDBTM
         global $DB;
 
         $req = $DB->request([
-            'FROM'   => 'glpi_plugin_timelineticket_states',
+            'FROM'   => 'glpi_plugin_timelineticket_assignstates',
             'WHERE'  => ['tickets_id' => $ticket->getField('id')],
             'ORDER'  => 'id ASC'
         ]);
@@ -162,13 +174,13 @@ class PluginTimelineticketState extends CommonDBTM
         $ticketId = $ticket->getField('id');
 
         $req = $DB->request([
-            'FROM'  => 'glpi_plugin_timelineticket_states',
+            'FROM'  => 'glpi_plugin_timelineticket_assignstates',
             'WHERE' => ['tickets_id' => $ticketId],
             'ORDER' => ['id DESC']
         ]);
 
         if (count($req) === 0) {
-            echo "<tr class='tab_bg_1 center'><td>" . __('No item found') . "</td></tr>";
+            echo "<tr class='tab_bg_1 center'><td>" . __s('No results found') . "</td></tr>";
         } else {
             echo "<tr><td>";
 
@@ -230,14 +242,13 @@ class PluginTimelineticketState extends CommonDBTM
 
     public function showTimeline(Ticket $ticket, $params = [])
     {
-        global $CFG_GLPI;
 
       /* Create and populate the pData object */
-        $MyData = new CpChart\Data();
+        $MyData = new Data();
       /* Create the pChart object */
-        $myPicture = new CpChart\Image(820, 29, $MyData);
+        $myPicture = new Image(820, 29, $MyData);
       /* Create the pIndicator object */
-        $Indicator = new CpChart\Chart\Indicator($myPicture);
+        $Indicator = new Indicator($myPicture);
         $myPicture->setFontProperties(["FontName" => "pf_arma_five.ttf", "FontSize" => 6]);
 
       /* Define the indicator sections */
@@ -281,7 +292,7 @@ class PluginTimelineticketState extends CommonDBTM
                         $B = $a_status_color[$statusSection]['B'];
 
                       //$caption = $status;
-                        $delaystatus[$statusSection] += round(($data['delay'] * 100) / $params['totaltime'], 2);
+                        $delaystatus[$statusSection] += round(($data['delay'] * 100) / $params['totaltime'], 2, PHP_ROUND_HALF_UP);
                     }
                     $IndicatorSections[$statusSection][] = ["Start"   => $begin,
                                                        "End"     => ($begin + $data['delay']),
@@ -305,7 +316,7 @@ class PluginTimelineticketState extends CommonDBTM
                        //$caption = $status;
                         $delaystatus[$statusSection] += round(
                             (($params['totaltime'] - $begin) * 100) / $params['totaltime'],
-                            2
+                            2, PHP_ROUND_HALF_UP
                         );
                     }
                     $IndicatorSections[$statusSection][] = ["Start"   => $begin,
@@ -414,7 +425,7 @@ class PluginTimelineticketState extends CommonDBTM
                 echo "<td width='100' class='tab_bg_2_2'>";
                 echo __('Late');
                 if ($params['totaltime'] > 0 && $dateend > 0) {
-                    echo "<br/>(" . round(($dateend * 100) / $params['totaltime'], 2) . "%)";
+                    echo "<br/>(" . round(($dateend * 100) / $params['totaltime'], 2, PHP_ROUND_HALF_UP) . "%)";
                 }
                 echo "</td>";
                 echo "<td>";
@@ -503,7 +514,7 @@ class PluginTimelineticketState extends CommonDBTM
             $query = "TRUNCATE `" . $this->getTable() . "`";
             $DB->doQuery($query);
         } else {
-            $query = "DELETE FROM `" . $this->getTable() . "` 
+            $query = "DELETE FROM `" . $this->getTable() . "`
                   WHERE `tickets_id` = $id";
             $DB->doQuery($query);
         }

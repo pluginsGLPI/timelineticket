@@ -38,6 +38,10 @@
  */
 
 //Options for GLPI 0.71 and newer : need slave db to access the report
+use GlpiPlugin\Timelineticket\AssignGroup;
+use GlpiPlugin\Timelineticket\AssignState;
+use GlpiPlugin\Timelineticket\Display;
+
 $USEDBREPLICATE        = 1;
 $DBCONNECTION_REQUIRED = 1;
 
@@ -107,7 +111,7 @@ $title = $report->getFullTitle();
 $dbu   = new DbUtils();
 
 // SQL statement
-$query = "SELECT glpi_tickets.*  
+$query = "SELECT glpi_tickets.*
                FROM `glpi_tickets`
                WHERE `glpi_tickets`.`status` = '" . Ticket::CLOSED . "'";
 $query .= $dbu->getEntitiesRestrictRequest('AND', "glpi_tickets", '', '', false);
@@ -137,7 +141,7 @@ if ($nbtot == 0) {
       Html::header($title, $_SERVER['PHP_SELF'], "utils", "report");
       Report::title();
    }
-   echo "<div class='center red b'>" . __('No item found') . "</div>";
+   echo "<div class='center red b'>" . __s('No results found') . "</div>";
    Html::footer();
 } else if ($output_type == Search::PDF_OUTPUT_PORTRAIT
            || $output_type == Search::PDF_OUTPUT_LANDSCAPE
@@ -384,12 +388,12 @@ function getOrderBy($default, $columns) {
 
 function getDetails(Ticket $ticket, $groups_id) {
 
-   $ptState = new PluginTimelineticketState();
+   $ptState = new AssignState();
 
-   $a_ret     = PluginTimelineticketDisplay::getTotaltimeEnddate($ticket);
+   $a_ret     = Display::getTotaltimeEnddate($ticket);
    $totaltime = $a_ret['totaltime'];
 
-   $ptItem = new PluginTimelineticketAssignGroup();
+   $ptItem = new AssignGroup();
 
    $a_states     = [];
    $a_dbstates   = $ptState->find(["tickets_id" => $ticket->getField('id')], ['date', 'id']);

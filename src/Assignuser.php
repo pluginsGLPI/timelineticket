@@ -37,11 +37,26 @@
    ------------------------------------------------------------------------
  */
 
+namespace GlpiPlugin\Timelineticket;
+
+use Calendar;
+use CommonDBTM;
+use CommonITILActor;
+use CpChart\Data;
+use CpChart\Image;
+use CpChart\Chart\Indicator;
+use DbUtils;
+use Entity;
+use Html;
+use Session;
+use Ticket;
+use Ticket_User;
+
 if (!defined('GLPI_ROOT')) {
     die("Sorry. You can't access directly to this file");
 }
 
-class PluginTimelineticketAssignUser extends CommonDBTM
+class AssignUser extends CommonDBTM
 {
 
    /*
@@ -61,8 +76,8 @@ class PluginTimelineticketAssignUser extends CommonDBTM
             );
             if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
                 $begin = $calendar->getActiveTimeBetween(
-                    PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($ticket->fields['date']),
-                    PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($date)
+                    Tool::convertDateToRightTimezoneForCalendarUse($ticket->fields['date']),
+                    Tool::convertDateToRightTimezoneForCalendarUse($date)
                 );
             } else {
                // cas 24/24 - 7/7
@@ -88,7 +103,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM
                 if ($calendars_id > 0 && $calendar->getFromDB($calendars_id)) {
                     $input['delay'] = $calendar->getActiveTimeBetween(
                         $input['date'],
-                        PluginTimelineticketToolbox::convertDateToRightTimezoneForCalendarUse($date)
+                        Tool::convertDateToRightTimezoneForCalendarUse($date)
                     );
                 } else {
                    // cas 24/24 - 7/7
@@ -100,23 +115,22 @@ class PluginTimelineticketAssignUser extends CommonDBTM
     }
 
 
-    public function showTimeline($ticket, $params = [])
+    public function showTimeline(Ticket $ticket, $params = [])
     {
-        global $CFG_GLPI;
 
        /* Create and populate the pData object */
-        $MyData = new CpChart\Data();
+        $MyData = new Data();
        /* Create the pChart object */
-        $myPicture = new CpChart\Image(820, 29, $MyData);
+        $myPicture = new Image(820, 29, $MyData);
        /* Create the pIndicator object */
-        $Indicator = new CpChart\Chart\Indicator($myPicture);
+        $Indicator = new Indicator($myPicture);
         $myPicture->setFontProperties(["FontName" => "pf_arma_five.ttf", "FontSize" => 6]);
        /* Define the indicator sections */
         $IndicatorSections = [];
         $_usersfinished    = [];
 
         $a_users_list      = [];
-        $IndicatorSections = PluginTimelineticketToolbox::getDetails($ticket, 'user');
+        $IndicatorSections = Tool::getDetails($ticket, 'user');
         foreach ($IndicatorSections as $users_id => $data) {
             $a_users_list[$users_id] = $users_id;
 
@@ -245,7 +259,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM
     {
 
         if ($item->fields['type'] == 2) {
-            $ptAssignUser = new PluginTimelineticketAssignUser();
+            $ptAssignUser = new AssignUser();
             $ticket       = new Ticket();
             $ticket->getFromDB($item->fields['tickets_id']);
             $calendar     = new Calendar();
@@ -265,7 +279,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM
 
             $ok = 1;
 
-            $ptConfig = new PluginTimelineticketConfig();
+            $ptConfig = new Config();
             $ptConfig->getFromDB(1);
             if ($ptConfig->fields["add_waiting"] == 0
              && $ticket->fields["status"] == Ticket::WAITING) {
@@ -287,7 +301,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM
         global $DB;
 
         $ok       = 0;
-        $ptConfig = new PluginTimelineticketConfig();
+        $ptConfig = new Config();
         $ptConfig->getFromDB(1);
         if ($ptConfig->fields["add_waiting"] == 0) {
             $ok = 1;
@@ -298,7 +312,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM
           && $ticket->oldvalues["status"] == Ticket::WAITING) {
             if ($ticket->countUsers(CommonITILActor::ASSIGN)) {
                 foreach ($ticket->getUsers(CommonITILActor::ASSIGN) as $d) {
-                    $ptAssignUser = new PluginTimelineticketAssignUser();
+                    $ptAssignUser = new AssignUser();
                     $calendar     = new Calendar();
                     $calendars_id = Entity::getUsedConfig(
                         'calendars_strategy',
@@ -334,7 +348,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM
                         'calendars_id',
                         0
                     );
-                    $ptAssignUser = new PluginTimelineticketAssignUser();
+                    $ptAssignUser = new AssignUser();
                     $query        = "SELECT MAX(`date`) AS datedebut, id
                          FROM `" . $ptAssignUser->getTable() . "`
                          WHERE `tickets_id` = '" . $ticket->getID() . "'
@@ -378,7 +392,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM
                         'calendars_id',
                         0
                     );
-                    $ptAssignUser = new PluginTimelineticketAssignUser();
+                    $ptAssignUser = new AssignUser();
                     $query        = "SELECT MAX(`date`) AS datedebut, id
                          FROM `" . $ptAssignUser->getTable() . "`
                          WHERE `tickets_id` = '" . $ticket->getID() . "'
@@ -417,7 +431,7 @@ class PluginTimelineticketAssignUser extends CommonDBTM
         global $DB;
 
         $ticket       = new Ticket();
-        $ptAssignUser = new PluginTimelineticketAssignUser();
+        $ptAssignUser = new AssignUser();
 
         $ticket->getFromDB($item->fields['tickets_id']);
 

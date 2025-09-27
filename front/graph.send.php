@@ -39,7 +39,6 @@
 
 use Glpi\Exception\Http\BadRequestHttpException;
 
-
 Session ::checkLoginUser();
 
 if (isset($_GET["switchto"])) {
@@ -53,7 +52,7 @@ if (($uid = Session::getLoginUserID(false))
     if (($userID == $uid)
        && file_exists(GLPI_GRAPH_DIR."/".$_GET["file"])) {
         list($fname,$extension)=explode(".", $filename);
-        Toolbox::sendFile(GLPI_GRAPH_DIR."/".$_GET["file"], 'glpi.'.$extension);
+        return Toolbox::getFileAsResponse(GLPI_GRAPH_DIR."/".$_GET["file"], 'glpi.'.$extension);
     } else {
         throw new BadRequestHttpException('Unauthorized access to this file');
     }

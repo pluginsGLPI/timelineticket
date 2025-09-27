@@ -37,14 +37,22 @@
    ------------------------------------------------------------------------
  */
 
+namespace GlpiPlugin\Timelineticket;
+
+use CommonGLPI;
+use DbUtils;
+use Html;
+use ProfileRight;
+use Session;
+
 if (!defined('GLPI_ROOT')) {
     die("Sorry. You can't access directly to this file");
 }
 
 /**
- * Class PluginTimelineticketProfile
+ * Class Profile
  */
-class PluginTimelineticketProfile extends Profile
+class Profile extends \Profile
 {
     public static $rightname = "profile";
 
@@ -55,7 +63,7 @@ class PluginTimelineticketProfile extends Profile
      */
 
     public static function getIcon() {
-        return PluginTimelineticketDisplay::getIcon();
+        return Display::getIcon();
     }
 
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
@@ -150,11 +158,11 @@ class PluginTimelineticketProfile extends Profile
         echo "<div class='firstbloc'>";
         if (($canedit = Session::haveRightsOr(self::$rightname, [CREATE, UPDATE, PURGE]))
             && $openform) {
-            $profile = new Profile();
+            $profile = new \Profile();
             echo "<form method='post' action='" . $profile->getFormURL() . "'>";
         }
 
-        $profile = new Profile();
+        $profile = new \Profile();
         $profile->getFromDB($profiles_id);
         if ($profile->getField('interface') == 'central') {
             $rights = $this->getAllRights();
