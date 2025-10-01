@@ -70,7 +70,6 @@ function plugin_version_timelineticket()
     ];
 }
 
-
 function plugin_init_timelineticket()
 {
     global $PLUGIN_HOOKS;
