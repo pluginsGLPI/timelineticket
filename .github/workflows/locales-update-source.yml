@@ -20,8 +20,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.0'
-          extensions: gd, opcache, sodium # ajoute les extensions nécessaires
-    name: "Push locales sources"
-    uses: "glpi-project/plugin-translation-workflows/.github/workflows/transifex-push-sources.yml@v1"
-    secrets:
-      transifex-token: "${{ secrets.TSMR_TRANSIFEX_TOKEN }}"
+          extensions: gd, opcache, sodium
+          
+      - name: "Push locales sources"
+        uses: "glpi-project/plugin-translation-workflows/.github/workflows/transifex-push-sources.yml@v1"
+        secrets:
+          transifex-token: "${{ secrets.TSMR_TRANSIFEX_TOKEN }}"
