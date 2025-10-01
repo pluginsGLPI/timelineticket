@@ -6,24 +6,6 @@ on:
       - "master"
 
 jobs:
-  update-locales:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Allow safe git directory
-        run: git config --global --add safe.directory /app
-
-      - name: Set up PHP with GD extension
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 'latest'
-          extensions: gd, opcache, sodium
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
   push-on-transifex:
     name: "Push locales sources"
     uses: "glpi-project/plugin-translation-workflows/.github/workflows/transifex-push-sources.yml@v1"
