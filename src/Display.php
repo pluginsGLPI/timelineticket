@@ -157,7 +157,7 @@ class Display extends CommonDBTM
                 echo "<th>" . __('Late') . "</th>";
                 echo "</tr>";
                 echo "<tr>";
-                echo "<td align='center' class='tab_bg_2_2'>" .
+                echo "<td class='center tab_bg_2_2'>" .
                  Html::timestampToString($dateend, true) . "</td>";
                 echo "</tr>";
             }

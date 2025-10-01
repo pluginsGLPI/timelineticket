@@ -66,7 +66,7 @@ class Config extends CommonDBTM
         echo "</tr>";
 
         echo "<tr class='tab_bg_1'>";
-        echo "<td align='center'>";
+        echo "<td class='center'>";
 
         echo Html::submit(_sx(
             'button',
