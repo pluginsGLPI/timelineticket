@@ -56,17 +56,17 @@ if (!defined("PLUGIN_TIMELINETICKET_DIR")) {
 function plugin_version_timelineticket()
 {
     return ['name'         => _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket"),
-            'version'      => PLUGIN_TIMELINETICKET_VERSION,
-            'homepage'     => 'https://github.com/pluginsGLPI/timelineticket',
-            'license'      => 'AGPLv3+',
-            'author'       => 'Nelly Mahu-Lasson && David Durieux && Xavier Caillaud',
-            'requirements' => [
-               'glpi' => [
-                  'min' => '11.0',
-                  'max' => '12.0',
-                  'dev' => false
-               ]
-            ]
+        'version'      => PLUGIN_TIMELINETICKET_VERSION,
+        'homepage'     => 'https://github.com/pluginsGLPI/timelineticket',
+        'license'      => 'AGPLv3+',
+        'author'       => 'Nelly Mahu-Lasson && David Durieux && Xavier Caillaud',
+        'requirements' => [
+            'glpi' => [
+                'min' => '11.0',
+                'max' => '12.0',
+                'dev' => false,
+            ],
+        ],
     ];
 }
 
@@ -84,7 +84,7 @@ function plugin_init_timelineticket()
         $PLUGIN_HOOKS['change_profile']['timelineticket'] = [Profile::class, 'initProfile'];
 
         $PLUGIN_HOOKS['show_item_stats']['timelineticket']    = [
-           'Ticket' => 'plugin_timelineticket_item_stats'
+            'Ticket' => 'plugin_timelineticket_item_stats',
         ];
 
         Plugin::registerClass(Profile::class, ['addtabon' => 'Profile']);
@@ -96,18 +96,18 @@ function plugin_init_timelineticket()
             );
         }
         $PLUGIN_HOOKS['item_purge']['timelineticket'] = [
-           'Ticket'       => 'plugin_timelineticket_ticket_purge',
-           'Group_Ticket' => [AssignGroup::class, 'deleteGroupTicket'],
-           'Ticket_User'  => [AssignUser::class, 'deleteUserTicket']
+            'Ticket'       => 'plugin_timelineticket_ticket_purge',
+            'Group_Ticket' => [AssignGroup::class, 'deleteGroupTicket'],
+            'Ticket_User'  => [AssignUser::class, 'deleteUserTicket'],
         ];
 
         $PLUGIN_HOOKS['item_add']['timelineticket']    = [
-           'Ticket'       => 'plugin_timelineticket_ticket_add',
-           'Group_Ticket' => [AssignGroup::class, 'addGroupTicket'],
-           'Ticket_User'  => [AssignUser::class, 'addUserTicket']
+            'Ticket'       => 'plugin_timelineticket_ticket_add',
+            'Group_Ticket' => [AssignGroup::class, 'addGroupTicket'],
+            'Ticket_User'  => [AssignUser::class, 'addUserTicket'],
         ];
         $PLUGIN_HOOKS['item_update']['timelineticket'] = [
-           'Ticket' => 'plugin_timelineticket_ticket_update'
+            'Ticket' => 'plugin_timelineticket_ticket_update',
         ];
 
         if (Session::haveRight("config", UPDATE)
