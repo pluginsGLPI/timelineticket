@@ -6,7 +6,7 @@ on:
       - "master"
 
 jobs:
-  push-on-transifex:
+  update-locales:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,10 +19,13 @@ jobs:
       - name: Set up PHP with GD extension
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
+          php-version: 'latest'
           extensions: gd, opcache, sodium
-          
-      - name: "Push locales sources"
-        uses: "glpi-project/plugin-translation-workflows/.github/workflows/transifex-push-sources.yml@v1"
-        secrets:
-          transifex-token: "${{ secrets.TSMR_TRANSIFEX_TOKEN }}"
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+  push-on-transifex:
+    name: "Push locales sources"
+    uses: "glpi-project/plugin-translation-workflows/.github/workflows/transifex-push-sources.yml@v1"
+    secrets:
+      transifex-token: "${{ secrets.TSMR_TRANSIFEX_TOKEN }}"
