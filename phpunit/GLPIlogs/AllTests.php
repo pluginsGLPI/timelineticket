@@ -3,9 +3,9 @@
 /*
    ------------------------------------------------------------------------
    TimelineTicket
-   Copyright (C) 2013-2022 by the TimelineTicket Development Team.
+   Copyright (C) 2013-2013 by the TimelineTicket Development Team.
 
-   https://github.com/pluginsGLPI/timelineticket
+   https://forge.indepnet.net/projects/timelineticket
    ------------------------------------------------------------------------
 
    LICENSE
@@ -28,26 +28,45 @@
    ------------------------------------------------------------------------
 
    @package   TimelineTicket plugin
-   @copyright Copyright (c) 2013-2022 TimelineTicket team
+   @copyright Copyright (c) 2013-2013 TimelineTicket team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
-   @link      https://github.com/pluginsGLPI/timelineticket
+   @link      https://forge.indepnet.net/projects/timelineticket
    @since     2013
 
    ------------------------------------------------------------------------
  */
 
-function pluginTimelineticketGetCurrentVersion($version) {
-   global $DB;
+class GLPIlogs extends PHPUnit_Framework_TestCase {
 
-   return '0';
-
+   public function testSQLlogs($message = '') {
+      
+      $filecontent = '';
+      $filecontent = file_get_contents(GLPI_ROOT."/files/_log/sql-errors.log");
+      
+      $this->assertEquals($filecontent, '', 'sql-errors.log not empty ('.$message.')');      
+   }
+   
+   
+   
+   public function testPHPlogs($message = '') {
+      
+      $filecontent = '';
+      $filecontent = file_get_contents(GLPI_ROOT."/files/_log/php-errors.log");
+      
+      $this->assertEquals($filecontent, '', 'php-errors.log not empty ('.$message.')');      
+   } 
+   
 }
 
 
 
-function pluginTimelineticketUpdate($current_version, $migrationname = 'Migration') {
-   global $DB;
+class GLPIlogs_AllTests  {
 
+   public static function suite() {
+      
+      $suite = new PHPUnit_Framework_TestSuite('GLPIlogs');
+      return $suite;
+   }
 }
 

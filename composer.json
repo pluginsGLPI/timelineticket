@@ -1,12 +1,10 @@
 {
-    "require": {
-        "szymach/c-pchart": "^3.0",
-        "ext-gd": "*"
-    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.86",
-        "glpi-project/tools": "^0.8.0",
-        "php-parallel-lint/php-parallel-lint": "^1.4",
-        "phpstan/phpstan": "^2.1"
+        "glpi-project/tools": "^0.4"
+    },
+    "require": {
+        "szymach/c-pchart": "^3.0"
     }
 }

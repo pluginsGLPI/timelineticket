@@ -37,17 +37,8 @@
    ------------------------------------------------------------------------
  */
 
-function pluginTimelineticketGetCurrentVersion($version) {
-   global $DB;
+include('../../../inc/includes.php');
 
-   return '0';
-
-}
-
-
-
-function pluginTimelineticketUpdate($current_version, $migrationname = 'Migration') {
-   global $DB;
-
-}
+$dropdown = new PluginTimelineticketGrouplevel();
+include(GLPI_ROOT . "/front/dropdown.common.php");
 

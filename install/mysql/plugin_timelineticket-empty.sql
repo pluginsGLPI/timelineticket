@@ -1,7 +1,7 @@
 
-DROP TABLE IF EXISTS `glpi_plugin_timelineticket_assignstates`;
+DROP TABLE IF EXISTS `glpi_plugin_timelineticket_states`;
 
-CREATE TABLE `glpi_plugin_timelineticket_assignstates` (
+CREATE TABLE `glpi_plugin_timelineticket_states` (
    `id` int unsigned NOT NULL AUTO_INCREMENT,
    `tickets_id` int unsigned NOT NULL DEFAULT '0',
    `date` timestamp NULL DEFAULT NULL,

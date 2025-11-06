@@ -38,13 +38,10 @@
  */
 
 //Options for GLPI 0.71 and newer : need slave db to access the report
-use GlpiPlugin\Timelineticket\AssignGroup;
-use GlpiPlugin\Timelineticket\AssignState;
-use GlpiPlugin\Timelineticket\Display;
-
 $USEDBREPLICATE        = 1;
 $DBCONNECTION_REQUIRED = 1;
 
+include("../../../../inc/includes.php");
 
 // Instantiate Report with Name
 $report = new PluginReportsAutoReport(__("statSpentTimeProcessingByGroup_report_title", "timelineticket"));
@@ -111,7 +108,7 @@ $title = $report->getFullTitle();
 $dbu   = new DbUtils();
 
 // SQL statement
-$query = "SELECT glpi_tickets.*
+$query = "SELECT glpi_tickets.*  
                FROM `glpi_tickets`
                WHERE `glpi_tickets`.`status` = '" . Ticket::CLOSED . "'";
 $query .= $dbu->getEntitiesRestrictRequest('AND', "glpi_tickets", '', '', false);
@@ -122,7 +119,7 @@ if (isset($_POST['requesttypes_id']) && $_POST['requesttypes_id'] > 0) {
 }
 $query .= getOrderBy('closedate', $columns);
 
-$res   = $DB->doQuery($query);
+$res   = $DB->query($query);
 $nbtot = ($res ? $DB->numrows($res) : 0);
 if ($limit) {
    $start = (isset($_GET["start"]) ? $_GET["start"] : 0);
@@ -130,7 +127,7 @@ if ($limit) {
       $start = 0;
    }
    if ($start > 0 || $start + $limit < $nbtot) {
-      $res = $DB->doQuery($query . " LIMIT $start,$limit");
+      $res = $DB->query($query . " LIMIT $start,$limit");
    }
 } else {
    $start = 0;
@@ -141,7 +138,7 @@ if ($nbtot == 0) {
       Html::header($title, $_SERVER['PHP_SELF'], "utils", "report");
       Report::title();
    }
-   echo "<div class='center red b'>" . __s('No results found') . "</div>";
+   echo "<div class='center red b'>" . __('No item found') . "</div>";
    Html::footer();
 } else if ($output_type == Search::PDF_OUTPUT_PORTRAIT
            || $output_type == Search::PDF_OUTPUT_LANDSCAPE
@@ -388,12 +385,12 @@ function getOrderBy($default, $columns) {
 
 function getDetails(Ticket $ticket, $groups_id) {
 
-   $ptState = new AssignState();
+   $ptState = new PluginTimelineticketState();
 
-   $a_ret     = Display::getTotaltimeEnddate($ticket);
+   $a_ret     = PluginTimelineticketDisplay::getTotaltimeEnddate($ticket);
    $totaltime = $a_ret['totaltime'];
 
-   $ptItem = new AssignGroup();
+   $ptItem = new PluginTimelineticketAssignGroup();
 
    $a_states     = [];
    $a_dbstates   = $ptState->find(["tickets_id" => $ticket->getField('id')], ['date', 'id']);

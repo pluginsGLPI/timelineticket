@@ -37,87 +37,139 @@
    ------------------------------------------------------------------------
  */
 
-use GlpiPlugin\Timelineticket\AssignGroup;
-use GlpiPlugin\Timelineticket\AssignState;
-use GlpiPlugin\Timelineticket\AssignUser;
-use GlpiPlugin\Timelineticket\Config;
-use GlpiPlugin\Timelineticket\Grouplevel;
-use GlpiPlugin\Timelineticket\Profile;
+function plugin_timelineticket_getAddSearchOptions($itemtype)
+{
+    $sopt = [];
+    if ($itemtype == 'Ticket') {
+        $sopt[9131]['table']     = 'glpi_groups';
+        $sopt[9131]['field']     = 'completename';
+        $sopt[9131]['name']      = "timelineticket - ".__('Assigned to')." - ".__('Group');
+        $sopt[9131]['datatype']  = 'dropdown';
+        $sopt[9131]['forcegroupby']  = true;
+        $sopt[9131]['massiveaction'] = false;
+        $sopt[9131]['condition']     = 'is_assign';
+        $sopt[9131]['joinparams']    = ['beforejoin'
+                                         => ['table' => 'glpi_plugin_timelineticket_assigngroups',
+                                                  'joinparams'
+                                                          => ['jointype'  => 'child']]];
 
+        $sopt[9132]['table']     = 'glpi_users';
+        $sopt[9132]['field']     = 'name';
+        $sopt[9132]['name']      = "timelineticket - ".__('Assigned to')." - ".__('Technician');
+        $sopt[9132]['datatype']  = 'dropdown';
+        $sopt[9132]['forcegroupby']  = true;
+        $sopt[9132]['massiveaction'] = false;
+        $sopt[9132]['condition']     = 'is_assign';
+        $sopt[9132]['joinparams']    = ['beforejoin'
+                                         => ['table' => 'glpi_plugin_timelineticket_assignusers',
+                                                  'joinparams'
+                                                          => ['jointype'  => 'child']]];
+    }
+    return $sopt;
+}
 function plugin_timelineticket_install()
 {
     global $DB;
 
-    $migration = new Migration(11);
+    include_once(PLUGIN_TIMELINETICKET_DIR."/inc/profile.class.php");
+    include_once(PLUGIN_TIMELINETICKET_DIR."/inc/config.class.php");
+    $migration = new Migration(160);
+
+    $createTable = function (string $name, string $schema, array $inserts = []) use ($DB) {
+        if (!$DB->tableExists($name)) {
+            $DB->doQuery($schema, $DB->error());
+            foreach ($inserts as $insert) {
+                $DB->doQuery($insert, $DB->error());
+            }
+        }
+    };
+
+
 
     // installation
 
-    if (!$DB->tableExists("glpi_plugin_timelineticket_assignstates")) {
-        $query = "CREATE TABLE `glpi_plugin_timelineticket_assignstates` (
-                  `id` int unsigned NOT NULL AUTO_INCREMENT,
-                  `tickets_id` int unsigned NOT NULL DEFAULT '0',
-                  `date` timestamp NULL DEFAULT NULL,
-                  `old_status` varchar(255) DEFAULT NULL,
-                  `new_status` varchar(255) DEFAULT NULL,
-                  `delay` int(11) NULL,
-                  PRIMARY KEY (`id`),
-                  KEY `tickets_id` (`tickets_id`)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
+    $createTable(
+        'glpi_plugin_timelineticket_states',
+        "CREATE TABLE glpi_plugin_timelineticket_states (
+                  id int unsigned NOT NULL AUTO_INCREMENT,
+                  tickets_id int unsigned NOT NULL DEFAULT 0,
+                  date timestamp NULL DEFAULT NULL,
+                  old_status varchar(255) DEFAULT NULL,
+                  new_status varchar(255) DEFAULT NULL,
+                  delay int(11) NULL,
+                  PRIMARY KEY (id),
+                  KEY tickets_id (tickets_id)
+                ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
 
-        $DB->doQuery($query);
-    }
-    if (!$DB->tableExists("glpi_plugin_timelineticket_assigngroups")) {
-        $query = "CREATE TABLE `glpi_plugin_timelineticket_assigngroups` (
-                  `id` int unsigned NOT NULL AUTO_INCREMENT,
-                  `tickets_id` int unsigned NOT NULL DEFAULT '0',
-                  `date` timestamp NULL DEFAULT NULL,
-                  `groups_id` varchar(255) DEFAULT NULL,
-                  `begin` int unsigned NULL,
-                  `delay` int(11) NULL,
-                  PRIMARY KEY (`id`),
-                  KEY `tickets_id` (`tickets_id`)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
+    $createTable(
+        'glpi_plugin_timelineticket_assigngroups',
+        "CREATE TABLE glpi_plugin_timelineticket_assigngroups (
+                  id int unsigned NOT NULL AUTO_INCREMENT,
+                  tickets_id int unsigned NOT NULL DEFAULT 0,
+                  date timestamp NULL DEFAULT NULL,
+                  groups_id varchar(255) DEFAULT NULL,
+                  begin int unsigned NULL,
+                  delay int(11) NULL,
+                  PRIMARY KEY (id),
+                  KEY tickets_id (tickets_id)
+                ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
 
-        $DB->doQuery($query);
-    }
 
-    if (!$DB->tableExists("glpi_plugin_timelineticket_assignusers")) {
-        $query = "CREATE TABLE `glpi_plugin_timelineticket_assignusers` (
-                  `id` int unsigned NOT NULL AUTO_INCREMENT,
-                  `tickets_id` int unsigned NOT NULL DEFAULT '0',
-                  `date` timestamp NULL DEFAULT NULL,
-                  `users_id` varchar(255) DEFAULT NULL,
-                  `begin` int unsigned NULL,
-                  `delay` int(11) NULL,
-                  PRIMARY KEY (`id`),
-                  KEY `tickets_id` (`tickets_id`)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
+    $createTable(
+        'glpi_plugin_timelineticket_assignusers',
+        "CREATE TABLE glpi_plugin_timelineticket_assignusers (
+                  id int unsigned NOT NULL AUTO_INCREMENT,
+                  tickets_id int unsigned NOT NULL DEFAULT 0,
+                  date timestamp NULL DEFAULT NULL,
+                  users_id varchar(255) DEFAULT NULL,
+                  begin int unsigned NULL,
+                  delay int(11) NULL,
+                  PRIMARY KEY (id),
+                  KEY tickets_id (tickets_id)
+                ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
 
-        $DB->doQuery($query);
-    }
+$createTable(
+        'glpi_plugin_timelineticket_profiles',
+        "CREATE TABLE glpi_plugin_timelineticket_profiles (
+              id int unsigned NOT NULL AUTO_INCREMENT,
+              profiles_id int unsigned NOT NULL DEFAULT 0,
+              rights varchar(255) DEFAULT NULL,
+              PRIMARY KEY (id),
+              KEY profiles_id (profiles_id)
+            ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
 
-    if (!$DB->tableExists("glpi_plugin_timelineticket_grouplevels")) {
-        $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_grouplevels` (
-               `id` int unsigned NOT NULL AUTO_INCREMENT,
-               `entities_id` int unsigned NOT NULL DEFAULT '0',
-               `is_recursive` tinyint  NOT NULL default '0',
-               `name` varchar(255) collate utf8mb4_unicode_ci default NULL,
-               `groups` longtext collate utf8mb4_unicode_ci,
-               `rank` smallint NOT NULL default '0',
-               `comment` text collate utf8mb4_unicode_ci,
-               PRIMARY KEY (`id`)
-             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
-        $DB->doQuery($query);
-    }
+    $createTable(
+        'glpi_plugin_timelineticket_grouplevels',
+        "CREATE TABLE glpi_plugin_timelineticket_grouplevels (
+              id int unsigned NOT NULL AUTO_INCREMENT,
+              entities_id int unsigned NOT NULL DEFAULT 0,
+              is_recursive tinyint NOT NULL DEFAULT 0,
+              name varchar(255) DEFAULT NULL,
+              groups longtext,
+              rank smallint NOT NULL DEFAULT 0,
+              comment text,
+              PRIMARY KEY (id)
+            ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC"
+    );
 
-    if (!$DB->tableExists("glpi_plugin_timelineticket_configs")) {
-        $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_timelineticket_configs` (
-              `id` int unsigned NOT NULL AUTO_INCREMENT,
-              `add_waiting` int unsigned NOT NULL DEFAULT '1',
-              PRIMARY KEY  (`id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;";
-        $DB->doQuery($query);
-    }
+    $createTable(
+        'glpi_plugin_timelineticket_configs',
+        "CREATE TABLE glpi_plugin_timelineticket_configs (
+              id int unsigned NOT NULL AUTO_INCREMENT,
+              add_waiting int unsigned NOT NULL DEFAULT '1',
+              PRIMARY KEY (id)
+            ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC"//,
+      //  [
+        //    "INSERT INTO `glpi_plugin_timelineticket_configs` (`add_waiting`)
+          //        VALUES (1);"
+        //]
+    );
+
+    
 
     $status =  ['new'           => Ticket::INCOMING,
                 'assign'        => Ticket::ASSIGNED,
@@ -127,37 +179,36 @@ function plugin_timelineticket_install()
                 'closed'        => Ticket::CLOSED];
 
     // Update field in tables
-    foreach (['glpi_plugin_timelineticket_assignstates'] as $table) {
+    foreach (['glpi_plugin_timelineticket_states'] as $table) {
         // Migrate datas
         foreach ($status as $old => $new) {
             $query = "UPDATE `$table`
                    SET `old_status` = '$new'
                    WHERE `old_status` = '$old'";
-            $DB->doQuery($query);
+            
+            
+            //$DB->queryOrDie($query, "0.84 status in $table $old to $new");
+            $DB->doQuery($query, $DB->error());
 
             $query = "UPDATE `$table`
                    SET `new_status` = '$new'
                    WHERE `new_status` = '$old'";
-            $DB->doQuery($query);
+            $DB->doQuery($query, $DB->error());
         }
     }
 
-    $query = "ALTER TABLE `glpi_plugin_timelineticket_assignstates` CHANGE `delay` `delay` int(11) DEFAULT NULL;";
-    $DB->doQuery($query);
+    $query = "ALTER TABLE `glpi_plugin_timelineticket_states` CHANGE `delay` `delay` int(11) DEFAULT NULL;";
+    $DB->doQuery($query, $DB->error());
     $query = "ALTER TABLE `glpi_plugin_timelineticket_assigngroups` CHANGE `delay` `delay` int(11) DEFAULT NULL;";
-    $DB->doQuery($query);
+    $DB->doQuery($query, $DB->error());
     $query = "ALTER TABLE `glpi_plugin_timelineticket_assignusers` CHANGE `delay` `delay` int(11) DEFAULT NULL;";
-    $DB->doQuery($query);
+    $DB->doQuery($query, $DB->error());
 
-    if (!$DB->tableExists("glpi_plugin_timelineticket_assignstates")) {
-        $query = "RENAME TABLE `glpi_plugin_timelineticket_states` TO `glpi_plugin_timelineticket_assignstates`;";
-        $DB->doQuery($query);
-    }
-    Config::createFirstConfig();
+    PluginTimelineticketConfig::createFirstConfig();
 
     if (isset($_SESSION['glpiactiveprofile'])
             && isset($_SESSION['glpiactiveprofile']['id'])) {
-        Profile::createFirstAccess($_SESSION['glpiactiveprofile']['id']);
+        PluginTimelineticketProfile::createFirstAccess($_SESSION['glpiactiveprofile']['id']);
     }
 
     $migration = new Migration("9.1+1.0");
@@ -167,16 +218,18 @@ function plugin_timelineticket_install()
 
 function plugin_timelineticket_item_stats($item)
 {
-    AssignState::showStateTimeline($item);
-    AssignGroup::showGroupTimeline($item);
-    AssignUser::showUserTimeline($item);
+    PluginTimelineticketState::showStateTimeline($item);
+    PluginTimelineticketAssignGroup::showGroupTimeline($item);
+    PluginTimelineticketAssignUser::showUserTimeline($item);
 }
 
 function plugin_timelineticket_uninstall()
 {
     global $DB;
 
-    $tables = ["glpi_plugin_timelineticket_assignstates",
+    include_once(PLUGIN_TIMELINETICKET_DIR . "/inc/profile.class.php");
+
+    $tables = ["glpi_plugin_timelineticket_states",
         "glpi_plugin_timelineticket_assigngroups",
         "glpi_plugin_timelineticket_assignusers",
         "glpi_plugin_timelineticket_grouplevels",
@@ -184,23 +237,24 @@ function plugin_timelineticket_uninstall()
         "glpi_plugin_timelineticket_configs"];
 
     foreach ($tables as $table) {
-         $DB->dropTable($table, true);
+        $query = "DROP TABLE IF EXISTS `$table`;";
+        $DB->query($query) or die($DB->error());
     }
 
     //Delete rights associated with the plugin
     $profileRight = new ProfileRight();
-    foreach (Profile::getAllRights() as $right) {
+    foreach (PluginTimelineticketProfile::getAllRights() as $right) {
         $profileRight->deleteByCriteria(['name' => $right['field']]);
     }
 
-    Profile::removeRightsFromSession();
+    PluginTimelineticketProfile::removeRightsFromSession();
 }
 
 function plugin_timelineticket_ticket_update(Ticket $item)
 {
     if (in_array('status', $item->updates)) {
-        // Instantiation of the object from the class AssignState
-        $ptState = new AssignState();
+        // Instantiation of the object from the class PluginTimelineticketStates
+        $ptState = new PluginTimelineticketState();
 
         // Insertion the changement in the database
         $ptState->createFollowup(
@@ -212,15 +266,15 @@ function plugin_timelineticket_ticket_update(Ticket $item)
         // calcul du délai + insertion dans la table
     }
 
-    AssignGroup::checkAssignGroup($item);
-    AssignUser::checkAssignUser($item);
+    PluginTimelineticketAssignGroup::checkAssignGroup($item);
+    PluginTimelineticketAssignUser::checkAssignUser($item);
 }
 
 
 function plugin_timelineticket_ticket_add(Ticket $item)
 {
-    // Instantiation of the object from the class AssignState
-    $followups = new AssignState();
+    // Instantiation of the object from the class PluginTimelineticketStates
+    $followups = new PluginTimelineticketState();
 
     $followups->createFollowup($item, $item->input['date'], '', Ticket::INCOMING);
 
@@ -232,10 +286,10 @@ function plugin_timelineticket_ticket_add(Ticket $item)
 
 function plugin_timelineticket_ticket_purge(Ticket $item)
 {
-    // Instantiation of the object from the class AssignState
-    $ticketstate = new AssignState();
-    $user = new AssignUser();
-    $group = new AssignGroup();
+    // Instantiation of the object from the class PluginTimelineticketStates
+    $ticketstate = new PluginTimelineticketState();
+    $user = new PluginTimelineticketAssignUser();
+    $group = new PluginTimelineticketAssignUser();
 
     $ticketstate->deleteByCriteria(['tickets_id' => $item->getField("id")]);
     $user->deleteByCriteria(['tickets_id' => $item->getField("id")]);
@@ -245,7 +299,7 @@ function plugin_timelineticket_ticket_purge(Ticket $item)
 function plugin_timelineticket_getDropdown()
 {
     if (Plugin::isPluginActive("timelineticket")) {
-        return [Grouplevel::class => Grouplevel::getTypeName(2)];
+        return ['PluginTimelineticketGrouplevel'=>PluginTimelineticketGrouplevel::getTypeName(2)];
     } else {
         return [];
     }
@@ -261,41 +315,9 @@ function plugin_timelineticket_getDatabaseRelations()
     }
 }
 
-
-function plugin_timelineticket_getAddSearchOptions($itemtype)
-{
-    $sopt = [];
-    if ($itemtype == 'Ticket') {
-        $sopt[9131]['table']     = 'glpi_groups';
-        $sopt[9131]['field']     = 'completename';
-        $sopt[9131]['name']      = "timelineticket - ".__('Assigned to')." - ".__('Group');
-        $sopt[9131]['datatype']  = 'dropdown';
-        $sopt[9131]['forcegroupby']  = true;
-        $sopt[9131]['massiveaction'] = false;
-        $sopt[9131]['condition']     = 'is_assign';
-        $sopt[9131]['joinparams']    = ['beforejoin'
-        => ['table' => 'glpi_plugin_timelineticket_assigngroups',
-                'joinparams'
-                => ['jointype'  => 'child']]];
-
-        $sopt[9132]['table']     = 'glpi_users';
-        $sopt[9132]['field']     = 'name';
-        $sopt[9132]['name']      = "timelineticket - ".__('Assigned to')." - ".__('Technician');
-        $sopt[9132]['datatype']  = 'dropdown';
-        $sopt[9132]['forcegroupby']  = true;
-        $sopt[9132]['massiveaction'] = false;
-        $sopt[9132]['condition']     = 'is_assign';
-        $sopt[9132]['joinparams']    = ['beforejoin'
-        => ['table' => 'glpi_plugin_timelineticket_assignusers',
-                'joinparams'
-                => ['jointype'  => 'child']]];
-    }
-    return $sopt;
-}
-
 function plugin_timelineticket_giveItem($type, $ID, $data, $num)
 {
-    $searchopt= Search::getOptions($type);
+    $searchopt=&Search::getOptions($type);
     $table=$searchopt[$ID]["table"];
     $field=$searchopt[$ID]["field"];
 
@@ -316,7 +338,7 @@ function plugin_timelineticket_giveItem($type, $ID, $data, $num)
             break;
 
         case "glpi_plugin_timelineticket_assigngroups.groups_id":
-            $ptAssignGroup = new AssignGroup();
+            $ptAssignGroup = new PluginTimelineticketAssignGroup();
             $group = new Group();
             $ticket = new Ticket();
             $out = "";
