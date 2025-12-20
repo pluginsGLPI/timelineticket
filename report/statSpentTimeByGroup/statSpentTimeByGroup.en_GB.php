@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    TimelineTicket
-   Copyright (C) 2013-2022 by the TimelineTicket Development Team.
+   Copyright (C) 2013-2025 by the TimelineTicket Development Team.
 
    https://github.com/pluginsGLPI/timelineticket
    ------------------------------------------------------------------------
@@ -28,7 +28,7 @@
    ------------------------------------------------------------------------
 
    @package   TimelineTicket plugin
-   @copyright Copyright (c) 2013-2022 TimelineTicket team
+   @copyright Copyright (C) 2013-2025 TimelineTicket team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      https://github.com/pluginsGLPI/timelineticket

@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    TimelineTicket
-   Copyright (C) 2013-2022 by the TimelineTicket Development Team.
+   Copyright (C) 2013-2025 by the TimelineTicket Development Team.
 
    https://github.com/pluginsGLPI/timelineticket
    ------------------------------------------------------------------------
@@ -28,7 +28,7 @@
    ------------------------------------------------------------------------
 
    @package   TimelineTicket plugin
-   @copyright Copyright (c) 2013-2022 TimelineTicket team
+   @copyright Copyright (C) 2013-2025 TimelineTicket team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      https://github.com/pluginsGLPI/timelineticket
@@ -38,6 +38,7 @@
  */
 
 //Options for GLPI 0.71 and newer : need slave db to access the report
+use GlpiPlugin\Timelineticket\AssignGroup;
 use GlpiPlugin\Timelineticket\Tool;
 
 $USEDBREPLICATE        = 1;
@@ -398,7 +399,7 @@ if ($res && $nbtot > 0) {
             if (array_key_exists($key, $timelevels)) {
                $time = $timelevels[$key];
 
-               $a_details = Tool::getDetails($ticket, 'group', false);
+               $a_details = Tool::getDetails($ticket, new AssignGroup(), false);
                $waiting_group = 0;
                foreach ($a_details as $items_id => $a_detail) {
 

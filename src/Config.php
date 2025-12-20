@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    TimelineTicket
-   Copyright (C) 2013-2022 by the TimelineTicket Development Team.
+   Copyright (C) 2013-2025 by the TimelineTicket Development Team.
 
    https://github.com/pluginsGLPI/timelineticket
    ------------------------------------------------------------------------
@@ -28,7 +28,7 @@
    ------------------------------------------------------------------------
 
    @package   TimelineTicket plugin
-   @copyright Copyright (c) 2013-2022 TimelineTicket team
+   @copyright Copyright (C) 2013-2025 TimelineTicket team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      https://github.com/pluginsGLPI/timelineticket
@@ -40,9 +40,11 @@
 namespace GlpiPlugin\Timelineticket;
 
 use CommonDBTM;
+use CommonGLPI;
+use DBConnection;
 use Dropdown;
 use Html;
-use CommonGLPI;
+use Migration;
 
 if (!defined('GLPI_ROOT')) {
     die("Sorry. You can't access directly to this file");
@@ -50,7 +52,6 @@ if (!defined('GLPI_ROOT')) {
 
 class Config extends CommonDBTM
 {
-
     public function showReconstructForm()
     {
 
@@ -78,15 +79,19 @@ class Config extends CommonDBTM
 
         echo Html::submit(_sx(
             'button',
-            'Reconstruct groups timeline for all tickets',
+            'Reconstruct technician groups timeline for all tickets',
             'timelineticket'
         ), ['name' => 'reconstructGroups', 'class' => 'btn btn-primary']);
-        echo "<br/><br/><div class='alert alert-important alert-warning d-flex'>";
-        echo  __(
-            'Warning : it may be that the reconstruction of groups does not reflect reality because it concern only groups which have the Requester flag to No and Assigned flag to Yes',
+
+
+        echo "&nbsp;";
+
+        echo Html::submit(_sx(
+            'button',
+            'Reconstruct technicians timeline for all tickets',
             'timelineticket'
-        );
-        echo "</div>";
+        ), ['name' => 'reconstructUsers', 'class' => 'btn btn-primary']);
+
 
         echo "</td>";
         echo "</table>";
@@ -101,17 +106,19 @@ class Config extends CommonDBTM
 
         echo "<table class='tab_cadre_fixe'>";
 
-        echo "<tr><th>";
+        echo "<tr><th colspan='2'>";
         echo __('Flags');
         echo "</th></tr>";
 
-        echo "<tr class='tab_bg_1 top'><td>" . __(
+        echo "<tr class='tab_bg_1 top'>";
+        echo "<td>" . __(
             'Input time on groups / users when ticket is waiting',
             'timelineticket'
         ) . "</td>";
         echo "<td>";
         Dropdown::showYesNo("add_waiting", $this->fields["add_waiting"]);
-        echo "</td></tr>";
+        echo "</td>";
+        echo "</tr>";
 
         echo "<tr class='tab_bg_1'><td>";
         echo Html::hidden('id', ['value' => 1]);
@@ -122,17 +129,6 @@ class Config extends CommonDBTM
     }
 
 
-    public static function createFirstConfig()
-    {
-
-        $conf = new self();
-        if (!$conf->getFromDB(1)) {
-            $conf->add([
-                       'id'          => 1,
-                       'add_waiting' => 1]);
-        }
-    }
-
     public static function getIcon()
     {
         return Display::getIcon();
@@ -141,7 +137,7 @@ class Config extends CommonDBTM
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
 
-       // can exists for template
+        // can exists for template
         if ($item->getType() == Grouplevel::class) {
             return self::createTabEntry(_sx('button', 'Add an item'));
         }
@@ -154,5 +150,39 @@ class Config extends CommonDBTM
 
         Grouplevel::showAddGroup($item);
         return true;
+    }
+
+    public static function install(Migration $migration)
+    {
+        global $DB;
+
+        $default_charset   = DBConnection::getDefaultCharset();
+        $default_collation = DBConnection::getDefaultCollation();
+        $default_key_sign  = DBConnection::getDefaultPrimaryKeySignOption();
+        $table  = self::getTable();
+
+        if (!$DB->tableExists($table)) {
+            $query = "CREATE TABLE `$table` (
+                        `id` int {$default_key_sign} NOT NULL auto_increment,
+                        `add_waiting` int {$default_key_sign} NOT NULL DEFAULT '1',
+                        PRIMARY KEY  (`id`)
+               ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+
+            $DB->doQuery($query);
+        }
+
+        $conf = new self();
+        if (!$conf->getFromDB(1)) {
+            $conf->add([
+                'id'          => 1,
+                'add_waiting' => 1]);
+        }
+    }
+
+    public static function uninstall()
+    {
+        global $DB;
+
+        $DB->dropTable(self::getTable(), true);
     }
 }

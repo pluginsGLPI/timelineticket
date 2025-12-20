@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    TimelineTicket
-   Copyright (C) 2013-2022 by the TimelineTicket Development Team.
+   Copyright (C) 2013-2025 by the TimelineTicket Development Team.
 
    https://github.com/pluginsGLPI/timelineticket
    ------------------------------------------------------------------------
@@ -28,7 +28,7 @@
    ------------------------------------------------------------------------
 
    @package   TimelineTicket plugin
-   @copyright Copyright (c) 2013-2022 TimelineTicket team
+   @copyright Copyright (C) 2013-2025 TimelineTicket team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      https://github.com/pluginsGLPI/timelineticket
@@ -40,9 +40,11 @@
 namespace GlpiPlugin\Timelineticket;
 
 use CommonDropdown;
+use DBConnection;
 use DbUtils;
 use Dropdown;
 use Html;
+use Migration;
 use Toolbox;
 
 if (!defined('GLPI_ROOT')) {
@@ -79,7 +81,7 @@ class Grouplevel extends CommonDropdown
             case 'groups':
                 $groups = json_decode($this->fields[$field['name']], true);
                 if (!empty($groups)) {
-                    echo "<table class='tab_cadrehov' cellpadding='5'>";
+                    echo "<table class='tab_cadre_fixe' cellpadding='5'>";
                     foreach ($groups as $key => $val) {
                         echo "<tr class='tab_bg_1 center'>";
                         echo "<td>";
@@ -273,5 +275,37 @@ class Grouplevel extends CommonDropdown
             $input = $params;
         }
         return $input;
+    }
+
+    public static function install(Migration $migration)
+    {
+        global $DB;
+
+        $default_charset   = DBConnection::getDefaultCharset();
+        $default_collation = DBConnection::getDefaultCollation();
+        $default_key_sign  = DBConnection::getDefaultPrimaryKeySignOption();
+        $table  = self::getTable();
+
+        if (!$DB->tableExists($table)) {
+            $query = "CREATE TABLE `$table` (
+                        `id` int {$default_key_sign} NOT NULL auto_increment,
+                        `entities_id` int {$default_key_sign} NOT NULL DEFAULT '0',
+                        `is_recursive` tinyint  NOT NULL default '0',
+                        `name` varchar(255) collate utf8mb4_unicode_ci default NULL,
+                        `groups` longtext collate utf8mb4_unicode_ci,
+                        `rank` smallint NOT NULL default '0',
+                        `comment` text collate utf8mb4_unicode_ci,
+                        PRIMARY KEY (`id`)
+               ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+
+            $DB->doQuery($query);
+        }
+    }
+
+    public static function uninstall()
+    {
+        global $DB;
+
+        $DB->dropTable(self::getTable(), true);
     }
 }

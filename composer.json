@@ -1,7 +1,6 @@
 {
     "require": {
-        "szymach/c-pchart": "^3.0",
-        "ext-gd": "*"
+        "sportlog/google-charts": "*"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.86",

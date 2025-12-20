@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    TimelineTicket
-   Copyright (C) 2013-2022 by the TimelineTicket Development Team.
+   Copyright (C) 2013-2025 by the TimelineTicket Development Team.
 
    https://github.com/pluginsGLPI/timelineticket
    ------------------------------------------------------------------------
@@ -28,7 +28,7 @@
    ------------------------------------------------------------------------
 
    @package   TimelineTicket plugin
-   @copyright Copyright (c) 2013-2022 TimelineTicket team
+   @copyright Copyright (C) 2013-2025 TimelineTicket team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      https://github.com/pluginsGLPI/timelineticket
@@ -39,6 +39,7 @@
 
 global $CFG_GLPI;
 
+use Glpi\Plugin\Hooks;
 use GlpiPlugin\Timelineticket\AssignGroup;
 use GlpiPlugin\Timelineticket\AssignUser;
 use GlpiPlugin\Timelineticket\Dashboard;
@@ -82,6 +83,8 @@ function plugin_init_timelineticket()
     if (Plugin::isPluginActive('timelineticket')) { // check if plugin is active
         $PLUGIN_HOOKS['change_profile']['timelineticket'] = [Profile::class, 'initProfile'];
 
+        $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['timelineticket'][] = 'js/google-charts/loader.js';
+
         $PLUGIN_HOOKS['show_item_stats']['timelineticket']    = [
             'Ticket' => 'plugin_timelineticket_item_stats',
         ];
@@ -124,7 +127,8 @@ function plugin_init_timelineticket()
  */
 function plugin_timelineticket_check_prerequisites()
 {
-    if (!is_readable(__DIR__ . '/vendor/autoload.php') || !is_file(__DIR__ . '/vendor/autoload.php')) {
+    if (!is_readable(__DIR__ . '/vendor/autoload.php')
+        || !is_file(__DIR__ . '/vendor/autoload.php')) {
         echo "Run composer install --no-dev in the plugin directory<br>";
         return false;
     }

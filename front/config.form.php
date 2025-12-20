@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    TimelineTicket
-   Copyright (C) 2013-2022 by the TimelineTicket Development Team.
+   Copyright (C) 2013-2025 by the TimelineTicket Development Team.
 
    https://github.com/pluginsGLPI/timelineticket
    ------------------------------------------------------------------------
@@ -28,7 +28,7 @@
    ------------------------------------------------------------------------
 
    @package   TimelineTicket plugin
-   @copyright Copyright (c) 2013-2022 TimelineTicket team
+   @copyright Copyright (C) 2013-2025 TimelineTicket team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      https://github.com/pluginsGLPI/timelineticket
@@ -39,6 +39,7 @@
 
 use GlpiPlugin\Timelineticket\AssignGroup;
 use GlpiPlugin\Timelineticket\AssignState;
+use GlpiPlugin\Timelineticket\AssignUser;
 use GlpiPlugin\Timelineticket\Config;
 use GlpiPlugin\Timelineticket\Grouplevel;
 
@@ -59,7 +60,13 @@ if (Session::haveRight("config", READ)
         ini_set("max_execution_time", "0");
         ini_set("memory_limit", "-1");
         $ptGroup = new AssignGroup();
-        $ptGroup->reconstrucTimeline();
+        $ptGroup->reconstructTimeline();
+        Html::back();
+    } elseif (isset($_POST["reconstructUsers"])) {
+        ini_set("max_execution_time", "0");
+        ini_set("memory_limit", "-1");
+        $ptUser = new AssignUser();
+        $ptUser->reconstructTimeline();
         Html::back();
     } elseif (isset($_POST["reconstructTicket"])) {
         ini_set("max_execution_time", "0");
@@ -67,7 +74,9 @@ if (Session::haveRight("config", READ)
         $ptState = new AssignState();
         $ptState->reconstructTimeline($_POST['tickets_id']);
         $ptGroup = new AssignGroup();
-        $ptGroup->reconstrucTimeline($_POST['tickets_id']);
+        $ptGroup->reconstructTimeline($_POST['tickets_id']);
+        $ptUser = new AssignUser();
+        $ptUser->reconstructTimeline($_POST['tickets_id']);
         Html::back();
     } elseif (isset($_POST["add_groups"])
                || isset($_POST["delete_groups"])) {

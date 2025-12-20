@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    TimelineTicket
-   Copyright (C) 2013-2022 by the TimelineTicket Development Team.
+   Copyright (C) 2013-2025 by the TimelineTicket Development Team.
 
    https://github.com/pluginsGLPI/timelineticket
    ------------------------------------------------------------------------
@@ -28,7 +28,7 @@
    ------------------------------------------------------------------------
 
    @package   TimelineTicket plugin
-   @copyright Copyright (c) 2013-2022 TimelineTicket team
+   @copyright Copyright (C) 2013-2025 TimelineTicket team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      https://github.com/pluginsGLPI/timelineticket
@@ -39,11 +39,13 @@
 
 namespace GlpiPlugin\Timelineticket;
 
+use Calendar;
+use CommonGLPI;
 use Config;
 use DateTime;
 use DateTimeZone;
-use Dropdown;
-use Html;
+use Entity;
+use SLA;
 use Ticket;
 
 if (!defined('GLPI_ROOT')) {
@@ -53,75 +55,25 @@ if (!defined('GLPI_ROOT')) {
 class Tool
 {
 
-
-   /**
-    * Return array with all data
-    *
-    * @param Ticket   $ticket
-    * @param      $type 'user' or 'group'
-    * @param int $withblank option to fill blank zones
-    *
-    * @return
-    */
-    static function getDetails(Ticket $ticket, $type, $withblank = 1)
+    /**
+     * Return array with all data
+     *
+     * @param Ticket   $ticket
+     * @param      $type 'user' or 'group'
+     * @param int $withblank option to fill blank zones
+     *
+     * @return
+     */
+    public static function getDetails(Ticket $ticket, $item, $withblank = 1)
     {
-
-        if ($type == 'group') {
-            $palette = [
-            ['250', '151', '186'],
-            ['255', '211', '112'],
-            ['183', '210', '118'],
-            ['117', '199', '187'],
-            ['188', '168', '208'],
-            ['186', '213', '118'],
-            ['124', '169', '0'],
-            ['168', '208', '49'],
-            ['239', '215', '113'],
-            ['235', '155', '0'],
-            ['235', '249', '255'],
-            ['193', '228', '250'],
-            ['164', '217', '250'],
-            ['88', '195', '240'],
-            ['0', '156', '231'],
-            ['198', '229', '111'],
-            ['234', '38', '115'],
-            ['245', '122', '160'],
-            ['255', '208', '220']
-            ];
-        } elseif ($type == 'user') {
-            $palette = [
-            ['164', '53', '86'],
-            ['137', '123', '78'],
-            ['192', '114', '65'],
-            ['143', '102', '98'],
-            ['175', '105', '93'],
-            ['186', '127', '61'],
-            ['174', '104', '92'],
-            ['213', '113', '63'],
-            ['185', '168', '122'],
-            ['233', '168', '112'],
-            ['199', '133', '99'],
-            ['80', '24', '69'],
-            ['133', '39', '65'],
-            ['120', '22', '61'],
-            ['114', '59', '82'],
-            ['245', '229', '195']
-            ];
-        }
 
         $ptState = new AssignState();
 
-        $a_ret     = Display::getTotaltimeEnddate($ticket);
+        $a_ret     = AssignState::getTotaltimeEnddate($ticket);
         $totaltime = $a_ret['totaltime'];
 
-        if ($type == 'group') {
-            $ptItem = new AssignGroup();
-        } elseif ($type == 'user') {
-            $ptItem = new AssignUser();
-        }
-
         $a_states       = [];
-        $a_item_palette = [];
+
         $a_dbstates     = $ptState->find(["tickets_id" => $ticket->getID()], ["date", "id"]);
         $end_previous   = 0;
         foreach ($a_dbstates as $a_dbstate) {
@@ -139,11 +91,11 @@ class Tool
             $a_states[$totaltime] = $a_dbstate['new_status'];
         }
         $a_itemsections = [];
-        $a_dbitems      = $ptItem->find(["tickets_id" => $ticket->getID()], ["date"]);
+        $a_dbitems      = $item->find(["tickets_id" => $ticket->getID()], ["date"]);
         foreach ($a_dbitems as $a_dbitem) {
-            if ($type == 'group') {
+            if ($item instanceof AssignGroup) {
                 $items_id = 'groups_id';
-            } elseif ($type == 'user') {
+            } elseif ($item instanceof AssignUser) {
                 $items_id = 'users_id';
             }
 
@@ -155,13 +107,6 @@ class Tool
                     $last_statedelay = $data['End'];
                 }
             }
-            if (!isset($a_item_palette[$a_dbitem[$items_id]])) {
-                $a_item_palette[$a_dbitem[$items_id]] = array_shift($palette);
-            }
-            $color_R = $a_item_palette[$a_dbitem[$items_id]][0];
-            $color_G = $a_item_palette[$a_dbitem[$items_id]][1];
-            $color_B = $a_item_palette[$a_dbitem[$items_id]][2];
-
             $gbegin = $a_dbitem['begin'];
             if ($a_dbitem['delay'] == '') {
                 $gdelay = $totaltime;
@@ -174,35 +119,23 @@ class Tool
                 if ($mem == 1) {
                     if ($gdelay > $delay) { // all time of the state
                         $a_itemsections[$a_dbitem[$items_id]][] = [
-                         'Start'   => $gbegin,
-                         'End'     => $delay,
-                         "Caption" => " ",
-                         "Status"  => $statusname,
-                         "R"       => $color_R,
-                         "G"       => $color_G,
-                         "B"       => $color_B
+                            'Start'   => $gbegin,
+                            'End'     => $delay,
+                            "Status"  => $statusname,
                         ];
                         $gbegin                                 = $delay;
                     } elseif ($gdelay == $delay) { // end of status = end of group
                         $a_itemsections[$a_dbitem[$items_id]][] = [
-                        'Start'   => $gbegin,
-                        'End'     => $delay,
-                        "Caption" => " ",
-                        "Status"  => $statusname,
-                        "R"       => $color_R,
-                        "G"       => $color_G,
-                        "B"       => $color_B
+                            'Start'   => $gbegin,
+                            'End'     => $delay,
+                            "Status"  => $statusname,
                         ];
                         $mem                                    = 2;
                     } else { // end of status is after end of group
                         $a_itemsections[$a_dbitem[$items_id]][] = [
-                        'Start'   => $gbegin,
-                        'End'     => $gdelay,
-                        "Caption" => " ",
-                        "Status"  => $statusname,
-                        "R"       => $color_R,
-                        "G"       => $color_G,
-                        "B"       => $color_B
+                            'Start'   => $gbegin,
+                            'End'     => $gdelay,
+                            "Status"  => $statusname,
                         ];
                         $mem                                    = 2;
                     }
@@ -211,47 +144,31 @@ class Tool
                     if ($withblank
                     && $gbegin != $last_statedelay) {
                         $a_itemsections[$a_dbitem[$items_id]][] = [
-                        'Start'   => $last_statedelay,
-                        'End'     => $gbegin,
-                        "Caption" => " ",
-                        "Status"  => "",
-                        "R"       => 235,
-                        "G"       => 235,
-                        "B"       => 235
+                            'Start'   => $last_statedelay,
+                            'End'     => $gbegin,
+                            "Status"  => "",
                         ];
                     }
                     if ($gdelay > $delay) { // all time of the state
                         $a_itemsections[$a_dbitem[$items_id]][] = [
-                        'Start'   => $gbegin,
-                        'End'     => $delay,
-                        "Caption" => " ",
-                        "Status"  => $statusname,
-                        "R"       => $color_R,
-                        "G"       => $color_G,
-                        "B"       => $color_B
+                            'Start'   => $gbegin,
+                            'End'     => $delay,
+                            "Status"  => $statusname,
                         ];
                         $gbegin                                 = $delay;
                         $mem                                    = 1;
                     } elseif ($gdelay == $delay) { // end of status = end of group
                         $a_itemsections[$a_dbitem[$items_id]][] = [
-                        'Start'   => $gbegin,
-                        'End'     => $delay,
-                        "Caption" => " ",
-                        "Status"  => $statusname,
-                        "R"       => $color_R,
-                        "G"       => $color_G,
-                        "B"       => $color_B
+                            'Start'   => $gbegin,
+                            'End'     => $delay,
+                            "Status"  => $statusname,
                         ];
                         $mem                                    = 2;
                     } else { // end of status is after end of group
                         $a_itemsections[$a_dbitem[$items_id]][] = [
-                        'Start'   => $gbegin,
-                        'End'     => $gdelay,
-                        "Caption" => " ",
-                        "Status"  => $statusname,
-                        "R"       => $color_R,
-                        "G"       => $color_G,
-                        "B"       => $color_B
+                            'Start'   => $gbegin,
+                            'End'     => $gdelay,
+                            "Status"  => $statusname,
                         ];
                         $mem                                    = 2;
                     }
@@ -262,29 +179,19 @@ class Tool
             end($a_states);
             $verylastdelayStateDB = key($a_states);
             foreach ($a_itemsections as $items_id => $data_f) {
-                $last       = 0;
-                $R          = 235;
-                $G          = 235;
-                $B          = 235;
+
                 $statusname = '';
                 $a_end      = end($data_f);
                 $last       = $a_end['End'] ?? 0;
                 if ($ticket->fields['status'] != Ticket::CLOSED
                 && $last == $verylastdelayStateDB) {
-                    $R          = $a_end['R'] ?? 235;
-                    $G          = $a_end['G'] ?? 235;
-                    $B          = $a_end['B'] ?? 235;
                     $statusname = $a_end['Status'] ?? $statusname;
                 }
                 if ($last < $totaltime) {
                     $a_itemsections[$items_id][] = [
-                    'Start'   => $last,
-                    'End'     => $totaltime,
-                    "Caption" => " ",
-                    "Status"  => $statusname,
-                    "R"       => $R,
-                    "G"       => $G,
-                    "B"       => $B
+                        'Start'   => $last,
+                        'End'     => $totaltime,
+                        "Status"  => $statusname,
                     ];
                 }
             }
@@ -293,103 +200,40 @@ class Tool
     }
 
 
-   /**
-    * Used to display each status time used for each group/user
-    *
-    *
-    * @param Ticket $ticket
-    * @param        $type
-    */
-    public static function ShowDetail(Ticket $ticket, $type)
+
+    public static function getPeriodTime(CommonGLPI $ticket, $start, $end)
     {
 
-        $ptState = new AssignState();
-
-        if ($type == 'group') {
-            $ptItem = new AssignGroup();
-        } elseif ($type == 'user') {
-            $ptItem = new AssignUser();
+//        $calendar = new Calendar();
+        if ($ticket->fields['slas_id_ttr'] != 0) { // Have SLT
+            $sla = new SLA();
+            $sla->getFromDB($ticket->fields['slas_id_ttr']);
+            $totaltime = $sla->getActiveTimeBetween($start, $end);
+        } else {
+//            $calendars_id = Entity::getUsedConfig(
+//                'calendars_strategy',
+//                $ticket->fields['entities_id'],
+//                'calendars_id',
+//                0
+//            );
+//            if ($calendars_id != 0) { // Ticket entity have calendar
+//                $calendar->getFromDB($calendars_id);
+//                $totaltime = $calendar->getActiveTimeBetween($start, $end);
+//            } else { // No calendar
+                $totaltime = strtotime($end) - strtotime($start);
+//            }
         }
-
-        $a_states = $ptState->find(["tickets_id" => $ticket->getID()], ["date"]);
-
-        $a_state_delays = [];
-        $a_state_num    = [];
-        $delay          = 0;
-
-        $list_status = Ticket::getAllStatusArray();
-
-        foreach ($a_states as $array) {
-            $delay                  += $array['delay'];
-            $a_state_delays[$delay] = $array['old_status'];
-            $a_state_num[]          = $delay;
-        }
-        $a_state_num[] = $delay;
-
-        echo "<table class='tab_cadre_fixe' width='100%'>";
-        echo "<tr class='tab_bg_1'>";
-        echo "<th colspan='" . (count($list_status) + 1) . "'>";
-        echo __('Result details');
-        if ($type == 'group') {
-            echo " (" . __('Groups in charge of the ticket', 'timelineticket') . ")";
-        } elseif ($type == 'user') {
-            echo " (" . __('Technicians in charge of the ticket', 'timelineticket') . ")";
-        }
-        echo "</th>";
-        echo "</tr>";
-
-        echo "</tr>";
-        echo "<th>";
-        echo "</th>";
-        foreach ($list_status as $name) {
-            echo "<th>";
-            echo $name;
-            echo "</th>";
-        }
-        echo "</tr>";
-
-        if ($type == 'group') {
-            $a_details = self::getDetails($ticket, 'group', false);
-        } elseif ($type == 'user') {
-            $a_details = self::getDetails($ticket, 'user', false);
-        }
-
-        foreach ($a_details as $items_id => $a_detail) {
-            $a_status = [];
-            foreach ($a_detail as $data) {
-                if (!isset($a_status[$data['Status']])) {
-                    $a_status[$data['Status']] = 0;
-                }
-                $a_status[$data['Status']] += ($data['End'] - $data['Start']);
-            }
-            echo "<tr class='tab_bg_1'>";
-            if ($type == 'group') {
-                echo "<td>" . Dropdown::getDropdownName("glpi_groups", $items_id) . "</td>";
-            } elseif ($type == 'user') {
-                echo "<td>" . getUserName($items_id) . "</td>";
-            }
-            foreach ($list_status as $status => $name) {
-                echo "<td>";
-                if (isset($a_status[$status])) {
-                    echo Html::timestampToString($a_status[$status], true);
-                }
-                echo "</td>";
-            }
-            echo "</tr>";
-        }
-        echo "</table>";
+        return $totaltime;
     }
-
-
-   /**
-    * @param $myDate
-    *
-    * @return false|string
-    * @throws \Exception
-    */
-    static function convertDateToRightTimezoneForCalendarUse($myDate)
+    /**
+     * @param $myDate
+     *
+     * @return false|string
+     * @throws \Exception
+     */
+    public static function convertDateToRightTimezoneForCalendarUse($myDate)
     {
-       // We convert the both dates because $date passed in fonction are timezoned but not hours of calendars
+        // We convert the both dates because $date passed in fonction are timezoned but not hours of calendars
         $currTimezone   = new DateTime(date("Y-m-d"));
         $configTimezone = Config::getConfigurationValues('core', ['timezone']);
         $baseTimezone   = 'UTC';
