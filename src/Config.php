@@ -69,13 +69,16 @@ class Config extends CommonDBTM
         echo "<tr class='tab_bg_1'>";
         echo "<td class='center'>";
 
+        echo "<br>";
+
         echo Html::submit(_sx(
             'button',
             'Reconstruct states timeline for all tickets',
             'timelineticket'
         ), ['name' => 'reconstructStates', 'class' => 'btn btn-primary']);
 
-        echo "&nbsp;";
+        echo "<br>";
+        echo "<br>";
 
         echo Html::submit(_sx(
             'button',
@@ -84,7 +87,8 @@ class Config extends CommonDBTM
         ), ['name' => 'reconstructGroups', 'class' => 'btn btn-primary']);
 
 
-        echo "&nbsp;";
+        echo "<br>";
+        echo "<br>";
 
         echo Html::submit(_sx(
             'button',
@@ -92,8 +96,8 @@ class Config extends CommonDBTM
             'timelineticket'
         ), ['name' => 'reconstructUsers', 'class' => 'btn btn-primary']);
 
-
         echo "</td>";
+        echo "</tr>";
         echo "</table>";
         Html::closeForm();
     }
@@ -107,7 +111,7 @@ class Config extends CommonDBTM
         echo "<table class='tab_cadre_fixe'>";
 
         echo "<tr><th colspan='2'>";
-        echo __('Flags');
+        echo __('Flags', 'timelineticket');
         echo "</th></tr>";
 
         echo "<tr class='tab_bg_1 top'>";

@@ -105,11 +105,12 @@ function plugin_timelineticket_ticket_add(Ticket $item)
 function plugin_timelineticket_ticket_update(Ticket $item)
 {
     if (in_array('status', $item->updates)) {
-        AssignState::AddNewAssignState($item);
+//        \Toolbox::logInfo($item);
+        AssignState::addNewAssignState($item);
     }
     //If status go to Ticket::WAITING, Ticket::SOLVED, Ticket::CLOSED
-    AssignGroup::checkAssignGroup($item);
-    AssignUser::checkAssignUser($item);
+//    AssignGroup::checkAssignGroup($item);
+//    AssignUser::checkAssignUser($item);
 }
 
 function plugin_timelineticket_ticket_purge(Ticket $item)
@@ -218,7 +219,12 @@ function plugin_timelineticket_giveItem($type, $ID, $data, $num)
                     $ticket->getFromDB($data["ITEM_0"]);
 
                     $calendar = new Calendar();
-                    $calendars_id = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
+                    $calendars_id = Entity::getUsedConfig(
+                        'calendars_strategy',
+                        $ticket->fields['entities_id'],
+                        'calendars_id',
+                        0
+                    );
                     $datedebut = $ptAssignGroup->fields['date'];
                     $enddate = $_SESSION["glpi_currenttime"];
                     if ($ticket->fields['status'] == Ticket::CLOSED) {

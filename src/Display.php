@@ -487,6 +487,7 @@ class Display extends CommonDBTM
             $i = [];
             $j = [];
             $k = [];
+            $first = 0;
             foreach ($a_gantt as $key => $v) {
                 if ($item instanceof AssignUser) {
                     $name = getUserName($v['users_id']);
@@ -517,6 +518,16 @@ class Display extends CommonDBTM
                 $data->addRows([
                     [$name, $date($v['begin_date']), $date($v['end_date'])],
                 ]);
+                $first++;
+                if ($first == count($a_gantt) && $item instanceof AssignState) {
+                    if ($v['new_status'] != Ticket::CLOSED) {
+                        $name = Ticket::getStatus($v['new_status']);
+                        $data->addRows([
+                            [$name, $date($v['end_date']), $date(date('Y-m-d H:i:s'))],
+                        ]);
+                        $height += 50;
+                    }
+                }
             }
 
             $chart = $chartService->createTimelineChart('ticket' . get_class($item), $data);

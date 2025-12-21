@@ -124,7 +124,7 @@ class AssignUser extends CommonDBTM
             'WHERE' => [
                 'tickets_id' => $item->fields['tickets_id'],
                 'users_id' => $item->fields['users_id'],
-                'delay' => NULL,
+                'delay' => null,
             ],
         ]);
         if (count($iterator) > 0) {
@@ -213,7 +213,7 @@ class AssignUser extends CommonDBTM
                         'WHERE' => [
                             'tickets_id' => $ticket->getID(),
                             'users_id' => $d["users_id"],
-                            'delay' => NULL,
+                            'delay' => null,
                         ],
                     ]);
                     if (count($iterator) > 0) {
@@ -244,7 +244,6 @@ class AssignUser extends CommonDBTM
             && isset($ticket->input["status"])
             && ($ticket->input["status"] == Ticket::SOLVED
                 || $ticket->input["status"] == Ticket::CLOSED)) {
-
             if ($ticket->countUsers(CommonITILActor::ASSIGN)) {
                 foreach ($ticket->getUsers(CommonITILActor::ASSIGN) as $d) {
 //                    $calendar     = new Calendar();
@@ -262,7 +261,7 @@ class AssignUser extends CommonDBTM
                         'WHERE' => [
                             'tickets_id' => $ticket->getID(),
                             'users_id' => $d["users_id"],
-                            'delay' => NULL,
+                            'delay' => null,
                         ],
                     ]);
                     if (count($iterator) > 0) {
@@ -298,6 +297,7 @@ class AssignUser extends CommonDBTM
     */
     public function insertUserChange(Ticket $ticket, $date, $users_id, $type)
     {
+        global $DB;
 
 //        $calendar = new Calendar();
 
@@ -323,23 +323,43 @@ class AssignUser extends CommonDBTM
                 $begin = strtotime($date) - strtotime($ticket->fields['date']);
 //            }
 
-            $this->add(['tickets_id' => $ticket->getField("id"),
+            $this->add(['tickets_id' => $ticket->getID(),
                           'date'       => $date,
                           'users_id'   => $users_id,
                           'begin'      => $begin]);
 
         } elseif ($type == 'delete') {
-            $a_dbentry = $this->find(["tickets_id" => $ticket->getField("id"),
-                                   "users_id" => $users_id,
-                                   "delay" => null], [], 1);
-            if (count($a_dbentry) == 1) {
-                $input        = current($a_dbentry);
-//                $calendars_id = Entity::getUsedConfig(
+
+            $iterator = $DB->request([
+                'SELECT' => ['MAX' => 'date AS datedebut', 'id'],
+                'FROM' => self::getTable(),
+                'WHERE' => [
+                    'tickets_id' => $ticket->getID(),
+                    'users_id' => $users_id,
+                    'delay' => null,
+                ],
+            ]);
+            if (count($iterator) > 0) {
+                foreach ($iterator as $data) {
+                    $datedebut = $data['datedebut'];
+                    $input['id'] = $data['id'];
+
+                    //                $calendars_id = Entity::getUsedConfig(
 //                    'calendars_strategy',
 //                    $ticket->fields['entities_id'],
 //                    'calendars_id',
 //                    0
 //                );
+                    if (!$datedebut) {
+                        $delay = 0;
+                        // Utilisation calendrier
+//                    } elseif ($calendars_id > 0
+// && $calendar->getFromDB($calendars_id)) {
+//                        $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
+                    } else {
+                        // cas 24/24 - 7/7
+                        $delay = strtotime($date) - strtotime($datedebut);
+                    }
 //                if ($calendars_id > 0
 // && $calendar->getFromDB($calendars_id)) {
 ////                    $input['delay'] = $calendar->getActiveTimeBetween(
@@ -351,10 +371,16 @@ class AssignUser extends CommonDBTM
 //                        $date
 //                    );
 //                } else {
-                   // cas 24/24 - 7/7
-                    $input['delay'] = strtotime($date) - strtotime($input['date']);
+                    // cas 24/24 - 7/7
+//                    Toolbox::logInfo($input['date']);
+//                    Toolbox::logInfo($date);
+//                    $input['delay'] = strtotime($date) - strtotime($datedebut);
+
+                    $input['delay'] = $delay;
 //                }
-                $this->update($input);
+
+                    $this->update($input);
+                }
             }
         }
     }
@@ -428,7 +454,6 @@ class AssignUser extends CommonDBTM
         $iterator = $DB->request($criteria);
 
         foreach ($iterator as $data) {
-
             $queryUser = [
                 'SELECT' => '*',
                 'FROM' => 'glpi_logs',

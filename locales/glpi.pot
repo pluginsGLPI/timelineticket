@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI - Timelineticket plugin 0.90+1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-27 12:38+0200\n"
+"POT-Creation-Date: 2025-12-21 12:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,58 +18,60 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: setup.php:58 src/Display.php:63 src/Profile.php:73
+#: setup.php:59 src/Display.php:68 src/Profile.php:73
 msgid "Timeline of ticket"
 msgid_plural "Timeline of tickets"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Assigngroup.php:142 src/Tool.php:334
-msgid "Groups in charge of the ticket"
-msgstr ""
-
-#: src/Assigngroup.php:281
+#: src/AssignGroup.php:386
 msgid "Ticket assign group history"
 msgstr ""
 
-#: src/Assignstate.php:155
+#: src/AssignState.php:179
 msgid "Ticket states history"
 msgstr ""
 
-#: src/Assignstate.php:194 src/Display.php:203 src/Display.php:231
+#: src/AssignState.php:212
+msgid "Statuses"
+msgstr ""
+
+#: src/AssignState.php:222
+msgid "Old status"
+msgstr ""
+
+#: src/AssignState.php:223
+msgid "New status"
+msgstr ""
+
+#: src/AssignState.php:226 src/Display.php:362 src/Display.php:394
 msgid "Delay"
 msgstr ""
 
-#: src/Assignuser.php:150 src/Tool.php:336
-msgid "Technicians in charge of the ticket"
-msgstr ""
-
-#: src/Assignuser.php:245
+#: src/AssignUser.php:393
 msgid "Ticket assign technician history"
 msgstr ""
 
-#: src/Config.php:64
+#: src/Config.php:65
 msgid "(Can take many time if you have many tickets)"
 msgstr ""
 
-#: src/Config.php:73
+#: src/Config.php:74
 msgctxt "button"
 msgid "Reconstruct states timeline for all tickets"
 msgstr ""
 
-#: src/Config.php:81
+#: src/Config.php:82
 msgctxt "button"
-msgid "Reconstruct groups timeline for all tickets"
+msgid "Reconstruct technician groups timeline for all tickets"
 msgstr ""
 
-#: src/Config.php:86
-msgid ""
-"Warning : it may be that the reconstruction of groups does not reflect "
-"reality because it concern only groups which have the Requester flag to No "
-"and Assigned flag to Yes"
+#: src/Config.php:91
+msgctxt "button"
+msgid "Reconstruct technicians timeline for all tickets"
 msgstr ""
 
-#: src/Config.php:109
+#: src/Config.php:115
 msgid "Input time on groups / users when ticket is waiting"
 msgstr ""
 
@@ -81,61 +83,73 @@ msgstr ""
 msgid "Number of time where a technician has been affected to a ticket"
 msgstr ""
 
-#: src/Display.php:76 src/Display.php:260
+#: src/Display.php:81 src/Display.php:104 src/Display.php:211
 msgid "Timeline"
 msgstr ""
 
-#: src/Display.php:105
+#: src/Display.php:151
+msgid "Groups in charge of the ticket"
+msgstr ""
+
+#: src/Display.php:153
+msgid "Technicians in charge of the ticket"
+msgstr ""
+
+#: src/Display.php:218
 msgctxt "button"
 msgid "Reconstruct history for this ticket"
 msgstr ""
 
-#: src/Grouplevel.php:58
+#: src/Display.php:230
+msgid "Used calendar"
+msgstr ""
+
+#: src/Grouplevel.php:60
 msgid "Service level"
 msgid_plural "Service levels"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Grouplevel.php:69 src/Grouplevel.php:140
+#: src/Grouplevel.php:71 src/Grouplevel.php:142
 msgid "List of associated groups"
 msgstr ""
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:48
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:49
 msgid "statResolvedSpentTimeByGroup_report_title"
 msgstr ""
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:219
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:220
 msgid "Solved by"
 msgstr ""
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:220
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:221
 msgid "Solved by (Group)"
 msgstr ""
 
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:229
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:228
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:230
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:229
 msgid "Duration by"
-msgstr ""
-
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:232
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:231
-msgid "Total waiting duration of ticket"
 msgstr ""
 
 #: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:233
 #: report/statSpentTimeByGroup/statSpentTimeByGroup.php:232
+msgid "Total waiting duration of ticket"
+msgstr ""
+
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:234
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:233
 msgid "Total duration of ticket"
 msgstr ""
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:48
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:49
 msgid "statSpentTimeByGroup_report_title"
 msgstr ""
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:227
 msgid "Tasks number by"
 msgstr ""
 
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:227
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:228
 msgid "Tasks duration by"
 msgstr ""
 

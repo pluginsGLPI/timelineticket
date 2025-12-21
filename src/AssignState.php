@@ -57,49 +57,65 @@ class AssignState extends CommonDBTM
         // Instantiation of the object from the class AssignState
         $ptState = new self();
 
-        $ptState->insertStatusChange(
-            $ticket,
-            $ticket->input['date'],
-            0,
-            Ticket::INCOMING,
-            0
-        );
 
-        if ($ticket->input['status'] != Ticket::INCOMING) {
-            $ptState->insertStatusChange(
-                $ticket,
-                $ticket->input['date'],
-                Ticket::INCOMING,
-                $ticket->input['status'],
-                0
-            );
+        $id = $ptState->add(['tickets_id' => $ticket->getID(),
+            'date'       => $ticket->input['date'],
+            'old_status' => 0,
+            'new_status' => Ticket::INCOMING,
+            'delay'      => 0]);
+
+        if ($ticket->fields['status'] != Ticket::INCOMING && $id > 0) {
+            $ptState->add(['tickets_id' => $ticket->getID(),
+                'date'       => $ticket->input['date'],
+                'old_status' => Ticket::INCOMING,
+                'new_status' => $ticket->fields['status'],
+                'delay'      => 0]);
         }
     }
 
-    public static function AddNewAssignState(Ticket $ticket)
+    public static function addNewAssignState(Ticket $ticket)
     {
+        global $DB;
         // Instantiation of the object from the class AssignState
         $ptState = new self();
 
-        // Insertion the changement in the database
-        $ptState->insertStatusChange(
-            $ticket,
-            $_SESSION["glpi_currenttime"],
-            $ticket->oldvalues['status'],
-            $ticket->fields['status'],
-            0
-        );
+        $iterator = $DB->request([
+            'SELECT' => ['MAX' => 'date AS datedebut', 'id'],
+            'FROM' => self::getTable(),
+            'WHERE' => [
+                'tickets_id' => $ticket->getID(),
+            ],
+        ]);
+        if (count($iterator) > 0) {
+            foreach ($iterator as $data) {
+                $datedebut = $data['datedebut'];
+            }
+        } else {
+            return;
+        }
+
+        if (!$datedebut) {
+            $delay = 0;
+            // Utilisation calendrier
+//                    } elseif ($calendars_id > 0
+// && $calendar->getFromDB($calendars_id)) {
+//                        $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
+        } else {
+            // cas 24/24 - 7/7
+            $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
+        }
+        //Test for plugin_timelineticket_ticket_add (already added)
+        if ($ticket->fields['date_mod'] != $ticket->fields['date_creation']) {
+            $ptState->add(['tickets_id' => $ticket->getID(),
+                'date'       => $_SESSION["glpi_currenttime"],
+                'old_status' => $ticket->oldvalues['status'],
+                'new_status' => $ticket->fields['status'],
+                'delay'      => $delay]);
+        }
+
+
     }
 
-    // Method permitting to save the current status
-    public function insertStatusChange(Ticket $ticket, $date, $old_status, $new_status, $delay)
-    {
-        $this->add(['tickets_id' => $ticket->getField("id"),
-            'date'       => $date,
-            'old_status' => $old_status,
-            'new_status' => $new_status,
-            'delay'      => $delay]);
-    }
 
     public static function getTotaltimeEnddate(CommonGLPI $ticket)
     {
@@ -229,19 +245,6 @@ class AssignState extends CommonDBTM
             $first = 0;
             foreach ($req as $data) {
 
-                //                    if ($cnt == 0) {
-                //                        if ($data['new_status'] != Ticket::CLOSED) {
-                //                            echo "<tr class='tab_bg_1'>";
-                //                            echo "<td></td>";
-                //                            echo "<td>" . Ticket::getStatus($data['new_status']) . "</td>";
-                //                            echo "<td class='right'>" . Html::timestampToString(
-                //                                (date('U') - strtotime($data['date'])),
-                //                                true
-                //                            ) . "</td>";
-                //                            echo "</tr>";
-                //                            $total += (date('U') - strtotime($data['date']));
-                //                        }
-                //                    }
                 $status = __('New ticket');
                 if ($data['old_status'] != 0) {
                     $status = Ticket::getStatus($data['old_status']);
@@ -253,7 +256,7 @@ class AssignState extends CommonDBTM
                 $date_begin[$first] = $data['date'];
 
                 if (!isset($date_begin[$first - 1])) {
-                    $olddate = $data['date'];
+                    $olddate = $ticket->fields['date'];;
                 } else {
                     $olddate = $date_begin[$first - 1];
                 }
@@ -267,6 +270,22 @@ class AssignState extends CommonDBTM
                 $total += $data['delay'];
 
                 $first++;
+
+                if ($first == count($req)) {
+                    if ($data['new_status'] != Ticket::CLOSED) {
+                        echo "<tr class='tab_bg_1'>";
+                        echo "<td>" . Ticket::getStatus($data['new_status']) . "</td>";
+                        echo "<td></td>";
+                        echo "<td>" . Html::convDateTime($data['date']) . "</td>";
+                        echo "<td></td>";
+                        echo "<td class='right'>" . Html::timestampToString(
+                                (date('U') - strtotime($data['date'])),
+                                true
+                            ) . "</td>";
+                        echo "</tr>";
+                        $total += (date('U') - strtotime($data['date']));
+                    }
+                }
             }
         }
         echo "</table>";
@@ -332,38 +351,12 @@ class AssignState extends CommonDBTM
                         $delay = strtotime($datal['date_mod']) - strtotime($olddate);
                     }
 
-//                    if ($first == 0) {
-//                        if ($datal['old_value'] > 1) {
-//                            $this->insertStatusChange(
-//                                $ticket,
-//                                $data['date'],
-//                                Ticket::INCOMING,
-//                                Ticket::ASSIGNED,
-//                                0
-//                            );
-//                        } else {
-////                            $this->insertStatusChange(
-////                                $ticket,
-////                                $data['date'],
-////                                0,
-////                                Ticket::INCOMING,
-////                                0
-////                            );
-//                        }
-//
-//                    } else {
-//                        // Éléments suivants : délai depuis la modification précédente
-//                        $begin_date = $date_mod[$first - 1];
-//                        $delay = strtotime($datal['date_mod']) - strtotime($begin_date);
-//                    }
+                    $this->add(['tickets_id' => $ticket->getID(),
+                        'date'       => $datal['date_mod'],
+                        'old_status' => $datal['old_value'],
+                        'new_status' => $datal['new_value'],
+                        'delay'      => $delay]);
 
-                    $this->insertStatusChange(
-                        $ticket,
-                        $datal['date_mod'],
-                        $datal['old_value'],
-                        $datal['new_value'],
-                        $delay
-                    );
 
                     $first++;
                 }
