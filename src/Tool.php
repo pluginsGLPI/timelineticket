@@ -54,7 +54,6 @@ if (!defined('GLPI_ROOT')) {
 
 class Tool
 {
-
     /**
      * Return array with all data
      *
@@ -204,24 +203,24 @@ class Tool
     public static function getPeriodTime(CommonGLPI $ticket, $start, $end)
     {
 
-//        $calendar = new Calendar();
+        //        $calendar = new Calendar();
         if ($ticket->fields['slas_id_ttr'] != 0) { // Have SLT
             $sla = new SLA();
             $sla->getFromDB($ticket->fields['slas_id_ttr']);
             $totaltime = $sla->getActiveTimeBetween($start, $end);
         } else {
-//            $calendars_id = Entity::getUsedConfig(
-//                'calendars_strategy',
-//                $ticket->fields['entities_id'],
-//                'calendars_id',
-//                0
-//            );
-//            if ($calendars_id != 0) { // Ticket entity have calendar
-//                $calendar->getFromDB($calendars_id);
-//                $totaltime = $calendar->getActiveTimeBetween($start, $end);
-//            } else { // No calendar
-                $totaltime = strtotime($end) - strtotime($start);
-//            }
+            //            $calendars_id = Entity::getUsedConfig(
+            //                'calendars_strategy',
+            //                $ticket->fields['entities_id'],
+            //                'calendars_id',
+            //                0
+            //            );
+            //            if ($calendars_id != 0) { // Ticket entity have calendar
+            //                $calendar->getFromDB($calendars_id);
+            //                $totaltime = $calendar->getActiveTimeBetween($start, $end);
+            //            } else { // No calendar
+            $totaltime = strtotime($end) - strtotime($start);
+            //            }
         }
         return $totaltime;
     }

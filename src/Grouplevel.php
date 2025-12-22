@@ -43,6 +43,7 @@ use CommonDropdown;
 use DBConnection;
 use DbUtils;
 use Dropdown;
+use Group;
 use Html;
 use Migration;
 use Toolbox;
@@ -53,7 +54,6 @@ if (!defined('GLPI_ROOT')) {
 
 class Grouplevel extends CommonDropdown
 {
-
     public static function getTypeName($nb = 0)
     {
 
@@ -64,96 +64,98 @@ class Grouplevel extends CommonDropdown
     {
 
         return [['name'  => 'rank',
-                         'label' => __('Position'),
-                         'type'  => 'text',
-                         'list'  => true],
-                   ['name'  => 'groups',
-                         'label' => __('List of associated groups', 'timelineticket'),
-                         'type'  => 'groups',
-                         'list'  => true]];
+            'label' => __('Position'),
+            'type'  => 'text',
+            'list'  => true],
+            ['name'  => 'groups',
+                'label' => __('List of associated groups', 'timelineticket'),
+                'type'  => 'groups',
+                'list'  => true]];
     }
 
     public function displaySpecificTypeField($ID, $field = [], array $options = [])
     {
-        global $CFG_GLPI;
 
         switch ($field['type']) {
             case 'groups':
-                $groups = json_decode($this->fields[$field['name']], true);
-                if (!empty($groups)) {
-                    echo "<table class='tab_cadre_fixe' cellpadding='5'>";
-                    foreach ($groups as $key => $val) {
-                        echo "<tr class='tab_bg_1 center'>";
-                        echo "<td>";
-                        echo Dropdown::getDropdownName("glpi_groups", $val);
-                        echo "</td>";
-                        echo "<td>";
-                        Html::showSimpleForm(
-                            Toolbox::getItemTypeFormURL(Config::class),
-                            'delete_groups',
-                            _x('button', 'Delete permanently'),
-                            ['delete_groups'     => 'delete_groups',
-                                             'id'                => $ID,
-                                             '_groups_id_assign' => $val
-                                       ],
-                            'fa-trash-alt fa-1x'
-                        );
-                         echo " </td>";
-                         echo "</tr>";
-                    }
+                if (!empty($this->fields[$field['name']])) {
+                    $groups = json_decode($this->fields[$field['name']], true);
+                    if (!empty($groups)) {
+                        echo "<table class='tab_cadre_fixe' cellpadding='5'>";
+                        foreach ($groups as $key => $val) {
+                            echo "<tr class='tab_bg_1 center'>";
+                            echo "<td>";
+                            echo Dropdown::getDropdownName("glpi_groups", $val);
+                            echo "</td>";
+                            echo "<td>";
+                            Html::showSimpleForm(
+                                Toolbox::getItemTypeFormURL(Config::class),
+                                'delete_groups',
+                                _x('button', 'Delete permanently'),
+                                [
+                                    'delete_groups' => 'delete_groups',
+                                    'id' => $ID,
+                                    '_groups_id_assign' => $val,
+                                ],
+                                'ti-trash'
+                            );
+                            echo " </td>";
+                            echo "</tr>";
+                        }
 
-                    echo "</table>";
-                } else {
-                    echo __('None');
+                        echo "</table>";
+                    } else {
+                        echo __('None');
+                    }
                 }
                 break;
         }
     }
 
-   /**
-    * Provides search options configuration. Do not rely directly
-    * on this, @see CommonDBTM::searchOptions instead.
-    *
-    * @since 9.3
-    *
-    * This should be overloaded in Class
-    *
-    * @return array a *not indexed* array of search options
-    *
-    * @see https://glpi-developer-documentation.rtfd.io/en/master/devapi/search.html
-    **/
+    /**
+     * Provides search options configuration. Do not rely directly
+     * on this, @see CommonDBTM::searchOptions instead.
+     *
+     * @since 9.3
+     *
+     * This should be overloaded in Class
+     *
+     * @return array a *not indexed* array of search options
+     *
+     * @see https://glpi-developer-documentation.rtfd.io/en/master/devapi/search.html
+     **/
     public function rawSearchOptions()
     {
 
         $tab = parent::rawSearchOptions();
 
         $tab[] = [
-         'id'            => '11',
-         'table'         => $this->getTable(),
-         'field'         => 'rank',
-         'name'          => __('Position'),
-         'massiveaction' => false
+            'id'            => '11',
+            'table'         => $this->getTable(),
+            'field'         => 'rank',
+            'name'          => __('Position'),
+            'massiveaction' => false,
         ];
 
         $tab[] = [
-         'id'            => '12',
-         'table'         => $this->getTable(),
-         'field'         => 'groups',
-         'name'          => __('List of associated groups', 'timelineticket'),
-         'massiveaction' => 'false',
-         'nosearch'      => true
+            'id'            => '12',
+            'table'         => $this->getTable(),
+            'field'         => 'groups',
+            'name'          => __('List of associated groups', 'timelineticket'),
+            'massiveaction' => 'false',
+            'nosearch'      => true,
         ];
 
         return $tab;
     }
 
-   /**
-    * Define tabs to display
-    *
-    * @param $options array
-    *
-    * @return array
-    */
+    /**
+     * Define tabs to display
+     *
+     * @param $options array
+     *
+     * @return array
+     */
     public function defineTabs($options = [])
     {
 
@@ -180,10 +182,10 @@ class Grouplevel extends CommonDropdown
         $used = ($item->fields["groups"] == '' ? [] : json_decode($item->fields["groups"], true));
 
         Group::dropdown(['name'        => '_groups_id_assign',
-                            'used'        => $used,
-                            'entity'      => $item->fields['entities_id'],
-                            'entity_sons' => $item->fields["is_recursive"],
-                            'condition'   => ['is_assign' => 1]]);
+            'used'        => $used,
+            'entity'      => $item->fields['entities_id'],
+            'entity_sons' => $item->fields["is_recursive"],
+            'condition'   => ['is_assign' => 1]]);
 
         echo "</td>";
         echo "<td>";
@@ -198,8 +200,8 @@ class Grouplevel extends CommonDropdown
     public function getLaskRank()
     {
         $dbu      = new DbUtils();
-        $restrict = $dbu->getEntitiesRestrictCriteria("glpi_plugin_timelineticket_grouplevels", '', '', true)+
-                  ["ORDER" => "rank DESC"] + ["LIMIT" => 1];
+        $restrict = $dbu->getEntitiesRestrictCriteria("glpi_plugin_timelineticket_grouplevels", '', '', true)
+                  + ["ORDER" => "rank DESC"] + ["LIMIT" => 1];
         $configs  = $dbu->getAllDataFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
         if (!empty($configs)) {
             foreach ($configs as $config) {
@@ -230,7 +232,7 @@ class Grouplevel extends CommonDropdown
                         $groups = json_decode($config["groups"], true);
                         if (count($groups) > 0) {
                             if (!in_array($params["_groups_id_assign"], $groups)) {
-                                 array_push($groups, $params["_groups_id_assign"]);
+                                array_push($groups, $params["_groups_id_assign"]);
                             }
                         } else {
                             $groups = [$params["_groups_id_assign"]];

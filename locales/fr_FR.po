@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-21 12:23+0100\n"
-"PO-Revision-Date: 2025-12-21 12:31+0100\n"
+"POT-Creation-Date: 2025-12-22 10:36+0100\n"
+"PO-Revision-Date: 2025-12-22 10:53+0100\n"
 "Last-Translator: Xavier CAILLAUD <thetsmr@gmail.com>, 2017,2019-2020,2022,2025\n"
 "Language-Team: French (France) (http://app.transifex.com/infotelGLPI/GLPI_timelineticket/language/fr_FR/)\n"
 "MIME-Version: 1.0\n"
@@ -22,38 +22,38 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 "X-Generator: Poedit 3.0\n"
 
-#: setup.php:59 src/Display.php:68 src/Profile.php:73
+#: hook.php:154 hook.php:166 setup.php:59 src/Display.php:69 src/Display.php:211 src/Profile.php:73
 msgid "Timeline of ticket"
 msgid_plural "Timeline of tickets"
 msgstr[0] "Chronologie du ticket"
 msgstr[1] "Chronologie des tickets"
 msgstr[2] "Chronologie des tickets"
 
-#: src/AssignGroup.php:386
+#: src/AssignGroup.php:384
 msgid "Ticket assign group history"
 msgstr "Historique des assignations de groupes du ticket"
 
-#: src/AssignState.php:179
+#: src/AssignState.php:195
 msgid "Ticket states history"
 msgstr "Historique des statuts du ticket"
 
-#: src/AssignState.php:212
+#: src/AssignState.php:228
 msgid "Statuses"
 msgstr "Statuts"
 
-#: src/AssignState.php:222
+#: src/AssignState.php:238
 msgid "Old status"
 msgstr "Ancien statut"
 
-#: src/AssignState.php:223
+#: src/AssignState.php:239
 msgid "New status"
 msgstr "Nouveau statut"
 
-#: src/AssignState.php:226 src/Display.php:362 src/Display.php:394
+#: src/AssignState.php:242 src/Display.php:368 src/Display.php:400
 msgid "Delay"
 msgstr "Délai"
 
-#: src/AssignUser.php:393
+#: src/AssignUser.php:419
 msgid "Ticket assign technician history"
 msgstr "Historique des assignations de techniciens du ticket"
 
@@ -61,22 +61,26 @@ msgstr "Historique des assignations de techniciens du ticket"
 msgid "(Can take many time if you have many tickets)"
 msgstr "(Cela peut prendre du temps si vous avez beaucoup de tickets)"
 
-#: src/Config.php:74
+#: src/Config.php:76
 msgctxt "button"
 msgid "Reconstruct states timeline for all tickets"
 msgstr "Reconstruire la chronologie des statuts pour tous les tickets"
 
-#: src/Config.php:82
+#: src/Config.php:85
 msgctxt "button"
 msgid "Reconstruct technician groups timeline for all tickets"
 msgstr "Reconstruire la chronologie des groupes de techniciens pour tous les tickets"
 
-#: src/Config.php:91
+#: src/Config.php:95
 msgctxt "button"
 msgid "Reconstruct technicians timeline for all tickets"
 msgstr "Reconstruire la chronologie des techniciens pour tous les tickets"
 
-#: src/Config.php:115
+#: src/Config.php:114
+msgid "Flags"
+msgstr "Drapeaux"
+
+#: src/Config.php:119
 msgid "Input time on groups / users when ticket is waiting"
 msgstr "Inputer du temps au groupes / techniciens assignés quand le ticket est en En attente"
 
@@ -87,10 +91,6 @@ msgstr "Nombre d'affectations de techniciens pour un ticket"
 #: src/Dashboard.php:78
 msgid "Number of time where a technician has been affected to a ticket"
 msgstr "Nombre de fois où un technicien a été affecté à un ticket"
-
-#: src/Display.php:81 src/Display.php:104 src/Display.php:211
-msgid "Timeline"
-msgstr "Chronologie"
 
 #: src/Display.php:151
 msgid "Groups in charge of the ticket"
@@ -109,6 +109,11 @@ msgstr "Reconstruire l'historique pour ce ticket"
 msgid "Used calendar"
 msgstr "Calendrier utilisé"
 
+#: src/Display.php:291
+msgid "This view displays time spent by status, group, technician. The display does not use working hours"
+msgstr ""
+"Cette vue affiche les temps passés par statut, groupe, technicien. L'affichage n'utilise pas les heures ouvrées"
+
 #: src/Grouplevel.php:60
 msgid "Service level"
 msgid_plural "Service levels"
@@ -116,7 +121,7 @@ msgstr[0] "Niveau de support"
 msgstr[1] "Niveaux de support"
 msgstr[2] "Niveaux de support"
 
-#: src/Grouplevel.php:71 src/Grouplevel.php:142
+#: src/Grouplevel.php:71 src/Grouplevel.php:144
 msgid "List of associated groups"
 msgstr "Liste des groupes associés"
 

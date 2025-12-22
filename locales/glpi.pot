@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI - Timelineticket plugin 0.90+1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-21 12:23+0100\n"
+"POT-Creation-Date: 2025-12-22 10:36+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,37 +18,38 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: setup.php:59 src/Display.php:68 src/Profile.php:73
+#: hook.php:154 hook.php:166 setup.php:59 src/Display.php:69
+#: src/Display.php:211 src/Profile.php:73
 msgid "Timeline of ticket"
 msgid_plural "Timeline of tickets"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/AssignGroup.php:386
+#: src/AssignGroup.php:384
 msgid "Ticket assign group history"
 msgstr ""
 
-#: src/AssignState.php:179
+#: src/AssignState.php:195
 msgid "Ticket states history"
 msgstr ""
 
-#: src/AssignState.php:212
+#: src/AssignState.php:228
 msgid "Statuses"
 msgstr ""
 
-#: src/AssignState.php:222
+#: src/AssignState.php:238
 msgid "Old status"
 msgstr ""
 
-#: src/AssignState.php:223
+#: src/AssignState.php:239
 msgid "New status"
 msgstr ""
 
-#: src/AssignState.php:226 src/Display.php:362 src/Display.php:394
+#: src/AssignState.php:242 src/Display.php:368 src/Display.php:400
 msgid "Delay"
 msgstr ""
 
-#: src/AssignUser.php:393
+#: src/AssignUser.php:419
 msgid "Ticket assign technician history"
 msgstr ""
 
@@ -56,22 +57,26 @@ msgstr ""
 msgid "(Can take many time if you have many tickets)"
 msgstr ""
 
-#: src/Config.php:74
+#: src/Config.php:76
 msgctxt "button"
 msgid "Reconstruct states timeline for all tickets"
 msgstr ""
 
-#: src/Config.php:82
+#: src/Config.php:85
 msgctxt "button"
 msgid "Reconstruct technician groups timeline for all tickets"
 msgstr ""
 
-#: src/Config.php:91
+#: src/Config.php:95
 msgctxt "button"
 msgid "Reconstruct technicians timeline for all tickets"
 msgstr ""
 
-#: src/Config.php:115
+#: src/Config.php:114
+msgid "Flags"
+msgstr ""
+
+#: src/Config.php:119
 msgid "Input time on groups / users when ticket is waiting"
 msgstr ""
 
@@ -81,10 +86,6 @@ msgstr ""
 
 #: src/Dashboard.php:78
 msgid "Number of time where a technician has been affected to a ticket"
-msgstr ""
-
-#: src/Display.php:81 src/Display.php:104 src/Display.php:211
-msgid "Timeline"
 msgstr ""
 
 #: src/Display.php:151
@@ -104,13 +105,19 @@ msgstr ""
 msgid "Used calendar"
 msgstr ""
 
+#: src/Display.php:291
+msgid ""
+"This view displays time spent by status, group, technician. The display does "
+"not use working hours"
+msgstr ""
+
 #: src/Grouplevel.php:60
 msgid "Service level"
 msgid_plural "Service levels"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Grouplevel.php:71 src/Grouplevel.php:142
+#: src/Grouplevel.php:71 src/Grouplevel.php:144
 msgid "List of associated groups"
 msgstr ""
 

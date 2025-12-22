@@ -533,5 +533,6 @@ class AssignUser extends CommonDBTM
         global $DB;
 
         $DB->dropTable(self::getTable(), true);
+
     }
 }

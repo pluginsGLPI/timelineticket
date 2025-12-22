@@ -44,6 +44,7 @@ use CommonDBTM;
 use CommonGLPI;
 use CommonITILObject;
 use DateTime;
+use DbUtils;
 use Dropdown;
 use Entity;
 use Html;
@@ -78,7 +79,7 @@ class Display extends CommonDBTM
     {
         if ($item->getType() == 'Ticket'
             && $_SESSION['glpiactiveprofile']['interface'] == 'central') {
-            return self::createTabEntry(__('Timeline', 'timelineticket'));
+            return self::createTabEntry(self::getTypeName(1));
         }
         return '';
     }
@@ -101,7 +102,7 @@ class Display extends CommonDBTM
 
         $tab[] = [
             'id' => 'common',
-            'name' => __('Timeline', 'timelineticket')
+            'name' => self::getTypeName(1)
         ];
 
         $tab[] = [
@@ -132,7 +133,6 @@ class Display extends CommonDBTM
         $a_states = $ptState->find(["tickets_id" => $ticket->getID()], ["date"]);
 
         $a_state_delays = [];
-        $a_state_num = [];
         $delay = 0;
 
         $list_status = Ticket::getAllStatusArray();
@@ -208,7 +208,7 @@ class Display extends CommonDBTM
 
         echo "<h4 class='card-title d-flex align-items-center'>";
         $icon = self::getIcon();
-        echo "<i class='$icon me-2 text-danger'></i>" . __('Timeline', 'timelineticket') . "</h4>";
+        echo "<i class='$icon me-2 text-danger'></i>" . _n("Timeline of ticket", "Timeline of tickets", 1, "timelineticket") . "</h4>";
 
         echo "<small class='text-muted d-flex align-items-center ms-auto'>";
         $target = PLUGIN_TIMELINETICKET_WEBDIR . "/front/config.form.php";
@@ -283,6 +283,12 @@ class Display extends CommonDBTM
         }
 
         echo "</div>";
+        echo "</div>";
+
+        echo "<div class='alert alert-secondary'>";
+        echo "<i class='ti ti-info-circle'></i>";
+        echo "&nbsp;";
+        echo __('This view displays time spent by status, group, technician. The display does not use working hours', 'timelineticket');
         echo "</div>";
 
         echo "<div class='card-body'>";
@@ -419,10 +425,28 @@ class Display extends CommonDBTM
         ]);
         $a_gantt = [];
 
+        if ($item instanceof AssignGroup) {
+            $mylevels = [];
+            $dbu = new DbUtils();
+            $restrict = $dbu->getEntitiesRestrictCriteria("glpi_plugin_timelineticket_grouplevels", '', '', true) +
+                ["ORDER" => 'rank'];
+            $levels = $dbu->getAllDataFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
+            if (!empty($levels)) {
+                foreach ($levels as $level) {
+                    if (!empty($level["groups"])) {
+                        $groups = json_decode($level["groups"], true);
+                        $mylevels[$level["name"]] = $groups;
+                    }
+                }
+            }
+            $ticketlevels = [];
+        }
+
         foreach ($req as $datareq) {
             if ($item instanceof AssignUser) {
                 $a_gantt[$datareq['id']]['users_id'] = $datareq['users_id'];
             } elseif ($item instanceof AssignGroup) {
+
                 $a_gantt[$datareq['id']]['groups_id'] = $datareq['groups_id'];
             } else {
                 $a_gantt[$datareq['id']]['old_status'] = $datareq['old_status'];
@@ -459,7 +483,6 @@ class Display extends CommonDBTM
             }
         }
 
-//        \Toolbox::logInfo($a_gantt);
         if (count($a_gantt) > 0) {
 
             $chartService = new ChartService();
@@ -497,7 +520,21 @@ class Display extends CommonDBTM
                     }
                     $i[] = $v['users_id'];
                 } elseif ($item instanceof AssignGroup) {
-                    $name = Dropdown::getDropdownName("glpi_groups", $v['groups_id']);
+
+                    if (count($mylevels) > 0) {
+                        foreach ($mylevels as $levelname => $groups) {
+                            if (in_array($v['groups_id'], $groups)) {
+                                $name = $levelname;
+                            } else {
+                                $name = Dropdown::getDropdownName("glpi_groups", $v['groups_id']);
+                            }
+                        }
+                    } else {
+                        $name = Dropdown::getDropdownName("glpi_groups", $v['groups_id']);
+                    }
+
+
+
 
                     if (!in_array($v['groups_id'], $j)) {
                         $height += 50;

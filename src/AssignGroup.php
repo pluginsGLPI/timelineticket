@@ -355,8 +355,6 @@ class AssignGroup extends CommonDBTM
     {
         global $DB;
 
-
-
         $req = $DB->request([
             'FROM' => self::getTable(),
             'WHERE' => ['tickets_id' => $ticket->getField('id')],
