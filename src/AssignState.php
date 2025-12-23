@@ -316,8 +316,6 @@ class AssignState extends CommonDBTM
         }
         $iterator = $DB->request($criteria);
 
-        $ticket->getFromDB($id);
-
         foreach ($iterator as $data) {
             $queryl = [
                 'SELECT' => '*',
@@ -351,7 +349,7 @@ class AssignState extends CommonDBTM
                         $delay = strtotime($datal['date_mod']) - strtotime($olddate);
                     }
 
-                    $this->add(['tickets_id' => $ticket->getID(),
+                    $this->add(['tickets_id' => $data['id'],
                         'date'       => $datal['date_mod'],
                         'old_status' => $datal['old_value'],
                         'new_status' => $datal['new_value'],
