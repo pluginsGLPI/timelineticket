@@ -1,0 +1,161 @@
+name: PHPUnit
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+
+  # ── Job 1 : unit tests (no database) ──────────────────────────────────────
+  unit-tests:
+    name: "Unit tests (PHP ${{ matrix.php-version }})"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ["8.3", "8.4"]
+
+    steps:
+      - name: Checkout GLPI core (shallow)
+        uses: actions/checkout@v4
+        with:
+          repository: glpi-project/glpi
+          ref: 11.0/bugfixes
+          path: glpi
+
+      - name: Checkout plugin
+        uses: actions/checkout@v4
+        with:
+          path: glpi/plugins/timelineticket
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, openssl
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ matrix.php-version }}-${{ hashFiles('glpi/composer.lock') }}
+          restore-keys: composer-${{ matrix.php-version }}-
+
+      - name: Install GLPI Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+        working-directory: glpi
+
+      - name: Install plugin Composer dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --no-progress
+        working-directory: glpi/plugins/timelineticket
+
+      - name: Run unit tests
+        run: >
+          php vendor/bin/phpunit
+          --configuration plugins/timelineticket/phpunit.xml
+          --testsuite Unit
+        working-directory: glpi
+
+  # ── Job 2 : integration tests (with GLPI database) ────────────────────────
+  integration-tests:
+    name: "Integration tests (PHP ${{ matrix.php-version }} / ${{ matrix.db-image }})"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php-version: "8.3"
+            db-image: "mysql:8.0"
+          - php-version: "8.3"
+            db-image: "mariadb:10.11"
+
+    services:
+      db:
+        image: ${{ matrix.db-image }}
+        env:
+          MYSQL_ROOT_PASSWORD: ""
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: glpi_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -uroot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout GLPI core
+        uses: actions/checkout@v4
+        with:
+          repository: glpi-project/glpi
+          ref: 11.0/bugfixes
+          path: glpi
+
+      - name: Checkout plugin
+        uses: actions/checkout@v4
+        with:
+          path: glpi/plugins/timelineticket
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, openssl, mysqli, pdo_mysql
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ matrix.php-version }}-${{ hashFiles('glpi/composer.lock') }}
+          restore-keys: composer-${{ matrix.php-version }}-
+
+      - name: Install GLPI Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+        working-directory: glpi
+
+      - name: Build GLPI frontend dependencies
+        run: |
+          npm install --no-save
+          npm run-script build
+        working-directory: glpi
+
+      - name: Compile GLPI locales
+        run: |
+          sudo apt-get install -y gettext
+          php bin/console tools:locales:compile --allow-superuser
+        working-directory: glpi
+
+      - name: Install GLPI test database
+        run: >
+          php bin/console database:install
+          --no-interaction --force
+          --env=testing
+          --db-host=127.0.0.1
+          --db-name=glpi_test
+          --db-user=root
+          --db-password=""
+        working-directory: glpi
+
+      - name: Install plugin Composer dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --no-progress
+        working-directory: glpi/plugins/timelineticket
+
+      - name: Install timelineticket plugin
+        run: |
+          php bin/console glpi:plugin:install  --no-interaction --env=testing timelineticket
+          php bin/console glpi:plugin:activate --no-interaction --env=testing timelineticket
+        working-directory: glpi
+
+      - name: Run integration tests
+        run: >
+          php vendor/bin/phpunit
+          --configuration plugins/timelineticket/phpunit.integration.xml
+          --testsuite Integration
+        working-directory: glpi
