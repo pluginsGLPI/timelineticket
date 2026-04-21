@@ -320,7 +320,7 @@ class AssignUser extends CommonDBTM
 //                );
 //            } else {
                // cas 24/24 - 7/7
-                $begin = strtotime($date) - strtotime($ticket->fields['date']);
+                $begin = max(0, strtotime($date) - strtotime($ticket->fields['date']));
 //            }
 
             $this->add(['tickets_id' => $ticket->getID(),

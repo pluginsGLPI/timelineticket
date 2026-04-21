@@ -25,7 +25,7 @@ class ConfigTest extends DbTestCase
         $config = new Config();
         $config->getFromDB(1);
 
-        $this->assertSame('1', $config->getField('add_waiting'));
+        $this->assertSame(1, $config->getField('add_waiting'));
     }
 
     public function testConfigGetIconDelegatesToDisplay(): void
