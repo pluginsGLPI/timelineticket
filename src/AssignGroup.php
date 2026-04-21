@@ -90,7 +90,7 @@ class AssignGroup extends CommonDBTM
                 && $ticket->fields["status"] == Ticket::WAITING) {
                 $ok = 0;
             }
-            if ($ok && $item->fields['groups_id'] > 0) {
+            if ($ok && $item->fields['groups_id'] > 0 && $delay > 0) {
                 $input               = [];
                 $input['tickets_id'] = $item->fields['tickets_id'];
                 $input['groups_id']  = $item->fields['groups_id'];
