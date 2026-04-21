@@ -51,32 +51,28 @@ if (Session::haveRight("config", READ)
     $grplevel = new Grouplevel();
 
     if (isset($_POST["reconstructStates"])) {
-        ini_set("max_execution_time", "0");
-        ini_set("memory_limit", "-1");
         $ptState = new AssignState();
         $ptState->reconstructTimeline();
         Html::back();
     } elseif (isset($_POST["reconstructGroups"])) {
-        ini_set("max_execution_time", "0");
-        ini_set("memory_limit", "-1");
         $ptGroup = new AssignGroup();
         $ptGroup->reconstructTimeline();
         Html::back();
     } elseif (isset($_POST["reconstructUsers"])) {
-        ini_set("max_execution_time", "0");
-        ini_set("memory_limit", "-1");
         $ptUser = new AssignUser();
         $ptUser->reconstructTimeline();
         Html::back();
     } elseif (isset($_POST["reconstructTicket"])) {
-        ini_set("max_execution_time", "0");
-        ini_set("memory_limit", "-1");
+        $tickets_id = (int) ($_POST['tickets_id'] ?? 0);
+        if ($tickets_id <= 0) {
+            Html::back();
+        }
         $ptState = new AssignState();
-        $ptState->reconstructTimeline($_POST['tickets_id']);
+        $ptState->reconstructTimeline($tickets_id);
         $ptGroup = new AssignGroup();
-        $ptGroup->reconstructTimeline($_POST['tickets_id']);
+        $ptGroup->reconstructTimeline($tickets_id);
         $ptUser = new AssignUser();
-        $ptUser->reconstructTimeline($_POST['tickets_id']);
+        $ptUser->reconstructTimeline($tickets_id);
         Html::back();
     } elseif (isset($_POST["add_groups"])
                || isset($_POST["delete_groups"])) {

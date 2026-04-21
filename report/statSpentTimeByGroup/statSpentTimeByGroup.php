@@ -562,10 +562,9 @@ function getOrderBy($default, $columns) {
    $order = $_REQUEST['order'];
    $sort  = isset($_REQUEST['sort']) ? $_REQUEST['sort'] : $default;
 
-   //   $tab = getOrderByFields($default, $columns);
-   //   if (is_array($tab) && count($tab) > 0) {
-   return " ORDER BY " . $sort . " " . $order;
-   //   }
+   if (array_key_exists($sort, $columns)) {
+      return " ORDER BY " . $sort . " " . $order;
+   }
    return '';
 }
 

@@ -75,17 +75,17 @@ function plugin_init_timelineticket()
 {
     global $PLUGIN_HOOKS;
 
-    $PLUGIN_HOOKS['csrf_compliant']['timelineticket'] = true;
+    $PLUGIN_HOOKS[Hooks::CSRF_COMPLIANT]['timelineticket'] = true;
 
     // add autoload for vendor
     include_once(PLUGIN_TIMELINETICKET_DIR . "/vendor/autoload.php");
 
     if (Plugin::isPluginActive('timelineticket')) { // check if plugin is active
-        $PLUGIN_HOOKS['change_profile']['timelineticket'] = [Profile::class, 'initProfile'];
+        $PLUGIN_HOOKS[Hooks::CHANGE_PROFILE]['timelineticket'] = [Profile::class, 'initProfile'];
 
         $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['timelineticket'][] = 'js/google-charts/loader.js';
 
-        $PLUGIN_HOOKS['show_item_stats']['timelineticket']    = [
+        $PLUGIN_HOOKS[Hooks::SHOW_ITEM_STATS]['timelineticket'] = [
             'Ticket' => 'plugin_timelineticket_item_stats',
         ];
 
@@ -97,24 +97,24 @@ function plugin_init_timelineticket()
                 ['addtabon' => ['Ticket']]
             );
         }
-        $PLUGIN_HOOKS['item_purge']['timelineticket'] = [
+        $PLUGIN_HOOKS[Hooks::ITEM_PURGE]['timelineticket'] = [
             'Ticket'       => 'plugin_timelineticket_ticket_purge',
             'Group_Ticket' => [AssignGroup::class, 'deleteGroupTicket'],
             'Ticket_User'  => [AssignUser::class, 'deleteUserTicket'],
         ];
 
-        $PLUGIN_HOOKS['item_add']['timelineticket']    = [
+        $PLUGIN_HOOKS[Hooks::ITEM_ADD]['timelineticket'] = [
             'Ticket'       => 'plugin_timelineticket_ticket_add',
             'Group_Ticket' => [AssignGroup::class, 'addGroupTicket'],
             'Ticket_User'  => [AssignUser::class, 'addUserTicket'],
         ];
-        $PLUGIN_HOOKS['item_update']['timelineticket'] = [
+        $PLUGIN_HOOKS[Hooks::ITEM_UPDATE]['timelineticket'] = [
             'Ticket' => 'plugin_timelineticket_ticket_update',
         ];
 
         if (Session::haveRight("config", UPDATE)
             || Session::haveRight('plugin_timelineticket_ticket', UPDATE)) {// Config page
-            $PLUGIN_HOOKS['config_page']['timelineticket'] = 'front/config.form.php';
+            $PLUGIN_HOOKS[Hooks::CONFIG_PAGE]['timelineticket'] = 'front/config.form.php';
         }
         if (Plugin::isPluginActive('mydashboard')) {
             $PLUGIN_HOOKS['mydashboard']['timelineticket'] = [Dashboard::class];

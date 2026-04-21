@@ -446,7 +446,6 @@ if ($res && $nbtot > 0) {
                                       ]);
         foreach ($iterator as $datasolution) {
             $users_id_solver = $datasolution['users_id'];
-            iterator->next();
         }
         echo Search::showItem($output_type, getUserName($users_id_solver), $num, $row_num);
 
@@ -683,7 +682,7 @@ function getOrderBy($default, $columns)
     $sort  = isset($_REQUEST['sort']) ? $_REQUEST['sort'] : $default;
 
    //   $tab = getOrderByFields($default, $columns);
-    if (in_array($sort, $columns)) {
+    if (array_key_exists($sort, $columns)) {
         return " ORDER BY " . $sort . " " . $order;
     }
     return '';

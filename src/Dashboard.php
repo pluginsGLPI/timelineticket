@@ -102,7 +102,7 @@ class Dashboard extends CommonGLPI
                     $preference->getFromDB(Session::getLoginUserID());
                     $preferences = $preference->fields;
                     $criterias = ['entities_id',
-                                  'is_recursive',
+                                 'is_recursive_entities',
                                   'type',
                                   'multiple_time',
                                   'begin',
@@ -115,19 +115,16 @@ class Dashboard extends CommonGLPI
                     $params  = ["preferences" =>$preferences,
                                 "criterias"   => $criterias,
                                 "opt"         => $opt];
-                    $options = Helper::manageCriterias($params);
 
+                    $default = Helper::manageCriterias($params);
 
-                    $opt  = $options['opt'];
-                    $crit = $options['crit'];
                     if (!isset($opt['technicians_groups_id']) || (isset($opt["technicians_groups_id"])
                                                                   && count($opt["technicians_groups_id"]) == 0)
                         && count($_SESSION['glpigroups']) > 0) {
                         $opt['technicians_groups_id'] = $_SESSION['glpigroups'];
                     }
-                    $entities_id_criteria       = $crit['entity'];
-                    $sons_criteria              = $crit['sons'];
-                    $time_per_tech = self::getNumberAffectationPerTech($options);
+
+                    $time_per_tech = self::getNumberAffectationPerTech($params);
                     $labels = [];
                     switch ($opt['multiple_time']) {
                         case "MONTH":
@@ -195,6 +192,7 @@ class Dashboard extends CommonGLPI
                                "name"      => $name,
                                "onsubmit"  => true,
                                "opt"       => $opt,
+                               "default" => $default,
                                "criterias" => $criterias,
                                "export"    => true,
                                "canvas"    => true,
@@ -227,10 +225,14 @@ class Dashboard extends CommonGLPI
 
         $time_per_tech = [];
 
-        $opt               = $params['opt'];
-        $crit              = $params['crit'];
-        $type_criteria     = $crit['type'];
-        $entities_criteria = $crit['entities_id'];
+        $default = Helper::manageCriterias($params);
+
+        $opt = $params['opt'] ?? [];
+
+        $entities_criteria = $opt['entities_id'] ?? $default['entities_id'];
+        $sons_criteria = $opt['is_recursive_entities'] ?? $default['is_recursive_entities'];
+        $type_criteria = $opt['type'] ?? $default['type'];
+
 
         $techlist = [];
         $selected_group = [];

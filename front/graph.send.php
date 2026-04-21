@@ -48,11 +48,16 @@ if (isset($_GET["switchto"])) {
 
 if (($uid = Session::getLoginUserID(false))
     && isset($_GET["file"])) {
-    list($userID,$filename) = explode("_", $_GET["file"]);
+    list($userID, $filename) = explode("_", $_GET["file"], 2);
+    $resolved = realpath(GLPI_GRAPH_DIR . "/" . $_GET["file"]);
+    $base_dir = realpath(GLPI_GRAPH_DIR);
     if (($userID == $uid)
-       && file_exists(GLPI_GRAPH_DIR."/".$_GET["file"])) {
-        list($fname,$extension)=explode(".", $filename);
-        return Toolbox::getFileAsResponse(GLPI_GRAPH_DIR."/".$_GET["file"], 'glpi.'.$extension);
+        && $resolved !== false
+        && $base_dir !== false
+        && strpos($resolved, $base_dir . DIRECTORY_SEPARATOR) === 0
+        && file_exists($resolved)) {
+        list($fname, $extension) = explode(".", $filename);
+        return Toolbox::getFileAsResponse($resolved, 'glpi.' . $extension);
     } else {
         throw new BadRequestHttpException('Unauthorized access to this file');
     }
