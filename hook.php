@@ -149,29 +149,21 @@ function plugin_timelineticket_getAddSearchOptions($itemtype)
 {
     $sopt = [];
     if ($itemtype == 'Ticket') {
-        $sopt[9131]['table']     = 'glpi_groups';
-        $sopt[9131]['field']     = 'completename';
-        $sopt[9131]['name']      = _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket")." - ".__('Assigned to')." - ".__('Group');
-        $sopt[9131]['datatype']  = 'dropdown';
+        $sopt[9131]['table']         = 'glpi_plugin_timelineticket_assigngroups';
+        $sopt[9131]['field']         = 'groups_id';
+        $sopt[9131]['name']          = _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket")." - ".__('Assigned to')." - ".__('Group');
         $sopt[9131]['forcegroupby']  = true;
         $sopt[9131]['massiveaction'] = false;
-        $sopt[9131]['condition']     = 'is_assign';
-        $sopt[9131]['joinparams']    = ['beforejoin'
-        => ['table' => 'glpi_plugin_timelineticket_assigngroups',
-                'joinparams'
-                => ['jointype'  => 'child']]];
+        $sopt[9131]['nosort']        = true;
+        $sopt[9131]['joinparams']    = ['jointype' => 'child'];
 
-        $sopt[9132]['table']     = 'glpi_users';
-        $sopt[9132]['field']     = 'name';
-        $sopt[9132]['name']      = _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket")." - ".__('Assigned to')." - ".__('Technician');
-        $sopt[9132]['datatype']  = 'dropdown';
+        $sopt[9132]['table']         = 'glpi_plugin_timelineticket_assignusers';
+        $sopt[9132]['field']         = 'users_id';
+        $sopt[9132]['name']          = _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket")." - ".__('Assigned to')." - ".__('Technician');
         $sopt[9132]['forcegroupby']  = true;
         $sopt[9132]['massiveaction'] = false;
-        $sopt[9132]['condition']     = 'is_assign';
-        $sopt[9132]['joinparams']    = ['beforejoin'
-        => ['table' => 'glpi_plugin_timelineticket_assignusers',
-                'joinparams'
-                => ['jointype'  => 'child']]];
+        $sopt[9132]['nosort']        = true;
+        $sopt[9132]['joinparams']    = ['jointype' => 'child'];
     }
     return $sopt;
 }
@@ -197,62 +189,99 @@ function plugin_timelineticket_giveItem($type, $ID, $data, $num)
             }
             return $out;
 
-//        case "glpi_plugin_timelineticket_assigngroups.groups_id":
-//            $ptAssignGroup = new AssignGroup();
-//            $group = new Group();
-//            $ticket = new Ticket();
-//            $out = "";
-//            $a_out = [];
-//            $a_groupname = [];
-//            if (!isset($data["ITEM_$num"])
-//                    or !strstr($data["ITEM_$num"], '$$')) {
-//                return "";
-//            }
-//            $splitg = explode("$$$$", $data["ITEM_$num"]);
-//            foreach ($splitg as $datag) {
-//                $split = explode("$$", $datag);
-//                $group->getFromDB($split[0]);
-//                $ptAssignGroup->getFromDB($split[1]);
-//                $time = $ptAssignGroup->fields['delay'];
-//                if ($ptAssignGroup->fields['delay'] === null) {
-//                    $ticket->getFromDB($data["ITEM_0"]);
-//
-//                    $calendar = new Calendar();
-//                    $calendars_id = Entity::getUsedConfig(
-//                        'calendars_strategy',
-//                        $ticket->fields['entities_id'],
-//                        'calendars_id',
-//                        0
-//                    );
-//                    $datedebut = $ptAssignGroup->fields['date'];
-//                    $enddate = $_SESSION["glpi_currenttime"];
-//                    if ($ticket->fields['status'] == Ticket::CLOSED) {
-//                        $enddate = $ticket->fields['closedate'];
-//                    }
-//
-//                    if ($calendars_id >0 && $calendar->getFromDB($calendars_id)) {
-//                        $time = $calendar->getActiveTimeBetween($datedebut, $enddate);
-//                    } else {
-//                        // cas 24/24 - 7/7
-//                        $time = strtotime($enddate)-strtotime($datedebut);
-//                    }
-//                } elseif ($ptAssignGroup->fields['delay'] == 0) {
-//                    $time = 0;
-//                }
-//                $a_groupname[$group->fields['id']] = $group->getLink();
-//                if (isset($a_out[$group->fields['id']])) {
-//                    $a_out[$group->fields['id']] += $time;
-//                } else {
-//                    $a_out[$group->fields['id']] = $time;
-//                }
-//            }
-//            $a_out_comp = [];
-//            foreach ($a_out as $groups_id => $time) {
-//                $a_out_comp[] = $a_groupname[$groups_id]." : ".Html::timestampToString($time, true, false);
-//            }
-//
-//            $out = implode("<hr/>", $a_out_comp);
-//            return $out;
+        case "glpi_plugin_timelineticket_assigngroups.groups_id":
+            global $DB;
+            $tickets_id = (int) ($data['id'] ?? 0);
+            if (!$tickets_id) {
+                return "";
+            }
+            $ticket = new Ticket();
+            $ticket->getFromDB($tickets_id);
+
+            $iterator = $DB->request([
+                'SELECT' => ['groups_id', 'date', 'delay'],
+                'FROM'   => 'glpi_plugin_timelineticket_assigngroups',
+                'WHERE'  => ['tickets_id' => $tickets_id],
+                'ORDER'  => ['date ASC'],
+            ]);
+
+            $a_out       = [];
+            $a_groupname = [];
+            foreach ($iterator as $row) {
+                $gid = (int) $row['groups_id'];
+                if ($row['delay'] === null) {
+                    $enddate = $ticket->fields['status'] == Ticket::CLOSED
+                        ? $ticket->fields['closedate']
+                        : $_SESSION["glpi_currenttime"];
+                    $time = strtotime($enddate) - strtotime($row['date']);
+                } else {
+                    $time = (int) $row['delay'];
+                }
+                if (!isset($a_out[$gid])) {
+                    $a_out[$gid]       = 0;
+                    $group             = new Group();
+                    $group->getFromDB($gid);
+                    $a_groupname[$gid] = $group->getLink();
+                }
+                $a_out[$gid] += $time;
+            }
+
+            if (empty($a_out)) {
+                return "";
+            }
+
+            $a_out_comp = [];
+            foreach ($a_out as $gid => $time) {
+                $a_out_comp[] = $a_groupname[$gid] . " : " . Html::timestampToString($time, true, false);
+            }
+            return implode("<br/>", $a_out_comp);
+
+        case "glpi_plugin_timelineticket_assignusers.users_id":
+            global $DB;
+            $tickets_id = (int) ($data['id'] ?? 0);
+            if (!$tickets_id) {
+                return "";
+            }
+            $ticket = new Ticket();
+            $ticket->getFromDB($tickets_id);
+
+            $iterator = $DB->request([
+                'SELECT' => ['users_id', 'date', 'delay'],
+                'FROM'   => 'glpi_plugin_timelineticket_assignusers',
+                'WHERE'  => ['tickets_id' => $tickets_id],
+                'ORDER'  => ['date ASC'],
+            ]);
+
+            $a_out      = [];
+            $a_username = [];
+            foreach ($iterator as $row) {
+                $uid = (int) $row['users_id'];
+                if ($row['delay'] === null) {
+                    $enddate = $ticket->fields['status'] == Ticket::CLOSED
+                        ? $ticket->fields['closedate']
+                        : $_SESSION["glpi_currenttime"];
+                    $time = strtotime($enddate) - strtotime($row['date']);
+                } else {
+                    $time = (int) $row['delay'];
+                }
+                if (!isset($a_out[$uid])) {
+                    $a_out[$uid]      = 0;
+                    $user             = new User();
+                    $user->getFromDB($uid);
+                    $a_username[$uid] = $user->getLink();
+                }
+                $a_out[$uid] += $time;
+            }
+
+            if (empty($a_out)) {
+                return "";
+            }
+
+            $a_out_comp = [];
+            foreach ($a_out as $uid => $time) {
+                $a_out_comp[] = $a_username[$uid] . " : " . Html::timestampToString($time, true, false);
+            }
+            return implode("<br/>", $a_out_comp);
     }
     return "";
 }

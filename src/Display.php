@@ -276,9 +276,10 @@ class Display extends CommonDBTM
                 }
             }
             if ($dateend > 0) {
-                echo "<br>";
+                echo "<br><span class='red'>";
                 echo __('Late') . "&nbsp;: ";
                 echo Html::timestampToString($dateend, true);
+                echo "</span>";
             }
         }
 

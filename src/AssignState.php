@@ -129,15 +129,10 @@ class AssignState extends CommonDBTM
             $totaltime += $a_state['delay'];
             $last_date = $a_state['date'];
         }
-        //if ($a_state['delay'] == 0) {
-        //   $actual = strtotime(date('Y-m-d H:i:s'))-strtotime($a_state['date']);
-        //   $totaltime += $actual;
-        //}
-        if ($ticket->fields['status'] != Ticket::CLOSED
-            && isset($a_state['date'])) {
+        if ($ticket->fields['status'] != Ticket::CLOSED && $last_date !== '') {
             $totaltime += Tool::getPeriodTime(
                 $ticket,
-                $a_state['date'],
+                $last_date,
                 date("Y-m-d H:i:s")
             );
         }

@@ -63,6 +63,11 @@ class AssignStateTest extends DbTestCase
 
         $ticket = $this->createTicket();
 
+        // Le hook crée automatiquement un AssignState à la création du ticket.
+        // On le supprime pour tester le cas "aucun état".
+        global $DB;
+        $DB->delete(AssignState::getTable(), ['tickets_id' => $ticket->getID()]);
+
         $result = AssignState::getTotaltimeEnddate($ticket);
 
         $this->assertSame(0, $result['totaltime']);

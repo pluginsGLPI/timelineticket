@@ -75,8 +75,6 @@ function plugin_init_timelineticket()
 {
     global $PLUGIN_HOOKS;
 
-    $PLUGIN_HOOKS[Hooks::CSRF_COMPLIANT]['timelineticket'] = true;
-
     // add autoload for vendor
     include_once(PLUGIN_TIMELINETICKET_DIR . "/vendor/autoload.php");
 
