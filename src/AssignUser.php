@@ -78,7 +78,7 @@ class AssignUser extends CommonDBTM
 //                $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
 //            } else {
             // cas 24/24 - 7/7
-            $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
+            $delay = max(0, strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut));
 //            }
 
             $ok = 1;
@@ -182,7 +182,7 @@ class AssignUser extends CommonDBTM
 //                        $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
 //                    } else {
                         // cas 24/24 - 7/7
-                        $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
+                        $delay = max(0, strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut));
 //                    }
 
                     $input               = [];
