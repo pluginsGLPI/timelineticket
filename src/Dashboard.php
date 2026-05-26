@@ -1,29 +1,38 @@
 <?php
+
 /*
- * @version $Id: HEADER 15930 2011-10-30 15:47:55Z tsmr $
  -------------------------------------------------------------------------
- timelineticket plugin for GLPI
- Copyright (C) 2018 by the timelineticket Development Team.
+ TimelineTicket
+ Copyright (C) 2013-2026 by the TimelineTicket Development Team.
 
  https://github.com/pluginsGLPI/timelineticket
- -------------------------------------------------------------------------
+ ------------------------------------------------------------------------
 
  LICENSE
 
- This file is part of timelineticket.
+ This file is part of TimelineTicket project.
 
- timelineticket is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
+ TimelineTicket plugin is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- timelineticket is distributed in the hope that it will be useful,
+ TimelineTicket plugin is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU Affero General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with timelineticket. If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU Affero General Public License
+ along with TimelineTicket plugin. If not, see <http://www.gnu.org/licenses/>.
+
+ ------------------------------------------------------------------------
+
+ @package   TimelineTicket plugin
+ @copyright Copyright (C) 2013-2025 TimelineTicket team
+ @license   AGPL License 3.0 or (at your option) any later version
+            http://www.gnu.org/licenses/agpl-3.0-standalone.html
+ @link      https://github.com/pluginsGLPI/timelineticket
+ @since     2013
  --------------------------------------------------------------------------
  */
 

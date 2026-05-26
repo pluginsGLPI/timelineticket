@@ -1,6 +1,4 @@
-<?php
-
-/*
+{#
  -------------------------------------------------------------------------
  TimelineTicket
  Copyright (C) 2013-2026 by the TimelineTicket Development Team.
@@ -34,30 +32,4 @@
  @link      https://github.com/pluginsGLPI/timelineticket
  @since     2013
  --------------------------------------------------------------------------
- */
-
-use Glpi\Exception\Http\BadRequestHttpException;
-
-Session ::checkLoginUser();
-
-if (isset($_GET["switchto"])) {
-    $_SESSION['glpigraphtype'] = $_GET["switchto"];
-    Html::back();
-}
-
-if (($uid = Session::getLoginUserID(false))
-    && isset($_GET["file"])) {
-    list($userID, $filename) = explode("_", $_GET["file"], 2);
-    $resolved = realpath(GLPI_GRAPH_DIR . "/" . $_GET["file"]);
-    $base_dir = realpath(GLPI_GRAPH_DIR);
-    if (($userID == $uid)
-        && $resolved !== false
-        && $base_dir !== false
-        && strpos($resolved, $base_dir . DIRECTORY_SEPARATOR) === 0
-        && file_exists($resolved)) {
-        list($fname, $extension) = explode(".", $filename);
-        return Toolbox::getFileAsResponse($resolved, 'glpi.' . $extension);
-    } else {
-        throw new BadRequestHttpException('Unauthorized access to this file');
-    }
-}
+ #}
