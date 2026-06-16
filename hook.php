@@ -148,21 +148,35 @@ function plugin_timelineticket_getAddSearchOptions($itemtype)
 {
     $sopt = [];
     if ($itemtype == 'Ticket') {
-        $sopt[9131]['table']         = 'glpi_plugin_timelineticket_assigngroups';
-        $sopt[9131]['field']         = 'groups_id';
+        // Point to glpi_groups.name so "Contains <name>" searches work
+        $sopt[9131]['table']         = 'glpi_groups';
+        $sopt[9131]['field']         = 'name';
         $sopt[9131]['name']          = _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket")." - ".__('Assigned to')." - ".__('Group');
         $sopt[9131]['forcegroupby']  = true;
         $sopt[9131]['massiveaction'] = false;
         $sopt[9131]['nosort']        = true;
-        $sopt[9131]['joinparams']    = ['jointype' => 'child'];
+        $sopt[9131]['datatype']      = 'dropdown';
+        $sopt[9131]['joinparams']    = [
+            'beforejoin' => [
+                'table'      => 'glpi_plugin_timelineticket_assigngroups',
+                'joinparams' => ['jointype' => 'child'],
+            ],
+        ];
 
-        $sopt[9132]['table']         = 'glpi_plugin_timelineticket_assignusers';
-        $sopt[9132]['field']         = 'users_id';
+        // Point to glpi_users.name so "Contains <name>" searches work
+        $sopt[9132]['table']         = 'glpi_users';
+        $sopt[9132]['field']         = 'name';
         $sopt[9132]['name']          = _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket")." - ".__('Assigned to')." - ".__('Technician');
         $sopt[9132]['forcegroupby']  = true;
         $sopt[9132]['massiveaction'] = false;
         $sopt[9132]['nosort']        = true;
-        $sopt[9132]['joinparams']    = ['jointype' => 'child'];
+        $sopt[9132]['datatype']      = 'dropdown';
+        $sopt[9132]['joinparams']    = [
+            'beforejoin' => [
+                'table'      => 'glpi_plugin_timelineticket_assignusers',
+                'joinparams' => ['jointype' => 'child'],
+            ],
+        ];
     }
     return $sopt;
 }
