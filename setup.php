@@ -81,6 +81,7 @@ function plugin_init_timelineticket()
         $PLUGIN_HOOKS[Hooks::CHANGE_PROFILE]['timelineticket'] = [Profile::class, 'initProfile'];
 
         $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['timelineticket'][] = 'js/google-charts/loader.js';
+        $PLUGIN_HOOKS[Hooks::ADD_CSS]['timelineticket'][] = 'css/timelineticket.css';
 
         $PLUGIN_HOOKS[Hooks::SHOW_ITEM_STATS]['timelineticket'] = [
             'Ticket' => 'plugin_timelineticket_item_stats',

@@ -105,11 +105,12 @@ class Tool
                     $last_statedelay = $data['End'];
                 }
             }
-            $gbegin = $a_dbitem['begin'];
-            if ($a_dbitem['delay'] == '') {
+            $gbegin = (int) ($a_dbitem['begin'] ?? 0);
+            // Use is_null() — PHP 8 changed "0 == ''" to false, breaking the old check
+            if (is_null($a_dbitem['delay'])) {
                 $gdelay = $totaltime;
             } else {
-                $gdelay = $a_dbitem['begin'] + $a_dbitem['delay'];
+                $gdelay = $gbegin + (int) $a_dbitem['delay'];
             }
             $mem       = 0;
 
@@ -138,7 +139,7 @@ class Tool
                         $mem                                    = 2;
                     }
                 } elseif ($mem == 0
-                       && $gbegin < $delay) {
+                       && $gbegin <= $delay) {
                     if ($withblank
                     && $gbegin != $last_statedelay) {
                         $a_itemsections[$a_dbitem[$items_id]][] = [
@@ -170,6 +171,21 @@ class Tool
                         ];
                         $mem                                    = 2;
                     }
+                }
+            }
+
+            // Fallback: begin >= every recorded status-transition point
+            // (group/user assigned during the last — still-running — status period)
+            if ($mem === 0 && !empty($a_states)) {
+                end($a_states);
+                $last_statusname = current($a_states);
+                reset($a_states);
+                if ($gdelay > $gbegin) {
+                    $a_itemsections[$a_dbitem[$items_id]][] = [
+                        'Start'  => $gbegin,
+                        'End'    => $gdelay,
+                        'Status' => $last_statusname,
+                    ];
                 }
             }
         }
