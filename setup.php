@@ -83,13 +83,14 @@ function plugin_init_timelineticket()
         $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['timelineticket'][] = 'js/google-charts/loader.js';
         $PLUGIN_HOOKS[Hooks::ADD_CSS]['timelineticket'][] = 'css/timelineticket.css';
 
-        $PLUGIN_HOOKS[Hooks::SHOW_ITEM_STATS]['timelineticket'] = [
-            'Ticket' => 'plugin_timelineticket_item_stats',
-        ];
-
         Plugin::registerClass(Profile::class, ['addtabon' => 'Profile']);
 
         if (Session::haveRightsOr('plugin_timelineticket_ticket', [READ, UPDATE])) {
+            // Same right gate as the Display tab: don't expose the stats hook
+            // to users who lack the plugin right.
+            $PLUGIN_HOOKS[Hooks::SHOW_ITEM_STATS]['timelineticket'] = [
+                'Ticket' => 'plugin_timelineticket_item_stats',
+            ];
             Plugin::registerClass(
                 Display::class,
                 ['addtabon' => ['Ticket']]

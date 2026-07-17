@@ -50,14 +50,18 @@ if (Session::haveRight("config", READ)
     $grplevel = new Grouplevel();
 
     if (isset($_POST["reconstructStates"])) {
+        // Global, all-entity rebuild: restrict to config administrators.
+        Session::checkRight("config", UPDATE);
         $ptState = new AssignState();
         $ptState->reconstructTimeline();
         Html::back();
     } elseif (isset($_POST["reconstructGroups"])) {
+        Session::checkRight("config", UPDATE);
         $ptGroup = new AssignGroup();
         $ptGroup->reconstructTimeline();
         Html::back();
     } elseif (isset($_POST["reconstructUsers"])) {
+        Session::checkRight("config", UPDATE);
         $ptUser = new AssignUser();
         $ptUser->reconstructTimeline();
         Html::back();
@@ -75,9 +79,14 @@ if (Session::haveRight("config", READ)
         Html::back();
     } elseif (isset($_POST["add_groups"])
                || isset($_POST["delete_groups"])) {
+        // Enforce rights + entity access on the targeted Grouplevel row
+        // (entity-scoped dropdown) before mutating it.
+        $grplevel->check((int) ($_POST['id'] ?? 0), UPDATE);
         $grplevel->update($_POST);
         Html::back();
     } elseif (isset($_POST["update"])) {
+        // Global plugin config (singleton): saving requires config UPDATE.
+        Session::checkRight("config", UPDATE);
         $ptConfig->update($_POST);
         Html::back();
     } else {

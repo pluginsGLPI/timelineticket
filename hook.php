@@ -70,6 +70,11 @@ function plugin_timelineticket_install()
 
 function plugin_timelineticket_item_stats($item)
 {
+    // Defense in depth: never render the timeline to a user lacking the plugin right,
+    // even if the hook is triggered outside the gated registration.
+    if (!Session::haveRightsOr('plugin_timelineticket_ticket', [READ, UPDATE])) {
+        return;
+    }
     AssignState::showStateTimeline($item);
     AssignGroup::showGroupTimeline($item);
     AssignUser::showUserTimeline($item);
