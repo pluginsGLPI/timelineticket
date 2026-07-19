@@ -185,9 +185,10 @@ class Display extends CommonDBTM
             }
             echo "<tr>";
             if ($item instanceof AssignGroup) {
-                echo "<th class='bg-body-tertiary'>" . Dropdown::getDropdownName("glpi_groups", $items_id) . "</th>";
+                // getDropdownName() / getUserName() return raw DB values; escape before echo.
+                echo "<th class='bg-body-tertiary'>" . htmlspecialchars(Dropdown::getDropdownName("glpi_groups", $items_id)) . "</th>";
             } elseif ($item instanceof AssignUser) {
-                echo "<th class='bg-body-tertiary'>" . getUserName($items_id) . "</th>";
+                echo "<th class='bg-body-tertiary'>" . htmlspecialchars(getUserName($items_id)) . "</th>";
             }
             foreach ($list_status as $status => $name) {
                 echo "<td>";
@@ -393,7 +394,7 @@ class Display extends CommonDBTM
                     echo "<tr>";
                     echo "<td>" . $data['id'] . "</td>";
                     echo "<td>" . Html::convDateTime($data['date']) . "</td>";
-                    echo "<td>" . Dropdown::getDropdownName("glpi_groups", $data['groups_id']) . "</td>";
+                    echo "<td>" . htmlspecialchars(Dropdown::getDropdownName("glpi_groups", $data['groups_id'])) . "</td>";
                     echo "<td>" . Html::timestampToString($data['begin']) . "</td>";
                     echo "<td>" . Html::timestampToString($data['delay']) . "</td>";
                     echo "</tr>";
@@ -425,7 +426,7 @@ class Display extends CommonDBTM
                     echo "<tr class='tab_bg_1'>";
                     echo "<td>" . $data['id'] . "</td>";
                     echo "<td>" . Html::convDateTime($data['date']) . "</td>";
-                    echo "<td>" . getUserName($data['users_id']) . "</td>";
+                    echo "<td>" . htmlspecialchars(getUserName($data['users_id'])) . "</td>";
                     echo "<td>" . Html::timestampToString($data['begin']) . "</td>";
                     echo "<td>" . Html::timestampToString($data['delay']) . "</td>";
                     echo "</tr>";

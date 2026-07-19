@@ -238,9 +238,18 @@ class Dashboard extends CommonGLPI
 
         $opt = $params['opt'] ?? [];
 
-        $entities_criteria = $opt['entities_id'] ?? $default['entities_id'];
+        // Security: every value below comes from the dashboard filter form and is
+        // interpolated into raw $DB->doQuery() strings. Normalize the date range
+        // through DateTime and force every id to an integer so no SQL can be
+        // injected. (GLPI convention is $DB->request() with parameterized criteria;
+        // these legacy raw queries are hardened in place to keep the widget behavior
+        // unchanged.)
+        $opt['begin'] = self::normalizeSqlDate($opt['begin'] ?? null, '-1 year');
+        $opt['end']   = self::normalizeSqlDate($opt['end'] ?? null, 'now');
+
+        $entities_criteria = (int) ($opt['entities_id'] ?? $default['entities_id']);
         $sons_criteria = $opt['is_recursive_entities'] ?? $default['is_recursive_entities'];
-        $type_criteria = $opt['type'] ?? $default['type'];
+        $type_criteria = (int) ($opt['type'] ?? $default['type']);
 
 
         $techlist = [];
@@ -252,7 +261,8 @@ class Dashboard extends CommonGLPI
             $selected_group = $_SESSION['glpigroups'];
         }
         if (count($selected_group) > 0) {
-            $groups             = implode(",", $selected_group);
+            // Force every group id to an integer before building the IN (...) list.
+            $groups             = implode(",", array_map('intval', $selected_group));
             $query_group_member = "SELECT `glpi_groups_users`.`users_id`"
                                   . "FROM `glpi_groups_users` "
                                   . "LEFT JOIN `glpi_groups` ON (`glpi_groups_users`.`groups_id` = `glpi_groups`.`id`) "
@@ -281,9 +291,9 @@ class Dashboard extends CommonGLPI
                     $i              = 0;
                     foreach ($techlist as $techid) {
                         if ($i != 0) {
-                            $condition_tech .= ', ' . $techid;
+                            $condition_tech .= ', ' . (int) $techid;
                         } else {
-                            $condition_tech .= '' . $techid;
+                            $condition_tech .= '' . (int) $techid;
                         }
                         $i++;
                     }
@@ -336,9 +346,9 @@ class Dashboard extends CommonGLPI
                     $i              = 0;
                     foreach ($techlist as $techid) {
                         if ($i != 0) {
-                            $condition_tech .= ', ' . $techid;
+                            $condition_tech .= ', ' . (int) $techid;
                         } else {
-                            $condition_tech .= '' . $techid;
+                            $condition_tech .= '' . (int) $techid;
                         }
                         $i++;
                     }
@@ -387,9 +397,9 @@ class Dashboard extends CommonGLPI
                     $i              = 0;
                     foreach ($techlist as $techid) {
                         if ($i != 0) {
-                            $condition_tech .= ', ' . $techid;
+                            $condition_tech .= ', ' . (int) $techid;
                         } else {
-                            $condition_tech .= '' . $techid;
+                            $condition_tech .= '' . (int) $techid;
                         }
                         $i++;
                     }
@@ -432,5 +442,27 @@ class Dashboard extends CommonGLPI
             }
         }
         return $time_per_tech;
+    }
+
+    /**
+     * Normalize a user-supplied date/time filter to a canonical
+     * 'Y-m-d H:i:s' string, so it can be safely interpolated into SQL and
+     * fed to DateTime/strtotime. Invalid input falls back to $fallback.
+     *
+     * @param mixed  $value    Raw value from the dashboard filter form
+     * @param string $fallback Relative expression used when $value is invalid
+     *
+     * @return string
+     */
+    private static function normalizeSqlDate($value, string $fallback): string
+    {
+        if (is_string($value) && $value !== '') {
+            try {
+                return (new DateTime($value))->format('Y-m-d H:i:s');
+            } catch (\Exception $e) {
+                // fall through to the safe default below
+            }
+        }
+        return (new DateTime($fallback))->format('Y-m-d H:i:s');
     }
 }

@@ -70,6 +70,10 @@ if (Session::haveRight("config", READ)
         if ($tickets_id <= 0) {
             Html::back();
         }
+        // Enforce per-ticket authorization (rights + entity access) before
+        // rebuilding the timeline of a specific ticket.
+        $ticket = new Ticket();
+        $ticket->check($tickets_id, READ);
         $ptState = new AssignState();
         $ptState->reconstructTimeline($tickets_id);
         $ptGroup = new AssignGroup();
