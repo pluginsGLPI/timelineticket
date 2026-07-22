@@ -201,7 +201,9 @@ function plugin_timelineticket_giveItem($type, $ID, $data, $num)
                 $groups = json_decode($data['raw']["ITEM_".$num], true);
                 if (!empty($groups)) {
                     foreach ($groups as $key => $val) {
-                        $out .= Dropdown::getDropdownName("glpi_groups", $val)."<br>";
+                        // getDropdownName() returns the raw stored value (GLPI 10+); the
+                        // search engine outputs this callback's return verbatim, so escape it.
+                        $out .= htmlspecialchars(Dropdown::getDropdownName("glpi_groups", $val)) . "<br>";
                     }
                 }
             }

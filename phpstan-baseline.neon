@@ -1,0 +1,331 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Variable \$datedebut might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: src/AssignGroup.php
+
+		-
+			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
+			identifier: glpi.forbidExit
+			count: 1
+			path: src/AssignGroup.php
+
+		-
+			message: '#^Access to an undefined property CommonGLPI\:\:\$fields\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/AssignState.php
+
+		-
+			message: '#^Call to an undefined method CommonGLPI\:\:getField\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/AssignState.php
+
+		-
+			message: '#^Variable \$data might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/AssignState.php
+
+		-
+			message: '#^Variable \$datedebut might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/AssignState.php
+
+		-
+			message: '#^Variable \$now might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/AssignState.php
+
+		-
+			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
+			identifier: glpi.forbidExit
+			count: 1
+			path: src/AssignState.php
+
+		-
+			message: '#^Variable \$datedebut might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: src/AssignUser.php
+
+		-
+			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
+			identifier: glpi.forbidExit
+			count: 1
+			path: src/AssignUser.php
+
+		-
+			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
+			identifier: glpi.forbidExit
+			count: 1
+			path: src/Config.php
+
+		-
+			message: '#^Access to property \$fields on an unknown class GlpiPlugin\\Mydashboard\\Preference\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Access to static property \$BAR on an unknown class GlpiPlugin\\Mydashboard\\Widget\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Access to static property \$HELPDESK on an unknown class GlpiPlugin\\Mydashboard\\Menu\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Call to method getFromDB\(\) on an unknown class GlpiPlugin\\Mydashboard\\Preference\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Call to method setWidgetComment\(\) on an unknown class GlpiPlugin\\Mydashboard\\Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Call to method setWidgetHeader\(\) on an unknown class GlpiPlugin\\Mydashboard\\Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Call to method setWidgetHtmlContent\(\) on an unknown class GlpiPlugin\\Mydashboard\\Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Call to method setWidgetTitle\(\) on an unknown class GlpiPlugin\\Mydashboard\\Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Call to method toggleWidgetRefresh\(\) on an unknown class GlpiPlugin\\Mydashboard\\Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Call to static method getGraphHeader\(\) on an unknown class GlpiPlugin\\Mydashboard\\Helper\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Call to static method launchGraph\(\) on an unknown class GlpiPlugin\\Mydashboard\\Charts\\BarChart\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Call to static method manageCriterias\(\) on an unknown class GlpiPlugin\\Mydashboard\\Helper\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Dashboard.php
+
+		-
+			message: '#^Instantiated class GlpiPlugin\\Mydashboard\\Html not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Instantiated class GlpiPlugin\\Mydashboard\\Preference not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Method GlpiPlugin\\Timelineticket\\Dashboard\:\:getWidgetsForItem\(\) has invalid return type array\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Method GlpiPlugin\\Timelineticket\\Dashboard\:\:getWidgetsForItem\(\) should return array\<array\<array\>\> but returns array\<array\<string, array\<string, mixed\>\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Property GlpiPlugin\\Timelineticket\\Dashboard\:\:\$datas is unused\.$#'
+			identifier: property.unused
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Property GlpiPlugin\\Timelineticket\\Dashboard\:\:\$form is unused\.$#'
+			identifier: property.unused
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Property GlpiPlugin\\Timelineticket\\Dashboard\:\:\$options is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<non\-falsy\-string\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 6
+			path: src/Display.php
+
+		-
+			message: '#^Parameter \#1 \$hour of function mktime expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Display.php
+
+		-
+			message: '#^Parameter \#1 \$ticket of static method GlpiPlugin\\Timelineticket\\Display\:\:showForTicket\(\) expects Ticket, CommonGLPI given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Display.php
+
+		-
+			message: '#^Parameter \#2 \$minute of function mktime expects int\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Display.php
+
+		-
+			message: '#^Parameter \#3 \$second of function mktime expects int\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Display.php
+
+		-
+			message: '#^Parameter \#3 \$withblank of static method GlpiPlugin\\Timelineticket\\Tool\:\:getDetails\(\) expects int, false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Display.php
+
+		-
+			message: '#^Parameter \#4 \$month of function mktime expects int\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Display.php
+
+		-
+			message: '#^Parameter \#5 \$day of function mktime expects int\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Display.php
+
+		-
+			message: '#^Parameter \#6 \$year of function mktime expects int\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Display.php
+
+		-
+			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
+			identifier: glpi.forbidExit
+			count: 1
+			path: src/Display.php
+
+		-
+			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
+			identifier: glpi.forbidExit
+			count: 1
+			path: src/Grouplevel.php
+
+		-
+			message: '#^Access to an undefined property CommonGLPI\:\:\$fields\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Profile.php
+
+		-
+			message: '#^Call to an undefined method CommonGLPI\:\:getID\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Profile.php
+
+		-
+			message: '#^Call to an undefined method GlpiPlugin\\Timelineticket\\Profile\:\:getRightsGeneral\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Profile.php
+
+		-
+			message: '#^Method GlpiPlugin\\Timelineticket\\Profile\:\:getTabNameForItem\(\) should return array\<string\>\|string but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/Profile.php
+
+		-
+			message: '#^Method GlpiPlugin\\Timelineticket\\Profile\:\:migrateOneProfile\(\) should return bool but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/Profile.php
+
+		-
+			message: '#^Method GlpiPlugin\\Timelineticket\\Profile\:\:showForm\(\) has invalid return type GlpiPlugin\\Timelineticket\\nothing\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Profile.php
+
+		-
+			message: '#^Method GlpiPlugin\\Timelineticket\\Profile\:\:showForm\(\) should return GlpiPlugin\\Timelineticket\\nothing but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/Profile.php
+
+		-
+			message: '#^Parameter \#2 \$openform \(bool\) of method GlpiPlugin\\Timelineticket\\Profile\:\:showForm\(\) should be compatible with parameter \$options \(array\<string, mixed\>\) of method Profile\:\:showForm\(\)$#'
+			identifier: method.childParameterType
+			count: 1
+			path: src/Profile.php
+
+		-
+			message: '#^Return type \(GlpiPlugin\\Timelineticket\\nothing\) of method GlpiPlugin\\Timelineticket\\Profile\:\:showForm\(\) should be compatible with return type \(bool\) of method Profile\:\:showForm\(\)$#'
+			identifier: method.childReturnType
+			count: 1
+			path: src/Profile.php
+
+		-
+			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
+			identifier: glpi.forbidExit
+			count: 1
+			path: src/Profile.php
+
+		-
+			message: '#^Access to an undefined property CommonGLPI\:\:\$fields\.$#'
+			identifier: property.notFound
+			count: 2
+			path: src/Tool.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(\)\: Unexpected token "\\r\\n     ", expected type at offset 203 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Tool.php
+
+		-
+			message: '#^Variable \$items_id might not be defined\.$#'
+			identifier: variable.undefined
+			count: 11
+			path: src/Tool.php
+
+		-
+			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
+			identifier: glpi.forbidExit
+			count: 1
+			path: src/Tool.php

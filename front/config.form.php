@@ -70,10 +70,11 @@ if (Session::haveRight("config", READ)
         if ($tickets_id <= 0) {
             Html::back();
         }
-        // Enforce per-ticket authorization (rights + entity access) before
-        // rebuilding the timeline of a specific ticket.
+        // Rebuilding a ticket's timeline deletes and re-inserts its plugin
+        // rows: this is a write operation, so require UPDATE (rights + entity
+        // access) on the targeted ticket, not just READ.
         $ticket = new Ticket();
-        $ticket->check($tickets_id, READ);
+        $ticket->check($tickets_id, UPDATE);
         $ptState = new AssignState();
         $ptState->reconstructTimeline($tickets_id);
         $ptGroup = new AssignGroup();

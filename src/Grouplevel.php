@@ -84,7 +84,9 @@ class Grouplevel extends CommonDropdown
                         foreach ($groups as $key => $val) {
                             echo "<tr class='tab_bg_1 center'>";
                             echo "<td>";
-                            echo Dropdown::getDropdownName("glpi_groups", $val);
+                            // getDropdownName() returns the raw stored value (GLPI 10+),
+                            // so it must be HTML-escaped before output to prevent stored XSS.
+                            echo htmlspecialchars(Dropdown::getDropdownName("glpi_groups", $val));
                             echo "</td>";
                             echo "<td>";
                             Html::showSimpleForm(

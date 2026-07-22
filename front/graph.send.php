@@ -38,12 +38,7 @@
 
 use Glpi\Exception\Http\BadRequestHttpException;
 
-Session ::checkLoginUser();
-
-if (isset($_GET["switchto"])) {
-    $_SESSION['glpigraphtype'] = $_GET["switchto"];
-    Html::back();
-}
+Session::checkLoginUser();
 
 if (($uid = Session::getLoginUserID(false))
     && isset($_GET["file"])) {

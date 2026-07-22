@@ -42,6 +42,7 @@ use CommonGLPI;
 use DateInterval;
 use DatePeriod;
 use DateTime;
+use Glpi\DBAL\QueryExpression;
 use GlpiPlugin\Mydashboard\Charts\BarChart;
 use GlpiPlugin\Mydashboard\Helper;
 use GlpiPlugin\Mydashboard\Html;
@@ -261,24 +262,64 @@ class Dashboard extends CommonGLPI
             $selected_group = $_SESSION['glpigroups'];
         }
         if (count($selected_group) > 0) {
-            // Force every group id to an integer before building the IN (...) list.
-            $groups             = implode(",", array_map('intval', $selected_group));
-            $query_group_member = "SELECT `glpi_groups_users`.`users_id`"
-                                  . "FROM `glpi_groups_users` "
-                                  . "LEFT JOIN `glpi_groups` ON (`glpi_groups_users`.`groups_id` = `glpi_groups`.`id`) "
-                                  . "WHERE `glpi_groups_users`.`groups_id` IN (" . $groups . ")
-                                  AND `glpi_groups`.`is_assign` = 1 "
-                                  . " GROUP BY `glpi_groups_users`.`users_id`";
-
-            $result_gu = $DB->doQuery($query_group_member);
-
-            while ($data = $DB->fetchAssoc($result_gu)) {
+            // Parameterized query builder: group ids are forced to integers and
+            // passed as an IN (...) criteria, no raw string interpolation.
+            $iterator = $DB->request([
+                'SELECT'    => 'glpi_groups_users.users_id',
+                'DISTINCT'  => true,
+                'FROM'      => 'glpi_groups_users',
+                'LEFT JOIN' => [
+                    'glpi_groups' => [
+                        'ON' => [
+                            'glpi_groups_users' => 'groups_id',
+                            'glpi_groups'       => 'id',
+                        ],
+                    ],
+                ],
+                'WHERE'     => [
+                    'glpi_groups_users.groups_id' => array_map('intval', $selected_group),
+                    'glpi_groups.is_assign'       => 1,
+                ],
+            ]);
+            foreach ($iterator as $data) {
                 $techlist[] = $data['users_id'];
             }
         }
 
         if (!empty($techlist)) {
-            $is_deleted = "`glpi_tickets`.`is_deleted` = 0";
+            $table = 'glpi_plugin_timelineticket_assignusers';
+
+            // Shared JOIN and WHERE built once with the query builder so every
+            // filter value is parameterized (no raw string interpolation).
+            $join = [
+                'glpi_tickets' => [
+                    'ON' => [
+                        'glpi_tickets' => 'id',
+                        $table         => 'tickets_id',
+                        ['AND' => ['glpi_tickets.is_deleted' => 0]],
+                    ],
+                ],
+            ];
+
+            $where = [
+                [$table . '.date' => ['>=', $opt['begin']]],
+                [$table . '.date' => ['<=', $opt['end']]],
+                $table . '.users_id' => array_map('intval', $techlist),
+            ];
+            if ($type_criteria > 0) {
+                $where['glpi_tickets.type'] = $type_criteria;
+            }
+            // Entity scoping: restrict to the selected entity (and its sons when
+            // requested), or fall back to the active entities of the session.
+            if ($entities_criteria > 0) {
+                $where = array_merge(
+                    $where,
+                    getEntitiesRestrictCriteria('glpi_tickets', '', $entities_criteria, (bool) $sons_criteria)
+                );
+            } else {
+                $where = array_merge($where, getEntitiesRestrictCriteria('glpi_tickets'));
+            }
+
             switch ($opt["multiple_time"]) {
                 case "MONTH":
                     $begin    = new DateTime($opt['begin']);
@@ -286,39 +327,22 @@ class Dashboard extends CommonGLPI
                     $interval = new DateInterval('P1M');
                     $dateint  = new DatePeriod($begin, $interval, $end);
 
-
-                    $condition_tech = ' AND `glpi_plugin_timelineticket_assignusers`.`users_id` IN (';
-                    $i              = 0;
-                    foreach ($techlist as $techid) {
-                        if ($i != 0) {
-                            $condition_tech .= ', ' . (int) $techid;
-                        } else {
-                            $condition_tech .= '' . (int) $techid;
-                        }
-                        $i++;
-                    }
-                    $condition_tech .= ")";
-
-               //                  $time_per_tech[$techid][$key] = 0;
-
-                    $querym_ai   = "SELECT  COUNT(*) as numberAssignation,DATE_FORMAT(`glpi_plugin_timelineticket_assignusers`.`date`, '%m/%Y') as dkey,
-                                            `glpi_plugin_timelineticket_assignusers`.`users_id` as users_id
-                              FROM `glpi_plugin_timelineticket_assignusers`
-                              LEFT JOIN `glpi_tickets` ON (`glpi_tickets`.`id` = `glpi_plugin_timelineticket_assignusers`.`tickets_id` AND $is_deleted)";
-                    $querym_ai   .= "WHERE ";
-                    $querym_ai   .= "(
-
-                                  (`glpi_plugin_timelineticket_assignusers`.`date`) >= '" . $opt['begin'] . "'
-                                 AND (`glpi_plugin_timelineticket_assignusers`.`date`) <= '" . $opt['end'] . "'
-                                 {$condition_tech} "
-                                    . $entities_criteria . $type_criteria
-                                    . ")";
-                    $querym_ai   .= " GROUP BY DATE_FORMAT(`glpi_plugin_timelineticket_assignusers`.`date`, '%m/%Y'),
-                    `glpi_plugin_timelineticket_assignusers`.`users_id`;
-                              ";
-                    $result_ai_q = $DB->doQuery($querym_ai);
-                    while ($data = $DB->fetchAssoc($result_ai_q)) {
-                  //               $time_per_tech[$techid][$key] += (self::TotalTpsPassesArrondis($data['actiontime_date'] / 3600 / 8));
+                    $date_expr = "DATE_FORMAT(" . $DB::quoteName($table . '.date') . ", '%m/%Y')";
+                    $iterator  = $DB->request([
+                        'SELECT'    => [
+                            new QueryExpression('COUNT(*)', 'numberAssignation'),
+                            new QueryExpression($date_expr, 'dkey'),
+                            $table . '.users_id',
+                        ],
+                        'FROM'      => $table,
+                        'LEFT JOIN' => $join,
+                        'WHERE'     => $where,
+                        'GROUPBY'   => [
+                            new QueryExpression($date_expr),
+                            $table . '.users_id',
+                        ],
+                    ]);
+                    foreach ($iterator as $data) {
                         if ($data['numberAssignation'] > 0) {
                             $time_per_tech[$data['users_id']][$data['dkey']] = $data['numberAssignation'];
                         } else {
@@ -342,40 +366,25 @@ class Dashboard extends CommonGLPI
                     $interval = new DateInterval('P1W');
                     $dateint  = new DatePeriod($begin, $interval, $end);
 
-                    $condition_tech = ' AND `glpi_plugin_timelineticket_assignusers`.`users_id` IN (';
-                    $i              = 0;
-                    foreach ($techlist as $techid) {
-                        if ($i != 0) {
-                            $condition_tech .= ', ' . (int) $techid;
-                        } else {
-                            $condition_tech .= '' . (int) $techid;
-                        }
-                        $i++;
-                    }
-                    $condition_tech .= ")";
-
-
-                    $querym_ai   = "SELECT  COUNT(glpi_plugin_timelineticket_assignusers.id) as numberAssignation,
-                                    YEAR(`glpi_plugin_timelineticket_assignusers`.`date`) as dyear,
-                                    WEEk(`glpi_plugin_timelineticket_assignusers`.`date`) as dweek,
-                                            `glpi_plugin_timelineticket_assignusers`.`users_id` as users_id
-                              FROM `glpi_plugin_timelineticket_assignusers`
-                              LEFT JOIN `glpi_tickets` ON (`glpi_tickets`.`id` = `glpi_plugin_timelineticket_assignusers`.`tickets_id` AND $is_deleted)";
-                    $querym_ai   .= "WHERE ";
-                    $querym_ai   .= "(
-
-                                  (`glpi_plugin_timelineticket_assignusers`.`date`) >= '" . $opt['begin'] . "'
-                                 AND (`glpi_plugin_timelineticket_assignusers`.`date`) <= '" . $opt['end'] . "'
-                                 {$condition_tech}"
-                                    . $entities_criteria
-                                    . ")";
-                    $querym_ai   .= "GROUP BY  YEAR(`glpi_plugin_timelineticket_assignusers`.`date`) ,
-                                    WEEk(`glpi_plugin_timelineticket_assignusers`.`date`),
-                                    `glpi_plugin_timelineticket_assignusers`.`users_id` ;
-                              ";
-                    $result_ai_q = $DB->doQuery($querym_ai);
-                    while ($data = $DB->fetchAssoc($result_ai_q)) {
-                  //               $time_per_tech[$techid][$key] += (self::TotalTpsPassesArrondis($data['actiontime_date'] / 3600 / 8));
+                    $year_expr = "YEAR(" . $DB::quoteName($table . '.date') . ")";
+                    $week_expr = "WEEK(" . $DB::quoteName($table . '.date') . ")";
+                    $iterator  = $DB->request([
+                        'SELECT'    => [
+                            new QueryExpression('COUNT(' . $DB::quoteName($table . '.id') . ')', 'numberAssignation'),
+                            new QueryExpression($year_expr, 'dyear'),
+                            new QueryExpression($week_expr, 'dweek'),
+                            $table . '.users_id',
+                        ],
+                        'FROM'      => $table,
+                        'LEFT JOIN' => $join,
+                        'WHERE'     => $where,
+                        'GROUPBY'   => [
+                            new QueryExpression($year_expr),
+                            new QueryExpression($week_expr),
+                            $table . '.users_id',
+                        ],
+                    ]);
+                    foreach ($iterator as $data) {
                         if ($data['numberAssignation'] > 0) {
                             $key                                    = $data["dweek"] . "/" . $data['dyear'];
                             $time_per_tech[$data['users_id']][$key] = $data['numberAssignation'];
@@ -393,36 +402,22 @@ class Dashboard extends CommonGLPI
 
                     break;
                 case "DAY":
-                    $condition_tech = ' AND `glpi_plugin_timelineticket_assignusers`.`users_id` IN (';
-                    $i              = 0;
-                    foreach ($techlist as $techid) {
-                        if ($i != 0) {
-                            $condition_tech .= ', ' . (int) $techid;
-                        } else {
-                            $condition_tech .= '' . (int) $techid;
-                        }
-                        $i++;
-                    }
-                    $condition_tech .= ")";
-
-                    $querym_ai   = "SELECT  COUNT(glpi_plugin_timelineticket_assignusers.id) as numberAssignation,
-                                            DATE_FORMAT(`glpi_plugin_timelineticket_assignusers`.`date`,'%d/%m/%Y') as dkey,
-                                            `glpi_plugin_timelineticket_assignusers`.`users_id` as users_id
-                              FROM `glpi_plugin_timelineticket_assignusers`
-                              LEFT JOIN `glpi_tickets` ON (`glpi_tickets`.`id` = `glpi_plugin_timelineticket_assignusers`.`tickets_id` AND $is_deleted)";
-                    $querym_ai   .= "WHERE ";
-                    $querym_ai   .= "(
-                                 (`glpi_plugin_timelineticket_assignusers`.`date`) >= '" . $opt['begin'] . "'
-                                 AND (`glpi_plugin_timelineticket_assignusers`.`date`) <= '" . $opt['end'] . "'
-                                 {$condition_tech} "
-                                    . $entities_criteria
-                                    . ")";
-                    $querym_ai   .= "GROUP BY  DATE_FORMAT(`glpi_plugin_timelineticket_assignusers`.`date`,'%d %m %Y'),
-               `glpi_plugin_timelineticket_assignusers`.`users_id`;
-                              ";
-                    $result_ai_q = $DB->doQuery($querym_ai);
-                    while ($data = $DB->fetchAssoc($result_ai_q)) {
-                  //               $time_per_tech[$techid][$key] += (self::TotalTpsPassesArrondis($data['actiontime_date'] / 3600 / 8));
+                    $date_expr = "DATE_FORMAT(" . $DB::quoteName($table . '.date') . ", '%d/%m/%Y')";
+                    $iterator  = $DB->request([
+                        'SELECT'    => [
+                            new QueryExpression('COUNT(' . $DB::quoteName($table . '.id') . ')', 'numberAssignation'),
+                            new QueryExpression($date_expr, 'dkey'),
+                            $table . '.users_id',
+                        ],
+                        'FROM'      => $table,
+                        'LEFT JOIN' => $join,
+                        'WHERE'     => $where,
+                        'GROUPBY'   => [
+                            new QueryExpression($date_expr),
+                            $table . '.users_id',
+                        ],
+                    ]);
+                    foreach ($iterator as $data) {
                         if ($data['numberAssignation'] > 0) {
                             $time_per_tech[$data['users_id']][$data['dkey']] = $data['numberAssignation'];
                         }
