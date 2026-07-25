@@ -1,0 +1,53 @@
+{#
+-------------------------------------------------------------------------
+ TimelineTicket
+ Copyright (C) 2013-2026 by the TimelineTicket Development Team.
+
+ https://github.com/pluginsGLPI/timelineticket
+ ------------------------------------------------------------------------
+
+ LICENSE
+
+ This file is part of TimelineTicket project.
+
+ TimelineTicket plugin is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TimelineTicket plugin is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with TimelineTicket plugin. If not, see <http://www.gnu.org/licenses/>.
+--------------------------------------------------------------------------
+#}
+
+<table class="table table-bordered text-center rounded">
+    <tr class="bg-body-tertiary">
+        <th colspan="{{ colspan }}">
+            {{ __('Result details') }}{% if subtitle %} ({{ subtitle }}){% endif %}
+        </th>
+    </tr>
+    <tr>
+        {# GLPI/Google Charts generated markup, safe to output as-is #}
+        <td colspan="{{ colspan }}" style="width:100%">{{ chart|raw }}</td>
+    </tr>
+    <tr>
+        <th class="bg-body-secondary"></th>
+        {% for name in statuses %}
+            <th class="bg-body-tertiary">{{ name }}</th>
+        {% endfor %}
+    </tr>
+    {% for row in rows %}
+        <tr>
+            {# row.label is a raw DB value (group/user name), auto-escaped by Twig #}
+            <th class="bg-body-tertiary">{{ row.label }}</th>
+            {% for cell in row.cells %}
+                <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table>

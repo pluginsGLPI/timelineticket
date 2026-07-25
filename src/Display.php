@@ -46,6 +46,7 @@ use DateTime;
 use DbUtils;
 use Dropdown;
 use Entity;
+use Glpi\Application\View\TemplateRenderer;
 use Html;
 use Session;
 use Sportlog\GoogleCharts\Charts\Base\Column;
@@ -144,37 +145,20 @@ class Display extends CommonDBTM
             $a_state_delays[$delay] = $array['old_status'];
         }
 
-        echo "<table class='table table-bordered text-center rounded'>";
-
-        echo "<tr class='bg-body-tertiary'>";
-        echo "<th colspan='" . (count($list_status) + 1) . "'>";
-        echo __('Result details');
+        $subtitle = '';
         if ($item instanceof AssignGroup) {
-            echo " (" . __('Groups in charge of the ticket', 'timelineticket') . ")";
+            $subtitle = __('Groups in charge of the ticket', 'timelineticket');
         } elseif ($item instanceof AssignUser) {
-            echo " (" . __('Technicians in charge of the ticket', 'timelineticket') . ")";
+            $subtitle = __('Technicians in charge of the ticket', 'timelineticket');
         }
-        echo "</th>";
-        echo "</tr>";
 
-        echo "<tr>";
-        echo "<td colspan='" . (count($list_status) + 1) . "' style='width:100%'>";
+        ob_start();
         self::showTimelineGraph($ticket, $item);
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr>";
-        echo "<th class='bg-body-secondary'>";
-        echo "</th>";
-        foreach ($list_status as $name) {
-            echo "<th class='bg-body-tertiary'>";
-            echo $name;
-            echo "</th>";
-        }
-        echo "</tr>";
+        $chart = ob_get_clean();
 
         $a_details = Tool::getDetails($ticket, $item, false);
 
+        $rows = [];
         foreach ($a_details as $items_id => $a_detail) {
             $a_status = [];
             foreach ($a_detail as $data) {
@@ -183,54 +167,53 @@ class Display extends CommonDBTM
                 }
                 $a_status[$data['Status']] += ($data['End'] - $data['Start']);
             }
-            echo "<tr>";
+
+            // getDropdownName() / getUserName() return raw DB values; Twig
+            // auto-escaping applies them safely in the template.
+            $label = '';
             if ($item instanceof AssignGroup) {
-                // getDropdownName() / getUserName() return raw DB values; escape before echo.
-                echo "<th class='bg-body-tertiary'>" . htmlspecialchars(Dropdown::getDropdownName("glpi_groups", $items_id)) . "</th>";
+                $label = Dropdown::getDropdownName("glpi_groups", $items_id);
             } elseif ($item instanceof AssignUser) {
-                echo "<th class='bg-body-tertiary'>" . htmlspecialchars(getUserName($items_id)) . "</th>";
+                $label = getUserName($items_id);
             }
+
+            $cells = [];
             foreach ($list_status as $status => $name) {
-                echo "<td>";
-                if (isset($a_status[$status])) {
-                    echo Html::timestampToString($a_status[$status], true);
-                }
-                echo "</td>";
+                $cells[] = isset($a_status[$status])
+                    ? Html::timestampToString($a_status[$status], true)
+                    : '';
             }
-            echo "</tr>";
+
+            $rows[] = ['label' => $label, 'cells' => $cells];
         }
-        echo "</table>";
+
+        TemplateRenderer::getInstance()->display('@timelineticket/detail.html.twig', [
+            'subtitle' => $subtitle,
+            'colspan'  => count($list_status) + 1,
+            'statuses' => array_values($list_status),
+            'chart'    => $chart,
+            'rows'     => $rows,
+        ]);
     }
 
     public static function showForTicket(Ticket $ticket)
     {
         global $DB;
 
-        echo "<div class='card'>";
-        echo "<div class='card-header'>";
-
-        echo "<h4 class='card-title d-flex align-items-center'>";
-        $icon = self::getIcon();
-        echo "<i class='$icon me-2 text-danger'></i>" . _n("Timeline of ticket", "Timeline of tickets", 1, "timelineticket") . "</h4>";
-
-        echo "<small class='text-muted d-flex align-items-center ms-auto'>";
-        $target = PLUGIN_TIMELINETICKET_WEBDIR . "/front/config.form.php";
+        // Reconstruct button (Html::showSimpleForm emits its own form + CSRF token)
+        ob_start();
         Html::showSimpleForm(
-            $target,
+            PLUGIN_TIMELINETICKET_WEBDIR . "/front/config.form.php",
             'delete_review_from_list',
             _x('button', "Reconstruct history for this ticket", 'timelineticket'),
             [
                 'tickets_id' => $ticket->getID(),
-                'reconstructTicket' => 'reconstructTicket'
-            ],
-        //                           'fa-spinner fa-2x'
+                'reconstructTicket' => 'reconstructTicket',
+            ]
         );
-        echo "</small>";
-        echo "</div>";
+        $reconstruct_button = ob_get_clean();
 
-        echo "<div class='card-header'>";
-        echo "<div class='mb-3 d-flex flex-wrap gap-2'>";
-        echo __('Used calendar', 'timelineticket')." - "._n('Time range', 'Time ranges', 2) . "&nbsp;: ";
+        // Used calendar link
         $calendar = new Calendar();
         $calendars_id = Entity::getUsedConfig(
             'calendars_strategy',
@@ -240,12 +223,13 @@ class Display extends CommonDBTM
         );
         if ($calendars_id > 0
             && $calendar->getFromDB($calendars_id)) {
-            echo $calendar->getLink();
+            $calendar_link = $calendar->getLink();
         } else {
-            echo NOT_AVAILABLE;
+            $calendar_link = NOT_AVAILABLE;
         }
 
-        // Display ticket have Due date
+        // Late info (ticket has a due date already passed)
+        $late = '';
         if ($ticket->fields['time_to_resolve']
             && $ticket->fields['status'] != CommonITILObject::WAITING
             && (strtotime(date('Y-m-d H:i:s')) - strtotime($ticket->fields['time_to_resolve'])) > 0) {
@@ -279,127 +263,48 @@ class Display extends CommonDBTM
                 }
             }
             if ($dateend > 0) {
-                echo "<br><span class='red'>";
-                echo __('Late') . "&nbsp;: ";
-                echo Html::timestampToString($dateend, true);
-                echo "</span>";
+                $late = Html::timestampToString($dateend, true);
             }
         }
 
-        echo "</div>";
-        echo "</div>";
-
-        echo "<div class='alert alert-secondary'>";
-        echo "<i class='ti ti-info-circle'></i>";
-        echo "&nbsp;";
-        echo __('This view displays time spent by status, group, technician. The display does not use working hours', 'timelineticket');
-        echo "</div>";
-
-        echo "<div class='card-body'>";
-        echo "<div class='row'>";
-        echo "<div class='col-12'>";
-        echo "<fieldset class='border p-3 mb-3 rounded'>";
-        echo "<div class='row g-2'>";
-
+        // History table (also returns the accumulated total delay)
+        ob_start();
         $total = AssignState::showHistory($ticket, new AssignState());
+        $history = ob_get_clean();
 
-        echo "</div>";
-        echo "</fieldset>";
-        echo "</div>";
-        echo "</div>";
-        echo "</div>";
-
-        echo "<div class='card-footer d-flex justify-content-between align-items-center'>";
-        echo "<div class='text-muted d-flex align-items-center'>";
-        echo "<i class='ti ti-info-circle me-1'></i>";
-        echo "<span>" . __("Total") . "</span>";
-        echo "<span class='ms-2'>";
-        echo Html::timestampToString($total, true);
-        echo "</span>";
-        echo "</div>";
-        echo "</div>";
-
-
-        echo "<div class='card-body'>";
-        echo "<div class='row'>";
-        echo "<div class='col-12'>";
-        echo "<fieldset class='border p-3 mb-3 rounded'>";
-        echo "<div class='row g-2'>";
-
+        // Group / technician detail tables
+        ob_start();
         self::showDetail($ticket, new AssignGroup());
+        $detail_group = ob_get_clean();
 
-        echo "</div>";
-        echo "</fieldset>";
-        echo "</div>";
-        echo "</div>";
-        echo "</div>";
-
-
-        echo "<div class='card-body'>";
-        echo "<div class='row'>";
-        echo "<div class='col-12'>";
-        echo "<fieldset class='border p-3 mb-3 rounded'>";
-        echo "<div class='row g-2'>";
-
+        ob_start();
         self::showDetail($ticket, new AssignUser());
+        $detail_user = ob_get_clean();
 
-        echo "</div>";
-        echo "</fieldset>";
-        echo "</div>";
-        echo "</div>";
-        echo "</div>";
-
-        echo "</div>";
-
-        // Swimlane: one lane per ticket status, cards = group/user assignments
-        echo "<div class='card-body'>";
-        echo "<div class='row'>";
-        echo "<div class='col-12'>";
-
-        echo "<div class='card-header' class='w-auto px-2 fs-6 fw-bold'>";
-        echo "<i class='ti ti-layout-rows me-1'></i>";
-        echo __('Assignment swimlane', 'timelineticket');
-        echo "</div>";
-        echo "<div class='card-body'>";
-        echo "<fieldset class='border p-3 mb-3 rounded'>";
+        // Swimlane visualization (markup + coupled inline JS generated server-side)
+        ob_start();
         self::showSwimlane($ticket);
-        echo "</fieldset>";
-        echo "</div>";
-        echo "</div>";
-        echo "</div>";
-        echo "</div>";
+        $swimlane = ob_get_clean();
 
-        if ($_SESSION['glpi_use_mode'] == Session::DEBUG_MODE) {
+        // Debug tables (only in GLPI debug mode)
+        $debug        = ($_SESSION['glpi_use_mode'] == Session::DEBUG_MODE);
+        $debug_groups = [];
+        $debug_users  = [];
+        if ($debug) {
             $req = $DB->request([
                 'FROM' => 'glpi_plugin_timelineticket_assigngroups',
                 'WHERE' => ['tickets_id' => $ticket->getID()],
                 'ORDER' => ['id DESC'],
             ]);
-
-            if (count($req) > 0) {
-                echo "<br><table class='table table-bordered text-center rounded'>";
-                echo "<tr>";
-                echo "<th class='bg-body-tertiary' colspan='5'>" . __('DEBUG') . " " . __('Group') . "</th>";
-                echo "</tr>";
-
-                echo "<tr class='bg-body-tertiary'>";
-                echo "<th>" . __('ID') . "</th>";
-                echo "<th>" . __('Date') . "</th>";
-                echo "<th>" . __('Group') . "</th>";
-                echo "<th>" . __('Begin') . "</th>";
-                echo "<th>" . __('Delay', 'timelineticket') . "</th>";
-                echo "</tr>";
-
-                foreach ($req as $data) {
-                    echo "<tr>";
-                    echo "<td>" . $data['id'] . "</td>";
-                    echo "<td>" . Html::convDateTime($data['date']) . "</td>";
-                    echo "<td>" . htmlspecialchars(Dropdown::getDropdownName("glpi_groups", $data['groups_id'])) . "</td>";
-                    echo "<td>" . Html::timestampToString($data['begin']) . "</td>";
-                    echo "<td>" . Html::timestampToString($data['delay']) . "</td>";
-                    echo "</tr>";
-                }
-                echo "</table>";
+            foreach ($req as $data) {
+                $debug_groups[] = [
+                    'id'    => $data['id'],
+                    'date'  => Html::convDateTime($data['date']),
+                    // raw DB value, auto-escaped by Twig in the template
+                    'name'  => Dropdown::getDropdownName("glpi_groups", $data['groups_id']),
+                    'begin' => Html::timestampToString($data['begin']),
+                    'delay' => Html::timestampToString($data['delay']),
+                ];
             }
 
             $req = $DB->request([
@@ -407,33 +312,33 @@ class Display extends CommonDBTM
                 'WHERE' => ['tickets_id' => $ticket->getID()],
                 'ORDER' => ['id DESC'],
             ]);
-
-            if (count($req) > 0) {
-                echo "<br><table class='table table-bordered text-center rounded'>";
-                echo "<tr class='bg-body-tertiary'>";
-                echo "<th colspan='5'>" . __('DEBUG') . " " . __('Technician') . "</th>";
-                echo "</tr>";
-
-                echo "<tr class='bg-body-tertiary'>";
-                echo "<th>" . __('ID') . "</th>";
-                echo "<th>" . __('Date') . "</th>";
-                echo "<th>" . __('Technician') . "</th>";
-                echo "<th>" . __('Begin') . "</th>";
-                echo "<th>" . __('Delay', 'timelineticket') . "</th>";
-                echo "</tr>";
-
-                foreach ($req as $data) {
-                    echo "<tr class='tab_bg_1'>";
-                    echo "<td>" . $data['id'] . "</td>";
-                    echo "<td>" . Html::convDateTime($data['date']) . "</td>";
-                    echo "<td>" . htmlspecialchars(getUserName($data['users_id'])) . "</td>";
-                    echo "<td>" . Html::timestampToString($data['begin']) . "</td>";
-                    echo "<td>" . Html::timestampToString($data['delay']) . "</td>";
-                    echo "</tr>";
-                }
-                echo "</table>";
+            foreach ($req as $data) {
+                $debug_users[] = [
+                    'id'    => $data['id'],
+                    'date'  => Html::convDateTime($data['date']),
+                    // raw DB value, auto-escaped by Twig in the template
+                    'name'  => getUserName($data['users_id']),
+                    'begin' => Html::timestampToString($data['begin']),
+                    'delay' => Html::timestampToString($data['delay']),
+                ];
             }
         }
+
+        TemplateRenderer::getInstance()->display('@timelineticket/ticket_timeline.html.twig', [
+            'icon'               => self::getIcon(),
+            'reconstruct_button' => $reconstruct_button,
+            'calendar_link'      => $calendar_link,
+            'late'               => $late,
+            'info_message'       => __('This view displays time spent by status, group, technician. The display does not use working hours', 'timelineticket'),
+            'history'            => $history,
+            'total'              => Html::timestampToString($total, true),
+            'detail_group'       => $detail_group,
+            'detail_user'        => $detail_user,
+            'swimlane'           => $swimlane,
+            'debug'              => $debug,
+            'debug_groups'       => $debug_groups,
+            'debug_users'        => $debug_users,
+        ]);
     }
 
     /**
@@ -522,6 +427,13 @@ class Display extends CommonDBTM
             'ORDER'  => ['date ASC'],
         ]);
         foreach ($followups_iter as $row) {
+            // Respect GLPI private-item visibility: skip followups the current user
+            // is not allowed to see (private ones authored by others without the
+            // SEEPRIVATE right). canViewItem() applies the core visibility rules.
+            $followup = new ITILFollowup();
+            if (!$followup->getFromDB((int) $row['id']) || !$followup->canViewItem()) {
+                continue;
+            }
             $author = new User();
             $author->getFromDB((int) $row['users_id']);
             $all_events[] = [
@@ -541,6 +453,13 @@ class Display extends CommonDBTM
             'ORDER'  => ['date ASC'],
         ]);
         foreach ($tasks_iter as $row) {
+            // Respect GLPI private-item visibility: skip tasks the current user is
+            // not allowed to see. canViewItem() applies the core visibility rules
+            // (SEEPRIVATE right / public task / author).
+            $task = new TicketTask();
+            if (!$task->getFromDB((int) $row['id']) || !$task->canViewItem()) {
+                continue;
+            }
             $author = new User();
             $author->getFromDB((int) $row['users_id']);
             $all_events[] = [
@@ -1150,9 +1069,9 @@ class Display extends CommonDBTM
             );
 
             // Draw all charts
-            echo "<div style='width:100%'>";
-            echo $chartService->render('ticket' . get_class($item));
-            echo "</div>";
+            TemplateRenderer::getInstance()->display('@timelineticket/chart.html.twig', [
+                'chart' => $chartService->render('ticket' . get_class($item)),
+            ]);
         }
     }
 }

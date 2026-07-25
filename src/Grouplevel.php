@@ -42,8 +42,8 @@ use CommonDropdown;
 use DBConnection;
 use DbUtils;
 use Dropdown;
+use Glpi\Application\View\TemplateRenderer;
 use Group;
-use Html;
 use Migration;
 use Toolbox;
 
@@ -79,35 +79,22 @@ class Grouplevel extends CommonDropdown
             case 'groups':
                 if (!empty($this->fields[$field['name']])) {
                     $groups = json_decode($this->fields[$field['name']], true);
+                    $groups_list = [];
                     if (!empty($groups)) {
-                        echo "<table class='tab_cadre_fixe' cellpadding='5'>";
-                        foreach ($groups as $key => $val) {
-                            echo "<tr class='tab_bg_1 center'>";
-                            echo "<td>";
-                            // getDropdownName() returns the raw stored value (GLPI 10+),
-                            // so it must be HTML-escaped before output to prevent stored XSS.
-                            echo htmlspecialchars(Dropdown::getDropdownName("glpi_groups", $val));
-                            echo "</td>";
-                            echo "<td>";
-                            Html::showSimpleForm(
-                                Toolbox::getItemTypeFormURL(Config::class),
-                                'delete_groups',
-                                _x('button', 'Delete permanently'),
-                                [
-                                    'delete_groups' => 'delete_groups',
-                                    'id' => $ID,
-                                    '_groups_id_assign' => $val,
-                                ],
-                                'ti-trash'
-                            );
-                            echo " </td>";
-                            echo "</tr>";
+                        foreach ($groups as $val) {
+                            // getDropdownName() returns the raw stored value (GLPI 10+);
+                            // it is HTML-escaped by Twig auto-escaping in the template.
+                            $groups_list[] = [
+                                'id'   => $val,
+                                'name' => Dropdown::getDropdownName("glpi_groups", $val),
+                            ];
                         }
-
-                        echo "</table>";
-                    } else {
-                        echo __('None');
                     }
+                    TemplateRenderer::getInstance()->display('@timelineticket/grouplevel_groups.html.twig', [
+                        'form_url' => Toolbox::getItemTypeFormURL(Config::class),
+                        'id'       => $ID,
+                        'groups'   => $groups_list,
+                    ]);
                 }
                 break;
         }
@@ -170,32 +157,21 @@ class Grouplevel extends CommonDropdown
 
     public static function showAddGroup($item)
     {
-
-        echo "<form action='" . Toolbox::getItemTypeFormURL(Config::class) . "' method='post'>";
-        echo "<table class='tab_cadre_fixe' cellpadding='5'>";
-        echo "<tr class='tab_bg_1 center'>";
-        echo "<th>" . __('Group') . "</th>";
-        echo "<th>&nbsp;</th>";
-        echo "</tr>";
-        echo "<tr class='tab_bg_1 center'>";
-        echo "<td>";
-
         $used = ($item->fields["groups"] == '' ? [] : json_decode($item->fields["groups"], true));
 
+        ob_start();
         Group::dropdown(['name'        => '_groups_id_assign',
             'used'        => $used,
             'entity'      => $item->fields['entities_id'],
             'entity_sons' => $item->fields["is_recursive"],
             'condition'   => ['is_assign' => 1]]);
+        $group_dropdown = ob_get_clean();
 
-        echo "</td>";
-        echo "<td>";
-        echo Html::hidden('id', ['value' => $item->getID()]);
-        echo Html::submit(_sx('button', 'Add'), ['name' => 'add_groups', 'class' => 'btn btn-primary']);
-        echo "</td>";
-        echo "</tr>";
-        echo "</table>";
-        Html::closeForm();
+        TemplateRenderer::getInstance()->display('@timelineticket/grouplevel_addgroup.html.twig', [
+            'form_url'       => Toolbox::getItemTypeFormURL(Config::class),
+            'id'             => $item->getID(),
+            'group_dropdown' => $group_dropdown,
+        ]);
     }
 
     public function getLaskRank()

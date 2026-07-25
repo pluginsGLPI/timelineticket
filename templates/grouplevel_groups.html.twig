@@ -1,0 +1,51 @@
+{#
+-------------------------------------------------------------------------
+ TimelineTicket
+ Copyright (C) 2013-2026 by the TimelineTicket Development Team.
+
+ https://github.com/pluginsGLPI/timelineticket
+ ------------------------------------------------------------------------
+
+ LICENSE
+
+ This file is part of TimelineTicket project.
+
+ TimelineTicket plugin is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TimelineTicket plugin is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with TimelineTicket plugin. If not, see <http://www.gnu.org/licenses/>.
+--------------------------------------------------------------------------
+#}
+
+{% if groups is not empty %}
+    <table class="tab_cadre_fixe" cellpadding="5">
+        {% for group in groups %}
+            <tr class="tab_bg_1 center">
+                {# group.name auto-escaped by Twig (raw DB value from getDropdownName) #}
+                <td>{{ group.name }}</td>
+                <td>
+                    <form method="post" action="{{ form_url }}">
+                        <input type="hidden" name="delete_groups" value="delete_groups">
+                        <input type="hidden" name="id" value="{{ id }}">
+                        <input type="hidden" name="_groups_id_assign" value="{{ group.id }}">
+                        <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                title="{{ _x('button', 'Delete permanently') }}">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    {{ __('None') }}
+{% endif %}

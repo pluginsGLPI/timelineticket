@@ -42,7 +42,7 @@ use CommonDBTM;
 use CommonGLPI;
 use DBConnection;
 use Dropdown;
-use Html;
+use Glpi\Application\View\TemplateRenderer;
 use Migration;
 
 if (!defined('GLPI_ROOT')) {
@@ -53,82 +53,22 @@ class Config extends CommonDBTM
 {
     public function showReconstructForm()
     {
-
-        echo "<form method='POST' action=\"" . $this->getFormURL() . "\">";
-
-        echo "<table class='tab_cadre_fixe'>";
-
-        echo "<tr>";
-        echo "<th class='center'>";
-        echo __('Setup');
-        echo "&nbsp;" . __('(Can take many time if you have many tickets)', 'timelineticket');
-        echo "</th>";
-        echo "</tr>";
-
-        echo "<tr class='tab_bg_1'>";
-        echo "<td class='center'>";
-
-        echo "<br>";
-
-        echo Html::submit(_sx(
-            'button',
-            'Reconstruct states timeline for all tickets',
-            'timelineticket'
-        ), ['name' => 'reconstructStates', 'class' => 'btn btn-primary']);
-
-        echo "<br>";
-        echo "<br>";
-
-        echo Html::submit(_sx(
-            'button',
-            'Reconstruct technician groups timeline for all tickets',
-            'timelineticket'
-        ), ['name' => 'reconstructGroups', 'class' => 'btn btn-primary']);
-
-
-        echo "<br>";
-        echo "<br>";
-
-        echo Html::submit(_sx(
-            'button',
-            'Reconstruct technicians timeline for all tickets',
-            'timelineticket'
-        ), ['name' => 'reconstructUsers', 'class' => 'btn btn-primary']);
-
-        echo "</td>";
-        echo "</tr>";
-        echo "</table>";
-        Html::closeForm();
+        TemplateRenderer::getInstance()->display('@timelineticket/config_reconstruct.html.twig', [
+            'form_url' => $this->getFormURL(),
+        ]);
     }
 
 
     public function showConfigForm()
     {
-
-        echo "<form method='POST' action=\"" . $this->getFormURL() . "\">";
-
-        echo "<table class='tab_cadre_fixe'>";
-
-        echo "<tr><th colspan='2'>";
-        echo __('Flags', 'timelineticket');
-        echo "</th></tr>";
-
-        echo "<tr class='tab_bg_1 top'>";
-        echo "<td>" . __(
-            'Input time on groups / users when ticket is waiting',
-            'timelineticket'
-        ) . "</td>";
-        echo "<td>";
+        ob_start();
         Dropdown::showYesNo("add_waiting", $this->fields["add_waiting"]);
-        echo "</td>";
-        echo "</tr>";
+        $add_waiting_dropdown = ob_get_clean();
 
-        echo "<tr class='tab_bg_1'><td>";
-        echo Html::hidden('id', ['value' => 1]);
-        echo Html::submit(_sx('button', 'Save'), ['name' => 'update', 'class' => 'btn btn-primary']);
-        echo "</td></tr>";
-        echo "</table>";
-        Html::closeForm();
+        TemplateRenderer::getInstance()->display('@timelineticket/config.html.twig', [
+            'form_url'             => $this->getFormURL(),
+            'add_waiting_dropdown' => $add_waiting_dropdown,
+        ]);
     }
 
 

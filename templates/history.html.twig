@@ -1,0 +1,56 @@
+{#
+-------------------------------------------------------------------------
+ TimelineTicket
+ Copyright (C) 2013-2026 by the TimelineTicket Development Team.
+
+ https://github.com/pluginsGLPI/timelineticket
+ ------------------------------------------------------------------------
+
+ LICENSE
+
+ This file is part of TimelineTicket project.
+
+ TimelineTicket plugin is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TimelineTicket plugin is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with TimelineTicket plugin. If not, see <http://www.gnu.org/licenses/>.
+--------------------------------------------------------------------------
+#}
+
+<table class="table table-bordered text-center rounded">
+    {% if rows is empty %}
+        <tr class="bg-body-tertiary"><td>{{ __('No results found') }}</td></tr>
+    {% else %}
+        <tr class="bg-body-tertiary">
+            <th colspan="5">{{ __('Result details') }} ({{ __('Statuses', 'timelineticket') }})</th>
+        </tr>
+        <tr>
+            {# GLPI/Google Charts generated markup, safe to output as-is #}
+            <td colspan="5" style="width:100%">{{ chart|raw }}</td>
+        </tr>
+        <tr class="bg-body-tertiary">
+            <th>{{ __('Old status', 'timelineticket') }}</th>
+            <th>{{ __('New status', 'timelineticket') }}</th>
+            <th>{{ __('Begin date') }}</th>
+            <th>{{ __('End date') }}</th>
+            <th class="right">{{ __('Delay', 'timelineticket') }}</th>
+        </tr>
+        {% for row in rows %}
+            <tr>
+                <td>{{ row.old_status }}</td>
+                <td>{{ row.new_status }}</td>
+                <td>{{ row.begin_date }}</td>
+                <td>{{ row.end_date }}</td>
+                <td class="right">{{ row.delay }}</td>
+            </tr>
+        {% endfor %}
+    {% endif %}
+</table>

@@ -102,6 +102,12 @@ class Dashboard extends CommonGLPI
         switch ($widgetId) {
             case $this->getType() . "1":
                 if (Plugin::isPluginActive("timelineticket")) {
+                    // Access control: this widget exposes ticket assignment
+                    // statistics, so it must require the plugin READ right. Without
+                    // this gate any authenticated user could render the widget.
+                    if (!Session::haveRight('plugin_timelineticket_ticket', READ)) {
+                        return;
+                    }
                     $name    = 'AffectionTechBarChart';
                     $widget = new Html();
                     $title  = __("Number of assignments per technician to a ticket", "timelineticket");
@@ -309,9 +315,13 @@ class Dashboard extends CommonGLPI
             if ($type_criteria > 0) {
                 $where['glpi_tickets.type'] = $type_criteria;
             }
-            // Entity scoping: restrict to the selected entity (and its sons when
-            // requested), or fall back to the active entities of the session.
-            if ($entities_criteria > 0) {
+            // Entity scoping: honor the requested entity ONLY when the session is
+            // actually allowed in it, otherwise fall back to the active entities of
+            // the session. getEntitiesRestrictCriteria() with an explicit entity does
+            // not verify session access, so an unchecked value would leak cross-entity
+            // statistics.
+            if ($entities_criteria > 0
+                && in_array($entities_criteria, $_SESSION['glpiactiveentities'] ?? [])) {
                 $where = array_merge(
                     $where,
                     getEntitiesRestrictCriteria('glpi_tickets', '', $entities_criteria, (bool) $sons_criteria)

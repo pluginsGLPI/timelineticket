@@ -1,0 +1,50 @@
+{#
+-------------------------------------------------------------------------
+ TimelineTicket
+ Copyright (C) 2013-2026 by the TimelineTicket Development Team.
+
+ https://github.com/pluginsGLPI/timelineticket
+ ------------------------------------------------------------------------
+
+ LICENSE
+
+ This file is part of TimelineTicket project.
+
+ TimelineTicket plugin is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TimelineTicket plugin is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with TimelineTicket plugin. If not, see <http://www.gnu.org/licenses/>.
+--------------------------------------------------------------------------
+#}
+
+<form method="post" action="{{ form_url }}">
+    <div class="center">
+        <table class="tab_cadre_fixe">
+            <tr>
+                <th colspan="2">{{ __('Flags', 'timelineticket') }}</th>
+            </tr>
+            <tr class="tab_bg_1 top">
+                <td>{{ __('Input time on groups / users when ticket is waiting', 'timelineticket') }}</td>
+                {# GLPI-generated dropdown markup, safe to output as-is #}
+                <td>{{ add_waiting_dropdown|raw }}</td>
+            </tr>
+            <tr class="tab_bg_1">
+                <td colspan="2">
+                    <input type="hidden" name="id" value="1">
+                    <button type="submit" name="update" class="btn btn-primary">
+                        {{ _x('button', 'Save') }}
+                    </button>
+                </td>
+            </tr>
+        </table>
+        <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}">
+    </div>
+</form>

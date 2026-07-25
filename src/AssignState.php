@@ -41,6 +41,7 @@ namespace GlpiPlugin\Timelineticket;
 use CommonDBTM;
 use CommonGLPI;
 use DBConnection;
+use Glpi\Application\View\TemplateRenderer;
 use Html;
 use Migration;
 use Ticket;
@@ -153,8 +154,6 @@ class AssignState extends CommonDBTM
         ]);
 
         if (count($req)) {
-            echo "<tr class='tab_bg_2'>";
-            echo "<td>";
             $states = [];
             $nb     = 0;
             $new    = null;
@@ -187,15 +186,17 @@ class AssignState extends CommonDBTM
             ];
 
             $title = __('Ticket states history', 'timelineticket');
-            echo "<div class='center'>";
+            ob_start();
             Html::showDatesTimelineGraph([
                 'title'   => $title,
                 'dates'   => $states,
                 'add_now' => false,
             ]);
-            echo "</div>";
-            echo "</td>";
-            echo "</tr>";
+            $graph = ob_get_clean();
+
+            TemplateRenderer::getInstance()->display('@timelineticket/timeline_row.html.twig', [
+                'graph' => $graph,
+            ]);
         }
     }
 
@@ -213,76 +214,56 @@ class AssignState extends CommonDBTM
             'ORDER' => ['id ASC'],
         ]);
         $total = 0;
-        $colspan = 5;
-        echo "<table class='table table-bordered text-center rounded'>";
-        if (count($req) === 0) {
-            echo "<tr class='bg-body-tertiary'><td>" . __s('No results found') . "</td></tr>";
-        } else {
-            echo "<tr class='bg-body-tertiary'><th colspan='$colspan'>" . __('Result details');
-            echo " (" . __('Statuses', 'timelineticket') . ")";
-            echo "</th></tr>";
+        $count = count($req);
 
-            echo "<tr>";
-            echo "<td colspan='$colspan' style='width:100%'>";
-            Display::showTimelineGraph($ticket, $item);
-            echo "</td>";
-            echo "</tr>";
+        ob_start();
+        Display::showTimelineGraph($ticket, $item);
+        $chart = ob_get_clean();
 
-            echo "<tr class='bg-body-tertiary'>";
-            echo "<th>" . __('Old status', 'timelineticket') . "</th>";
-            echo "<th>" . __('New status', 'timelineticket') . "</th>";
-            echo "<th>" . __('Begin date') . "</th>";
-            echo "<th>" . __('End date') . "</th>";
-            echo "<th class='right'>" . __('Delay', 'timelineticket') . "</th>";
-            echo "</tr>";
+        $rows       = [];
+        $date_begin = [];
+        $first      = 0;
+        foreach ($req as $data) {
+            $status = __('New ticket');
+            if ($data['old_status'] != 0) {
+                $status = Ticket::getStatus($data['old_status']);
+            }
 
-            $first = 0;
-            foreach ($req as $data) {
+            $date_begin[$first] = $data['date'];
+            if (!isset($date_begin[$first - 1])) {
+                $olddate = $ticket->fields['date'];
+            } else {
+                $olddate = $date_begin[$first - 1];
+            }
+            $begin = strtotime($olddate);
 
-                $status = __('New ticket');
-                if ($data['old_status'] != 0) {
-                    $status = Ticket::getStatus($data['old_status']);
-                }
-                echo "<tr>";
-                echo "<td>" . $status . "</td>";
-                echo "<td>" . Ticket::getStatus($data['new_status']) . "</td>";
+            $rows[] = [
+                'old_status' => $status,
+                'new_status' => Ticket::getStatus($data['new_status']),
+                'begin_date' => Html::convDateTime(date('Y-m-d H:i:s', $begin)),
+                'end_date'   => Html::convDateTime($data['date']),
+                'delay'      => Html::timestampToString($data['delay'], true),
+            ];
 
-                $date_begin[$first] = $data['date'];
+            $total += $data['delay'];
+            $first++;
 
-                if (!isset($date_begin[$first - 1])) {
-                    $olddate = $ticket->fields['date'];;
-                } else {
-                    $olddate = $date_begin[$first - 1];
-                }
-                $begin = strtotime($olddate);
-
-                echo "<td>" . Html::convDateTime(date('Y-m-d H:i:s', $begin)) . "</td>";
-                echo "<td>" . Html::convDateTime($data['date']) . "</td>";
-                echo "<td class='right'>" . Html::timestampToString($data['delay'], true) . "</td>";
-                echo "</tr>";
-
-                $total += $data['delay'];
-
-                $first++;
-
-                if ($first == count($req)) {
-                    if ($data['new_status'] != Ticket::CLOSED) {
-                        echo "<tr class='tab_bg_1'>";
-                        echo "<td>" . Ticket::getStatus($data['new_status']) . "</td>";
-                        echo "<td></td>";
-                        echo "<td>" . Html::convDateTime($data['date']) . "</td>";
-                        echo "<td></td>";
-                        echo "<td class='right'>" . Html::timestampToString(
-                                (date('U') - strtotime($data['date'])),
-                                true
-                            ) . "</td>";
-                        echo "</tr>";
-                        $total += (date('U') - strtotime($data['date']));
-                    }
-                }
+            if ($first == $count && $data['new_status'] != Ticket::CLOSED) {
+                $rows[] = [
+                    'old_status' => Ticket::getStatus($data['new_status']),
+                    'new_status' => '',
+                    'begin_date' => Html::convDateTime($data['date']),
+                    'end_date'   => '',
+                    'delay'      => Html::timestampToString((date('U') - strtotime($data['date'])), true),
+                ];
+                $total += (date('U') - strtotime($data['date']));
             }
         }
-        echo "</table>";
+
+        TemplateRenderer::getInstance()->display('@timelineticket/history.html.twig', [
+            'rows'  => $rows,
+            'chart' => $chart,
+        ]);
 
         return $total;
     }

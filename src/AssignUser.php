@@ -44,6 +44,7 @@ use CommonITILActor;
 use DBConnection;
 use DbUtils;
 use Entity;
+use Glpi\Application\View\TemplateRenderer;
 use Html;
 use Migration;
 use Ticket;
@@ -398,8 +399,6 @@ class AssignUser extends CommonDBTM
           'ORDER'  => 'id ASC'
         ]);
         if ($req->numrows()) {
-            echo "<tr class='tab_bg_2'>";
-            echo "<td>";
             $users = [];
             $nb    = 0;
             $size  = count($req);
@@ -416,15 +415,17 @@ class AssignUser extends CommonDBTM
                 'class'     => $class];
             }
             $title = __('Ticket assign technician history', 'timelineticket');
-            echo "<div class='center'>";
+            ob_start();
             Html::showDatesTimelineGraph([
                                          'title'   => $title,
                                          'dates'   => $users,
                                          'add_now' => false,
                                       ]);
-            echo "</div>";
-            echo "</td>";
-            echo "</tr>";
+            $graph = ob_get_clean();
+
+            TemplateRenderer::getInstance()->display('@timelineticket/timeline_row.html.twig', [
+                'graph' => $graph,
+            ]);
         }
     }
 

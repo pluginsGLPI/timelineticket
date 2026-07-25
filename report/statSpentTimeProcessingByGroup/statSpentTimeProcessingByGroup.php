@@ -86,7 +86,7 @@ $columns = ['id'                => ['sorton' => 'id'],
 $output_type = Search::HTML_OUTPUT;
 
 if (isset($_POST['list_limit'])) {
-   $_SESSION['glpilist_limit'] = $_POST['list_limit'];
+   $_SESSION['glpilist_limit'] = (int) $_POST['list_limit'];
    unset($_POST['list_limit']);
 }
 if (!isset($_REQUEST['sort'])) {
@@ -94,7 +94,7 @@ if (!isset($_REQUEST['sort'])) {
    $_REQUEST['order'] = "ASC";
 }
 
-$limit = $_SESSION['glpilist_limit'];
+$limit = (int) $_SESSION['glpilist_limit'];
 
 if (isset($_POST["display_type"])) {
    $output_type = $_POST["display_type"];
@@ -124,7 +124,7 @@ $query .= getOrderBy('closedate', $columns);
 $res   = $DB->doQuery($query);
 $nbtot = ($res ? $DB->numrows($res) : 0);
 if ($limit) {
-   $start = (isset($_GET["start"]) ? $_GET["start"] : 0);
+   $start = (int) ($_GET["start"] ?? 0);
    if ($start >= $nbtot) {
       $start = 0;
    }

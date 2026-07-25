@@ -40,6 +40,7 @@ namespace GlpiPlugin\Timelineticket;
 
 use CommonGLPI;
 use DbUtils;
+use Glpi\Application\View\TemplateRenderer;
 use Html;
 use ProfileRight;
 use Session;
@@ -75,23 +76,33 @@ class Profile extends \Profile
 
     /**
      * @param CommonGLPI $item
-     * @param int        $tabnum
-     * @param int        $withtemplate
+     * @param int $tabnum
+     * @param int $withtemplate
      *
      * @return bool
      */
-    public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
-    {
-        if ($item->getType() == 'Profile') {
-            $ID   = $item->getID();
-            $prof = new self();
-
-            self::addDefaultProfileInfos(
-                $ID,
-                ['plugin_timelineticket_ticket' => 0]
-            );
-            $prof->showForm($ID);
+    public static function displayTabContentForItem(
+        CommonGLPI $item,
+        $tabnum = 1,
+        $withtemplate = 0
+    ) {
+        if (!$item instanceof \Profile || !self::canView()) {
+            return false;
         }
+
+        $profile = new \Profile();
+        $profile->getFromDB($item->getID());
+
+        $rights = self::getAllRights(true);
+
+        $twig = TemplateRenderer::getInstance();
+        $twig->display('@timelineticket/profile.html.twig', [
+            'id' => $item->getID(),
+            'profile' => $profile,
+            'title' => self::getTypeName(Session::getPluralNumber()),
+            'rights' => $rights,
+        ]);
+
         return true;
     }
 
@@ -141,54 +152,6 @@ class Profile extends \Profile
         }
     }
 
-    /**
-     * Show profile form
-     *
-     * @param int  $profiles_id
-     * @param bool $openform
-     * @param bool $closeform
-     *
-     * @return nothing
-     * @internal param int $items_id id of the profile
-     * @internal param value $target url of target
-     */
-    public function showForm($profiles_id = 0, $openform = true, $closeform = true)
-    {
-        echo "<div class='firstbloc'>";
-        if (($canedit = Session::haveRightsOr(self::$rightname, [CREATE, UPDATE, PURGE]))
-            && $openform) {
-            $profile = new \Profile();
-            echo "<form method='post' action='" . $profile->getFormURL() . "'>";
-        }
-
-        $profile = new \Profile();
-        $profile->getFromDB($profiles_id);
-        if ($profile->getField('interface') == 'central') {
-            $rights = $this->getAllRights();
-            $profile->displayRightsChoiceMatrix($rights, ['canedit'       => $canedit,
-                                                          'default_class' => 'tab_bg_2',
-                                                          'title'         => __('General')]);
-        }
-
-        if ($canedit
-            && $closeform) {
-            echo "<div class='center'>";
-            echo Html::hidden('id', ['value' => $profiles_id]);
-            echo Html::submit(_sx('button', 'Save'), ['name' => 'update', 'class' => 'btn btn-primary']);
-            echo "</div>\n";
-            Html::closeForm();
-        }
-        echo "</div>";
-    }
-
-    public static function uninstallProfile()
-    {
-        $pfProfile = new self();
-        $a_rights  = $pfProfile->getRightsGeneral();
-        foreach ($a_rights as $data) {
-            ProfileRight::deleteProfileRights([$data['field']]);
-        }
-    }
 
     /**
      * @param bool $all

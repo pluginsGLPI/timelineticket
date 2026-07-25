@@ -44,6 +44,7 @@ use CommonITILActor;
 use DBConnection;
 use Dropdown;
 use Entity;
+use Glpi\Application\View\TemplateRenderer;
 use Group;
 use Group_Ticket;
 use Html;
@@ -360,8 +361,6 @@ class AssignGroup extends CommonDBTM
             'ORDER' => ['id ASC'],
         ]);
         if (count($req)) {
-            echo "<tr class='tab_bg_2'>";
-            echo "<td>";
             $groups = [];
             $nb     = 0;
             $size   = count($req);
@@ -381,15 +380,17 @@ class AssignGroup extends CommonDBTM
                     'class'     => $class];
             }
             $title = __('Ticket assign group history', 'timelineticket');
-            echo "<div class='center'>";
+            ob_start();
             Html::showDatesTimelineGraph([
                 'title'   => $title,
                 'dates'   => $groups,
                 'add_now' => false,
             ]);
-            echo "</div>";
-            echo "</td>";
-            echo "</tr>";
+            $graph = ob_get_clean();
+
+            TemplateRenderer::getInstance()->display('@timelineticket/timeline_row.html.twig', [
+                'graph' => $graph,
+            ]);
         }
     }
 

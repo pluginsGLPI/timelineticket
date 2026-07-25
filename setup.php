@@ -49,10 +49,7 @@ define("PLUGIN_TIMELINETICKET_VERSION", "11.0.9");
 
 if (!defined("PLUGIN_TIMELINETICKET_DIR")) {
     define("PLUGIN_TIMELINETICKET_DIR", Plugin::getPhpDir("timelineticket"));
-    // Derive the web path from GLPI itself instead of hardcoding /plugins/…,
-    // so it stays correct under non-standard install roots (e.g. marketplace/).
-    // The second arg `false` returns the path relative to GLPI_ROOT.
-    $root = $CFG_GLPI['root_doc'] . Plugin::getPhpDir("timelineticket", false);
+    $root = $CFG_GLPI['root_doc'] . '/plugins/timelineticket';
     define("PLUGIN_TIMELINETICKET_WEBDIR", $root);
 }
 
