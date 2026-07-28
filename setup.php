@@ -45,7 +45,7 @@ use GlpiPlugin\Timelineticket\Dashboard;
 use GlpiPlugin\Timelineticket\Display;
 use GlpiPlugin\Timelineticket\Profile;
 
-define("PLUGIN_TIMELINETICKET_VERSION", "11.0.9");
+define("PLUGIN_TIMELINETICKET_VERSION", "11.1.0");
 
 if (!defined("PLUGIN_TIMELINETICKET_DIR")) {
     define("PLUGIN_TIMELINETICKET_DIR", Plugin::getPhpDir("timelineticket"));
