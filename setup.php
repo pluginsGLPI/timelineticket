@@ -81,6 +81,8 @@ function plugin_init_timelineticket()
         $PLUGIN_HOOKS[Hooks::CHANGE_PROFILE]['timelineticket'] = [Profile::class, 'initProfile'];
 
         $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['timelineticket'][] = 'js/google-charts/loader.js';
+        // Swimlane arrow renderer, loaded as an ES module (no inline <script>).
+        $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT_MODULE]['timelineticket'][] = 'js/swimlane.js';
         $PLUGIN_HOOKS[Hooks::ADD_CSS]['timelineticket'][] = 'css/timelineticket.css';
 
         Plugin::registerClass(Profile::class, ['addtabon' => 'Profile']);

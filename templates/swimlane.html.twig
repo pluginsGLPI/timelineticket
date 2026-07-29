@@ -1,0 +1,56 @@
+{#
+ # Swimlane visualization for a ticket timeline.
+ #
+ # Rendered from GlpiPlugin\Timelineticket\Display::showSwimlane(). All markup
+ # lives here (instead of echo in the PHP class) so Twig auto-escaping applies to
+ # every user-facing value. The arrow-drawing logic lives in the external ES
+ # module js/swimlane.js (loaded via add_javascript_module); per-render data is
+ # handed to it through the wrap element's data-* attributes, so there is no
+ # inline <script> block (CSP friendly).
+ #}
+<div class="tt-toolbar mb-2 d-flex gap-2">
+    {% for f in filters %}
+        <button type="button"
+                class="btn btn-sm {{ f.btn }} tt-filter-btn"
+                data-uid="{{ uid }}"
+                data-filter="{{ f.key }}"
+                {% if f.style is not empty %}style="{{ f.style }}"{% endif %}>
+            {% if f.icon is not empty %}<i class="{{ f.icon }} me-1"></i>{% endif %}{{ f.label }}
+        </button>
+    {% endfor %}
+</div>
+
+<div class="tt-swimlane-wrap"
+     id="{{ uid }}-wrap"
+     data-uid="{{ uid }}"
+     data-chains="{{ chains }}">
+    <div class="tt-swimlane" id="{{ uid }}-swimlane">
+        {% for lane in lanes %}
+            <div class="tt-lane">
+                <div class="tt-lane-hdr" style="background:{{ lane.hdr_color }}">{{ lane.label }}</div>
+                <div class="tt-lane-body" style="background:{{ lane.bg_color }}">
+                    {% for card in lane.cards %}
+                        <div class="tt-card {{ card.cls }}" id="{{ card.card_id }}">
+                            <div class="tt-card-type">{{ card.type_label }}</div>
+                            <div class="tt-card-name">{{ card.name }}</div>
+                            {% if card.excerpt is not empty %}
+                                <div class="tt-card-excerpt">{{ card.excerpt }}</div>
+                            {% endif %}
+                            <div class="tt-card-date">{{ card.date }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+
+        <svg class="tt-arrows" id="{{ uid }}-svg" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                {% for m in markers %}
+                    <marker id="{{ uid }}-ah-{{ m.name }}" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                        <polygon points="0 0,8 3,0 6" fill="{{ m.color }}"/>
+                    </marker>
+                {% endfor %}
+            </defs>
+        </svg>
+    </div>
+</div>

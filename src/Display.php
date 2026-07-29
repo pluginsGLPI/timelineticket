@@ -612,46 +612,67 @@ class Display extends CommonDBTM
         }
 
         // ── 6. Render ─────────────────────────────────────────────────────────
-        // Filter toolbar
-        $duid = htmlspecialchars($uid);
-        echo "<div class='tt-toolbar mb-2 d-flex gap-2'>";
-        echo "<button type='button' class='btn btn-sm btn-outline-secondary tt-filter-btn active'
-                data-uid='{$duid}' data-filter='all'>" . __('All') . "</button>";
-        echo "<button type='button' class='btn btn-sm btn-outline-primary tt-filter-btn'
-                data-uid='{$duid}' data-filter='group' style='color:#395bae;border-color:#395bae'>
-                <i class='ti ti-users me-1'></i>" . _n('Group', 'Groups', 2) . "</button>";
-        echo "<button type='button' class='btn btn-sm btn-outline-danger tt-filter-btn'
-                data-uid='{$duid}' data-filter='user'>
-                <i class='ti ti-user me-1'></i>" . _n('Technician', 'Technicians', 2, 'timelineticket') . "</button>";
-        echo "<button type='button' class='btn btn-sm btn-outline-info tt-filter-btn'
-                data-uid='{$duid}' data-filter='followup'>
-                <i class='ti ti-message me-1'></i>" . _n('Followup', 'Followups', 2) . "</button>";
-        echo "<button type='button' class='btn btn-sm btn-outline-warning tt-filter-btn'
-                data-uid='{$duid}' data-filter='task'>
-                <i class='ti ti-checkbox me-1'></i>" . _n('Task', 'Tasks', 2) . "</button>";
-        echo "<button type='button' class='btn btn-sm btn-outline-success tt-filter-btn'
-                data-uid='{$duid}' data-filter='solution'>
-                <i class='ti ti-check me-1'></i>" . _n('Solution', 'Solutions', 2) . "</button>";
-        echo "<button type='button' class='btn btn-sm btn-outline-secondary tt-filter-btn'
-                data-uid='{$duid}' data-filter='validation' style='color:#7c3aed;border-color:#7c3aed'>
-                <i class='ti ti-shield-check me-1'></i>" . __('Validation') . "</button>";
-        echo "</div>";
+        // Build the filter-toolbar descriptors. Every label/class/style is handed
+        // to the Twig template, which auto-escapes each value on output.
+        $filters = [
+            [
+                'key'   => 'all',
+                'btn'   => 'btn-outline-secondary active',
+                'icon'  => '',
+                'style' => '',
+                'label' => __('All'),
+            ],
+            [
+                'key'   => 'group',
+                'btn'   => 'btn-outline-primary',
+                'icon'  => 'ti ti-users',
+                'style' => 'color:#395bae;border-color:#395bae',
+                'label' => _n('Group', 'Groups', 2),
+            ],
+            [
+                'key'   => 'user',
+                'btn'   => 'btn-outline-danger',
+                'icon'  => 'ti ti-user',
+                'style' => '',
+                'label' => _n('Technician', 'Technicians', 2, 'timelineticket'),
+            ],
+            [
+                'key'   => 'followup',
+                'btn'   => 'btn-outline-info',
+                'icon'  => 'ti ti-message',
+                'style' => '',
+                'label' => _n('Followup', 'Followups', 2),
+            ],
+            [
+                'key'   => 'task',
+                'btn'   => 'btn-outline-warning',
+                'icon'  => 'ti ti-checkbox',
+                'style' => '',
+                'label' => _n('Task', 'Tasks', 2),
+            ],
+            [
+                'key'   => 'solution',
+                'btn'   => 'btn-outline-success',
+                'icon'  => 'ti ti-check',
+                'style' => '',
+                'label' => _n('Solution', 'Solutions', 2),
+            ],
+            [
+                'key'   => 'validation',
+                'btn'   => 'btn-outline-secondary',
+                'icon'  => 'ti ti-shield-check',
+                'style' => 'color:#7c3aed;border-color:#7c3aed',
+                'label' => __('Validation'),
+            ],
+        ];
 
-        echo "<div class='tt-swimlane-wrap' id='{$uid}-wrap'>";
-        echo "<div class='tt-swimlane' id='{$uid}-swimlane'>";
-
+        // Build the lane descriptors (each with its ordered cards) for the template.
+        $render_lanes = [];
         foreach ($lanes as $status_id => $lane) {
             $colors = $status_colors[$status_id] ?? ['bg' => '#f5f5f5', 'hdr' => '#999'];
-
-            echo "<div class='tt-lane'>";
-            echo "<div class='tt-lane-hdr' style='background:" . htmlspecialchars($colors['hdr']) . "'>";
-            echo htmlspecialchars($lane['label']);
-            echo "</div>";
-
-            echo "<div class='tt-lane-body' style='background:" . htmlspecialchars($colors['bg']) . "'>";
+            $cards  = [];
             foreach ($lane['events'] as $ev) {
-                $type = $ev['type'];
-                switch ($type) {
+                switch ($ev['type']) {
                     case 'group':
                         $cls  = 'tt-card-group';
                         $tlbl = __('Group');
@@ -680,225 +701,54 @@ class Display extends CommonDBTM
                         $cls  = 'tt-card-task';
                         $tlbl = _n('Task', 'Tasks', 1);
                 }
-                echo "<div class='tt-card $cls' id='" . htmlspecialchars($ev['card_id']) . "'>";
-                echo "<div class='tt-card-type'>" . htmlspecialchars($tlbl) . "</div>";
-                echo "<div class='tt-card-name'>" . htmlspecialchars($ev['label']) . "</div>";
-                if (!empty($ev['excerpt'])) {
-                    echo "<div class='tt-card-excerpt'>" . htmlspecialchars($ev['excerpt']) . "</div>";
-                }
-                echo "<div class='tt-card-date'>" . Html::convDateTime(date('Y-m-d H:i:s', $ev['ts'])) . "</div>";
-                echo "</div>";
+                $cards[] = [
+                    'cls'        => $cls,
+                    'card_id'    => $ev['card_id'],
+                    'type_label' => $tlbl,
+                    'name'       => $ev['label'],
+                    'excerpt'    => $ev['excerpt'] ?? '',
+                    'date'       => Html::convDateTime(date('Y-m-d H:i:s', $ev['ts'])),
+                ];
             }
-            echo "</div>"; // tt-lane-body
-            echo "</div>"; // tt-lane
+            $render_lanes[] = [
+                'label'     => $lane['label'],
+                'hdr_color' => $colors['hdr'],
+                'bg_color'  => $colors['bg'],
+                'cards'     => $cards,
+            ];
         }
 
-        echo "<svg class='tt-arrows' id='{$uid}-svg' xmlns='http://www.w3.org/2000/svg'>";
-        echo "<defs>";
-        foreach ([
-            'group'      => '#3a7bbf',
-            'user'       => '#e05555',
-            'followup'   => '#0891b2',
-            'task'       => '#b45309',
-            'solution'   => '#16a34a',
-            'validation' => '#7c3aed',
-        ] as $name => $color) {
-            echo "<marker id='{$uid}-ah-{$name}' markerWidth='8' markerHeight='6' refX='8' refY='3' orient='auto'>";
-            echo "<polygon points='0 0,8 3,0 6' fill='{$color}'/></marker>";
-        }
-        echo "</defs></svg>";
+        // SVG arrow-head marker descriptors (one colour per event type).
+        $markers = [
+            ['name' => 'group',      'color' => '#3a7bbf'],
+            ['name' => 'user',       'color' => '#e05555'],
+            ['name' => 'followup',   'color' => '#0891b2'],
+            ['name' => 'task',       'color' => '#b45309'],
+            ['name' => 'solution',   'color' => '#16a34a'],
+            ['name' => 'validation', 'color' => '#7c3aed'],
+        ];
 
-        echo "</div>"; // tt-swimlane
-        echo "</div>"; // tt-swimlane-wrap
+        // Chronological id chains consumed by the external JS arrow renderer.
+        $chains = [
+            'group'      => array_values($group_ids),
+            'user'       => array_values($user_ids),
+            'followup'   => array_values($followup_ids),
+            'task'       => array_values($task_ids),
+            'solution'   => array_values($solution_ids),
+            'validation' => array_values($validation_ids),
+        ];
 
-        echo "<script>
-(function() {
-    var uid           = " . json_encode($uid) . ";
-    var grpIds        = " . json_encode(array_values($group_ids)) . ";
-    var userIds       = " . json_encode(array_values($user_ids)) . ";
-    var followupIds   = " . json_encode(array_values($followup_ids)) . ";
-    var taskIds       = " . json_encode(array_values($task_ids)) . ";
-    var solutionIds   = " . json_encode(array_values($solution_ids)) . ";
-    var validationIds = " . json_encode(array_values($validation_ids)) . ";
-
-    // ── helpers (module-level so both drawArrows and applyFilter can use them) ──
-
-    function cardRect(id) {
-        var wrap = document.getElementById(uid + '-wrap');
-        var el   = document.getElementById(id);
-        if (!wrap || !el) return null;
-        var wr = wrap.getBoundingClientRect();
-        var r  = el.getBoundingClientRect();
-        return {
-            left   : r.left   - wr.left,
-            right  : r.right  - wr.left,
-            top    : r.top    - wr.top,
-            bottom : r.bottom - wr.top,
-            midX   : r.left   - wr.left + r.width  / 2,
-            midY   : r.top    - wr.top  + r.height / 2,
-        };
-    }
-
-    // Per-type horizontal offset (px) so parallel chains don't overlap on vertical segments.
-    // 6 types × 12px apart, centred around 0: -30, -18, -6, +6, +18, +30
-    var TYPE_OFFSETS = { group: -30, user: -18, followup: -6, task: 6, solution: 18, validation: 30 };
-
-    function laneTop(cardId) {
-        var el = document.getElementById(cardId);
-        if (!el) return null;
-        var lane = el.closest('.tt-lane');
-        if (!lane) return null;
-        var wrap = document.getElementById(uid + '-wrap');
-        return lane.getBoundingClientRect().top - wrap.getBoundingClientRect().top;
-    }
-
-    // off      = per-type lateral offset (keeps parallel chains apart across the whole swimlane)
-    // exitOff  = per-segment exit side-step (+half gap): separates the in and out arrows at each card
-    function addArrow(svg, fromId, toId, color, markerSuffix, off, exitOff) {
-        var f = cardRect(fromId);
-        var t = cardRect(toId);
-        if (!f || !t) return;
-
-        var fEl      = document.getElementById(fromId);
-        var tEl      = document.getElementById(toId);
-        var fLane    = fEl ? fEl.closest('.tt-lane') : null;
-        var tLane    = tEl ? tEl.closest('.tt-lane') : null;
-        var sameLane = (fLane && tLane && fLane === tLane);
-        var fLaneTop = laneTop(fromId);
-        var tLaneTop = laneTop(toId);
-        var backward = (!sameLane && tLaneTop !== null && fLaneTop !== null && tLaneTop < fLaneTop);
-
-        var x1, y1, x2, y2, cx, cy, gutter, pathD;
-
-        if (sameLane) {
-            var rowGap = t.midY - f.midY;
-            if (Math.abs(rowGap) < 25) {
-                // Same visual row: exit right, enter left
-                x1 = f.right; y1 = f.midY + off + exitOff;
-                x2 = t.left;  y2 = t.midY + off - exitOff;
-                cx = (x1 + x2) / 2;
-                pathD = 'M' + x1 + ',' + y1 + ' C' + cx + ',' + y1 + ' ' + cx + ',' + y2 + ' ' + x2 + ',' + y2;
-            } else if (rowGap > 0) {
-                // Wrapped to next row (forward): exit right → gutter → enter left
-                x1 = f.right;  y1 = f.midY + off;
-                x2 = t.left;   y2 = t.midY + off;
-                gutter = Math.max(f.right, t.right) + 18 + Math.abs(off);
-                pathD = 'M' + x1 + ',' + y1
-                      + ' C' + gutter + ',' + y1
-                      + ' '  + gutter + ',' + y2
-                      + ' '  + x2    + ',' + y2;
-            } else {
-                // Wrapped backward (going up): exit left → gutter-left → enter right
-                x1 = f.left;  y1 = f.midY + off;
-                x2 = t.right; y2 = t.midY + off;
-                gutter = Math.min(f.left, t.left) - 18 - Math.abs(off);
-                pathD = 'M' + x1 + ',' + y1
-                      + ' C' + gutter + ',' + y1
-                      + ' '  + gutter + ',' + y2
-                      + ' '  + x2    + ',' + y2;
-            }
-        } else if (!backward) {
-            // Forward: exit bottom, enter top — offset horizontally
-            x1 = f.midX + off + exitOff; y1 = f.bottom;
-            x2 = t.midX + off - exitOff; y2 = t.top;
-            cy = (y1 + y2) / 2;
-            pathD = 'M' + x1 + ',' + y1 + ' C' + x1 + ',' + cy + ' ' + x2 + ',' + cy + ' ' + x2 + ',' + y2;
-        } else {
-            // Backward: exit top, enter bottom — offset horizontally
-            x1 = f.midX + off - exitOff; y1 = f.top;
-            x2 = t.midX + off + exitOff; y2 = t.bottom;
-            cy = (y1 + y2) / 2;
-            pathD = 'M' + x1 + ',' + y1 + ' C' + x1 + ',' + cy + ' ' + x2 + ',' + cy + ' ' + x2 + ',' + y2;
-        }
-
-        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', pathD);
-        path.setAttribute('stroke', color);
-        path.setAttribute('fill', 'none');
-        path.setAttribute('stroke-width', '1.8');
-        if (backward) {
-            path.setAttribute('stroke-dasharray', '3,4');
-            path.setAttribute('stroke-opacity', '0.6');
-        } else {
-            path.setAttribute('stroke-dasharray', '5,3');
-        }
-        path.setAttribute('marker-end', 'url(#' + uid + '-ah-' + markerSuffix + ')');
-        svg.appendChild(path);
-    }
-
-    function clearArrows(svg) {
-        // Remove only <path> elements, leaving <defs> intact
-        var paths = svg.querySelectorAll('path');
-        paths.forEach(function(p) { svg.removeChild(p); });
-    }
-
-    // ── main draw / filter ───────────────────────────────────────────────────
-
-    // exitOff: half the gap between the out arrow and the in arrow at each shared card (px)
-    var EXIT_OFF = 5;
-
-    function drawChain(svg, ids, color, marker, typeOffset) {
-        for (var i = 0; i < ids.length - 1; i++) {
-            addArrow(svg, ids[i], ids[i + 1], color, marker, typeOffset, EXIT_OFF);
-        }
-    }
-
-    function drawArrows(filter) {
-        var svg = document.getElementById(uid + '-svg');
-        if (!svg) return;
-        clearArrows(svg);
-        if (filter === 'all' || filter === 'group')
-            drawChain(svg, grpIds,        '#3a7bbf', 'group',      TYPE_OFFSETS.group);
-        if (filter === 'all' || filter === 'user')
-            drawChain(svg, userIds,       '#e05555', 'user',       TYPE_OFFSETS.user);
-        if (filter === 'all' || filter === 'followup')
-            drawChain(svg, followupIds,   '#0891b2', 'followup',   TYPE_OFFSETS.followup);
-        if (filter === 'all' || filter === 'task')
-            drawChain(svg, taskIds,       '#b45309', 'task',       TYPE_OFFSETS.task);
-        if (filter === 'all' || filter === 'solution')
-            drawChain(svg, solutionIds,   '#16a34a', 'solution',   TYPE_OFFSETS.solution);
-        if (filter === 'all' || filter === 'validation')
-            drawChain(svg, validationIds, '#7c3aed', 'validation', TYPE_OFFSETS.validation);
-    }
-
-    function applyFilter(filter) {
-        var wrap = document.getElementById(uid + '-wrap');
-        if (!wrap) return;
-
-        var types = ['group', 'user', 'followup', 'task', 'solution', 'validation'];
-        types.forEach(function(t) {
-            var show = (filter === 'all' || filter === t);
-            wrap.querySelectorAll('.tt-card-' + t).forEach(function(el) {
-                el.style.display = show ? '' : 'none';
-            });
-        });
-
-        drawArrows(filter);
-    }
-
-    // Toolbar buttons
-    document.querySelectorAll('.tt-filter-btn[data-uid=' + JSON.stringify(uid) + ']').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.tt-filter-btn[data-uid=' + JSON.stringify(uid) + ']').forEach(function(b) {
-                b.classList.remove('active');
-            });
-            btn.classList.add('active');
-            applyFilter(btn.getAttribute('data-filter'));
-        });
-    });
-
-    var attempts = 0;
-    function tryDraw() {
-        var wrap = document.getElementById(uid + '-wrap');
-        if (wrap && wrap.offsetHeight > 0) {
-            drawArrows('all');
-        } else if (attempts++ < 20) {
-            requestAnimationFrame(tryDraw);
-        }
-    }
-    requestAnimationFrame(tryDraw);
-})();
-</script>";
+        // All markup lives in the Twig template (auto-escaped); the arrow-drawing
+        // logic is the external ES module js/swimlane.js (add_javascript_module),
+        // which reads uid + chains from the wrap element's data-* attributes. No
+        // inline <script> is emitted (CSP friendly).
+        TemplateRenderer::getInstance()->display('@timelineticket/swimlane.html.twig', [
+            'uid'     => $uid,
+            'filters' => $filters,
+            'lanes'   => $render_lanes,
+            'markers' => $markers,
+            'chains'  => json_encode($chains),
+        ]);
     }
 
     public static function showTimelineGraph(Ticket $ticket, $item)
