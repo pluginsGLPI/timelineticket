@@ -1,5 +1,41 @@
 <?php
 
+/**
+ * -------------------------------------------------------------------------
+ * TimelineTicket
+ * Copyright (C) 2013-2026 by the TimelineTicket Development Team.
+ *
+ * https://github.com/pluginsGLPI/timelineticket
+ * ------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of TimelineTicket project.
+ *
+ * TimelineTicket plugin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TimelineTicket plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with TimelineTicket plugin. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * ------------------------------------------------------------------------
+ *
+ * @copyright Copyright (C) 2013-2025 TimelineTicket team
+ * @license   AGPL License 3.0 or (at your option) any later version
+ * @link      https://github.com/pluginsGLPI/timelineticket
+ * @package   TimelineTicket plugin
+ * @since     2013
+ *            http://www.gnu.org/licenses/agpl-3.0-standalone.html
+ * --------------------------------------------------------------------------
+ */
+
 /*
  -------------------------------------------------------------------------
  TimelineTicket
@@ -86,6 +122,7 @@ class AssignState extends CommonDBTM
                 'tickets_id' => $ticket->getID(),
             ],
         ]);
+        $datedebut = null;
         if (count($iterator) > 0) {
             foreach ($iterator as $data) {
                 $datedebut = $data['datedebut'];
@@ -97,9 +134,9 @@ class AssignState extends CommonDBTM
         if (!$datedebut) {
             $delay = 0;
             // Utilisation calendrier
-//                    } elseif ($calendars_id > 0
-// && $calendar->getFromDB($calendars_id)) {
-//                        $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
+            //                    } elseif ($calendars_id > 0
+            // && $calendar->getFromDB($calendars_id)) {
+            //                        $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
         } else {
             // cas 24/24 - 7/7
             $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
@@ -133,7 +170,7 @@ class AssignState extends CommonDBTM
             $totaltime += Tool::getPeriodTime(
                 $ticket,
                 $last_date,
-                date("Y-m-d H:i:s")
+                date("Y-m-d H:i:s"),
             );
         }
         $end_date = $totaltime;
@@ -157,6 +194,8 @@ class AssignState extends CommonDBTM
             $states = [];
             $nb     = 0;
             $new    = null;
+            $now    = null;
+            $data   = null;
 
             foreach ($req as $data) {
                 $date  = strtotime($data['date']);
@@ -169,7 +208,7 @@ class AssignState extends CommonDBTM
                     'timestamp' => $date,
                     'label'     => Ticket::getStatus($data['old_status']) . " (" . Html::timestampToString(
                         $data['delay'],
-                        true
+                        true,
                     ) . ")",
                     'class'     => $class,
                 ];
@@ -180,7 +219,7 @@ class AssignState extends CommonDBTM
             $states[$now . '_old_status'] = [
                 'timestamp' => time(),
                 'label'     => Ticket::getStatus($new) . " (" . Html::timestampToString((date(
-                    'U'
+                    'U',
                 ) - strtotime($data['date'])), true) . ")",
                 'class'     => 'now',
             ];

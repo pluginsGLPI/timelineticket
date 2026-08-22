@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Variable \$datedebut might not be defined\.$#'
-			identifier: variable.undefined
-			count: 3
-			path: src/AssignGroup.php
-
-		-
 			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
 			identifier: glpi.forbidExit
 			count: 1
@@ -25,34 +19,10 @@ parameters:
 			path: src/AssignState.php
 
 		-
-			message: '#^Variable \$data might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: src/AssignState.php
-
-		-
-			message: '#^Variable \$datedebut might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: src/AssignState.php
-
-		-
-			message: '#^Variable \$now might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: src/AssignState.php
-
-		-
 			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
 			identifier: glpi.forbidExit
 			count: 1
 			path: src/AssignState.php
-
-		-
-			message: '#^Variable \$datedebut might not be defined\.$#'
-			identifier: variable.undefined
-			count: 3
-			path: src/AssignUser.php
 
 		-
 			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
@@ -253,18 +223,6 @@ parameters:
 			path: src/Profile.php
 
 		-
-			message: '#^Call to an undefined method CommonGLPI\:\:getID\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Profile.php
-
-		-
-			message: '#^Call to an undefined method GlpiPlugin\\Timelineticket\\Profile\:\:getRightsGeneral\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Profile.php
-
-		-
 			message: '#^Method GlpiPlugin\\Timelineticket\\Profile\:\:getTabNameForItem\(\) should return array\<string\>\|string but return statement is missing\.$#'
 			identifier: return.missing
 			count: 1
@@ -273,30 +231,6 @@ parameters:
 		-
 			message: '#^Method GlpiPlugin\\Timelineticket\\Profile\:\:migrateOneProfile\(\) should return bool but return statement is missing\.$#'
 			identifier: return.missing
-			count: 1
-			path: src/Profile.php
-
-		-
-			message: '#^Method GlpiPlugin\\Timelineticket\\Profile\:\:showForm\(\) has invalid return type GlpiPlugin\\Timelineticket\\nothing\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/Profile.php
-
-		-
-			message: '#^Method GlpiPlugin\\Timelineticket\\Profile\:\:showForm\(\) should return GlpiPlugin\\Timelineticket\\nothing but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/Profile.php
-
-		-
-			message: '#^Parameter \#2 \$openform \(bool\) of method GlpiPlugin\\Timelineticket\\Profile\:\:showForm\(\) should be compatible with parameter \$options \(array\<string, mixed\>\) of method Profile\:\:showForm\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: src/Profile.php
-
-		-
-			message: '#^Return type \(GlpiPlugin\\Timelineticket\\nothing\) of method GlpiPlugin\\Timelineticket\\Profile\:\:showForm\(\) should be compatible with return type \(bool\) of method Profile\:\:showForm\(\)$#'
-			identifier: method.childReturnType
 			count: 1
 			path: src/Profile.php
 
@@ -313,15 +247,9 @@ parameters:
 			path: src/Tool.php
 
 		-
-			message: '#^PHPDoc tag @return has invalid value \(\)\: Unexpected token "\\r\\n     ", expected type at offset 203 on line 8$#'
+			message: '#^PHPDoc tag @return has invalid value \(\)\: Unexpected token "\\n     ", expected type at offset 196 on line 8$#'
 			identifier: phpDoc.parseError
 			count: 1
-			path: src/Tool.php
-
-		-
-			message: '#^Variable \$items_id might not be defined\.$#'
-			identifier: variable.undefined
-			count: 11
 			path: src/Tool.php
 
 		-

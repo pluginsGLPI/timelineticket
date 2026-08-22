@@ -1,5 +1,41 @@
 <?php
 
+/**
+ * -------------------------------------------------------------------------
+ * TimelineTicket
+ * Copyright (C) 2013-2026 by the TimelineTicket Development Team.
+ *
+ * https://github.com/pluginsGLPI/timelineticket
+ * ------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of TimelineTicket project.
+ *
+ * TimelineTicket plugin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TimelineTicket plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with TimelineTicket plugin. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * ------------------------------------------------------------------------
+ *
+ * @copyright Copyright (C) 2013-2025 TimelineTicket team
+ * @license   AGPL License 3.0 or (at your option) any later version
+ * @link      https://github.com/pluginsGLPI/timelineticket
+ * @package   TimelineTicket plugin
+ * @since     2013
+ *            http://www.gnu.org/licenses/agpl-3.0-standalone.html
+ * --------------------------------------------------------------------------
+ */
+
 /*
  -------------------------------------------------------------------------
  TimelineTicket
@@ -62,7 +98,8 @@ class Profile extends \Profile
      *    timelineticket
      */
 
-    public static function getIcon() {
+    public static function getIcon()
+    {
         return Display::getIcon();
     }
 
@@ -115,7 +152,7 @@ class Profile extends \Profile
         self::addDefaultProfileInfos(
             $ID,
             ['plugin_timelineticket_ticket' => 3],
-            true
+            true,
         );
     }
 
@@ -133,13 +170,13 @@ class Profile extends \Profile
         foreach ($rights as $right => $value) {
             if ($dbu->countElementsInTable(
                 'glpi_profilerights',
-                ["profiles_id" => $profiles_id, "name" => $right]
+                ["profiles_id" => $profiles_id, "name" => $right],
             ) && $drop_existing) {
                 $profileRight->deleteByCriteria(['profiles_id' => $profiles_id, 'name' => $right]);
             }
             if (!$dbu->countElementsInTable(
                 'glpi_profilerights',
-                ["profiles_id" => $profiles_id, "name" => $right]
+                ["profiles_id" => $profiles_id, "name" => $right],
             )) {
                 $myright['profiles_id'] = $profiles_id;
                 $myright['name']        = $right;
@@ -161,9 +198,9 @@ class Profile extends \Profile
     public static function getAllRights($all = false)
     {
         $rights = [
-           ['rights' => [READ => __('Read'), UPDATE => __('Update')],
-                 'label'  => __('Ticket'),
-                 'field'  => 'plugin_timelineticket_ticket'],
+            ['rights' => [READ => __('Read'), UPDATE => __('Update')],
+                'label'  => __('Ticket'),
+                'field'  => 'plugin_timelineticket_ticket'],
         ];
 
         return $rights;
@@ -213,7 +250,7 @@ class Profile extends \Profile
 
         $it = $DB->request([
             'FROM' => 'glpi_plugin_timelineticket_profiles',
-            'WHERE' => ['profiles_id' => $profiles_id]
+            'WHERE' => ['profiles_id' => $profiles_id],
         ]);
         foreach ($it as $profile_data) {
             $matching       = ['timelineticket' => 'plugin_timelineticket_ticket'];
@@ -222,7 +259,7 @@ class Profile extends \Profile
                 if (!isset($current_rights[$old])) {
                     $DB->update('glpi_profilerights', ['rights' => self::translateARight($profile_data[$old])], [
                         'name'        => $new,
-                        'profiles_id' => $profiles_id
+                        'profiles_id' => $profiles_id,
                     ]);
                 }
             }
@@ -241,7 +278,7 @@ class Profile extends \Profile
         foreach ($profile->getAllRights(true) as $data) {
             if ($dbu->countElementsInTable(
                 "glpi_profilerights",
-                ["name" => $data['field']]
+                ["name" => $data['field']],
             ) == 0) {
                 ProfileRight::addProfileRights([$data['field']]);
             }
@@ -250,7 +287,7 @@ class Profile extends \Profile
         //Migration old rights in new ones
         $it = $DB->request([
             'SELECT' => ['id'],
-            'FROM' => 'glpi_profiles'
+            'FROM' => 'glpi_profiles',
         ]);
         foreach ($it as $prof) {
             self::migrateOneProfile($prof['id']);
@@ -260,8 +297,8 @@ class Profile extends \Profile
             'FROM' => 'glpi_profilerights',
             'WHERE' => [
                 'profiles_id' => $_SESSION['glpiactiveprofile']['id'],
-                'name' => ['LIKE', '%plugin_timelineticket%']
-            ]
+                'name' => ['LIKE', '%plugin_timelineticket%'],
+            ],
         ]);
         foreach ($it as $prof) {
             if (isset($_SESSION['glpiactiveprofile'])) {

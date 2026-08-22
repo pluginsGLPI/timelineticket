@@ -1,5 +1,41 @@
 <?php
 
+/**
+ * -------------------------------------------------------------------------
+ * TimelineTicket
+ * Copyright (C) 2013-2026 by the TimelineTicket Development Team.
+ *
+ * https://github.com/pluginsGLPI/timelineticket
+ * ------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of TimelineTicket project.
+ *
+ * TimelineTicket plugin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TimelineTicket plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with TimelineTicket plugin. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * ------------------------------------------------------------------------
+ *
+ * @copyright Copyright (C) 2013-2025 TimelineTicket team
+ * @license   AGPL License 3.0 or (at your option) any later version
+ * @link      https://github.com/pluginsGLPI/timelineticket
+ * @package   TimelineTicket plugin
+ * @since     2013
+ *            http://www.gnu.org/licenses/agpl-3.0-standalone.html
+ * --------------------------------------------------------------------------
+ */
+
 /*
  -------------------------------------------------------------------------
  TimelineTicket
@@ -109,12 +145,12 @@ function plugin_timelineticket_ticket_add(Ticket $item)
 function plugin_timelineticket_ticket_update(Ticket $item)
 {
     if (in_array('status', $item->updates)) {
-//        \Toolbox::logInfo($item);
+        //        \Toolbox::logInfo($item);
         AssignState::addNewAssignState($item);
     }
     //If status go to Ticket::WAITING, Ticket::SOLVED, Ticket::CLOSED
-//    AssignGroup::checkAssignGroup($item);
-//    AssignUser::checkAssignUser($item);
+    //    AssignGroup::checkAssignGroup($item);
+    //    AssignUser::checkAssignUser($item);
 }
 
 function plugin_timelineticket_ticket_purge(Ticket $item)
@@ -156,7 +192,7 @@ function plugin_timelineticket_getAddSearchOptions($itemtype)
         // Point to glpi_groups.name so "Contains <name>" searches work
         $sopt[9131]['table']         = 'glpi_groups';
         $sopt[9131]['field']         = 'name';
-        $sopt[9131]['name']          = _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket")." - ".__('Assigned to')." - ".__('Group');
+        $sopt[9131]['name']          = _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket") . " - " . __('Assigned to') . " - " . __('Group');
         $sopt[9131]['forcegroupby']  = true;
         $sopt[9131]['massiveaction'] = false;
         $sopt[9131]['nosort']        = true;
@@ -171,7 +207,7 @@ function plugin_timelineticket_getAddSearchOptions($itemtype)
         // Point to glpi_users.name so "Contains <name>" searches work
         $sopt[9132]['table']         = 'glpi_users';
         $sopt[9132]['field']         = 'name';
-        $sopt[9132]['name']          = _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket")." - ".__('Assigned to')." - ".__('Technician');
+        $sopt[9132]['name']          = _n("Timeline of ticket", "Timeline of tickets", 2, "timelineticket") . " - " . __('Assigned to') . " - " . __('Technician');
         $sopt[9132]['forcegroupby']  = true;
         $sopt[9132]['massiveaction'] = false;
         $sopt[9132]['nosort']        = true;
@@ -192,13 +228,13 @@ function plugin_timelineticket_giveItem($type, $ID, $data, $num)
     $table = $searchopt[$ID]["table"];
     $field = $searchopt[$ID]["field"];
 
-    switch ($table.'.'.$field) {
+    switch ($table . '.' . $field) {
         case "glpi_plugin_timelineticket_grouplevels.groups":
-            if (empty($data['raw']["ITEM_".$num])) {
-                $out=__('None');
+            if (empty($data['raw']["ITEM_" . $num])) {
+                $out = __('None');
             } else {
-                $out= "";
-                $groups = json_decode($data['raw']["ITEM_".$num], true);
+                $out = "";
+                $groups = json_decode($data['raw']["ITEM_" . $num], true);
                 if (!empty($groups)) {
                     foreach ($groups as $key => $val) {
                         // getDropdownName() returns the raw stored value (GLPI 10+); the

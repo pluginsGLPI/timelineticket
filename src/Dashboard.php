@@ -1,5 +1,41 @@
 <?php
 
+/**
+ * -------------------------------------------------------------------------
+ * TimelineTicket
+ * Copyright (C) 2013-2026 by the TimelineTicket Development Team.
+ *
+ * https://github.com/pluginsGLPI/timelineticket
+ * ------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of TimelineTicket project.
+ *
+ * TimelineTicket plugin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TimelineTicket plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with TimelineTicket plugin. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * ------------------------------------------------------------------------
+ *
+ * @copyright Copyright (C) 2013-2025 TimelineTicket team
+ * @license   AGPL License 3.0 or (at your option) any later version
+ * @link      https://github.com/pluginsGLPI/timelineticket
+ * @package   TimelineTicket plugin
+ * @since     2013
+ *            http://www.gnu.org/licenses/agpl-3.0-standalone.html
+ * --------------------------------------------------------------------------
+ */
+
 /*
  -------------------------------------------------------------------------
  TimelineTicket
@@ -72,22 +108,22 @@ class Dashboard extends CommonGLPI
     }
 
 
-     /**
-      * @return \array[][]
-      */
+    /**
+     * @return \array[][]
+     */
     public function getWidgetsForItem()
     {
         $widgets = [
             Menu::$HELPDESK => [
                 $this->getType() . "1" => ["title"   => __(
                     "Number of assignments per technician to a ticket",
-                    "timelineticket"
+                    "timelineticket",
                 ),
-                                           "type"    => Widget::$BAR,
-                                           "comment" => __(
-                                               "Number of time where a technician has been affected to a ticket",
-                                               'timelineticket'
-                                           )]
+                    "type"    => Widget::$BAR,
+                    "comment" => __(
+                        "Number of time where a technician has been affected to a ticket",
+                        'timelineticket',
+                    )],
             ],
         ];
 
@@ -118,19 +154,19 @@ class Dashboard extends CommonGLPI
                     $preference->getFromDB(Session::getLoginUserID());
                     $preferences = $preference->fields;
                     $criterias = ['entities_id',
-                                 'is_recursive_entities',
-                                  'type',
-                                  'multiple_time',
-                                  'begin',
-                                  'end',
-                                  'technicians_groups_id'];
+                        'is_recursive_entities',
+                        'type',
+                        'multiple_time',
+                        'begin',
+                        'end',
+                        'technicians_groups_id'];
 
                     $opt['begin'] = isset($opt['begin']) ? $opt['begin'] : date('Y-m-d H:i:s', strtotime('-1 year'));
                     ;
                     $opt['end'] = isset($opt['end']) ? $opt['end'] : date('Y-m-d H:i:s');
-                    $params  = ["preferences" =>$preferences,
-                                "criterias"   => $criterias,
-                                "opt"         => $opt];
+                    $params  = ["preferences" => $preferences,
+                        "criterias"   => $criterias,
+                        "opt"         => $opt];
 
                     $default = Helper::manageCriterias($params);
 
@@ -147,7 +183,7 @@ class Dashboard extends CommonGLPI
                             $begin = new DateTime($opt['begin']);
                             $end = new DateTime($opt['end']);
                             $interval = new DateInterval('P1M');
-                            $dateint= new DatePeriod($begin, $interval, $end);
+                            $dateint = new DatePeriod($begin, $interval, $end);
                             foreach ($dateint as $m) {
                                 $labels[] = $m->format('m') . "/" . $m->format('Y');
                             }
@@ -156,13 +192,13 @@ class Dashboard extends CommonGLPI
                             $begin = new DateTime($opt['begin']);
                             $end = new DateTime($opt['end']);
                             $interval = new DateInterval('P1W');
-                            $dateint= new DatePeriod($begin, $interval, $end);
+                            $dateint = new DatePeriod($begin, $interval, $end);
                             foreach ($dateint as $w) {
-                                $labels[] = "S".$w->format('W') . " - " . $w->format('Y');
+                                $labels[] = "S" . $w->format('W') . " - " . $w->format('Y');
                             }
                             break;
                         case "DAY":
-                            for ($i = strtotime($opt['begin']); $i <= strtotime($opt['end']); $i+=86400) {
+                            for ($i = strtotime($opt['begin']); $i <= strtotime($opt['end']); $i += 86400) {
                                 $labels[] = date("d/m/Y", $i);
                             }
                             break;
@@ -188,31 +224,31 @@ class Dashboard extends CommonGLPI
                     $labelsLine  = json_encode($labels);
 
                     $graph_datas = ['title'   => $title,
-                                    'comment' => $comment,
-                                    'name'   => $name,
-                                    'ids'    => json_encode([]),
-                                    'data'   => $dataLineset,
-                                    'labels' => $labelsLine];
-//               $graph_criterias = ['entities_id' => $entities_id_criteria,
-//                                   'sons'        => $sons_criteria,
-//                                   'type'        => $opt['type'],
-//                                   //                                'year'        => $year_criteria,
-//                                   'begin'       => $opt['begin'],
-//                                   'end'         => $opt['end'],
-//                                   'technicians_groups_id'         => $opt['technicians_groups_id'],
-//                                   'multiple_time'         => $opt['multiple_time'],
-//                                   'widget'      => $widgetId];
+                        'comment' => $comment,
+                        'name'   => $name,
+                        'ids'    => json_encode([]),
+                        'data'   => $dataLineset,
+                        'labels' => $labelsLine];
+                    //               $graph_criterias = ['entities_id' => $entities_id_criteria,
+                    //                                   'sons'        => $sons_criteria,
+                    //                                   'type'        => $opt['type'],
+                    //                                   //                                'year'        => $year_criteria,
+                    //                                   'begin'       => $opt['begin'],
+                    //                                   'end'         => $opt['end'],
+                    //                                   'technicians_groups_id'         => $opt['technicians_groups_id'],
+                    //                                   'multiple_time'         => $opt['multiple_time'],
+                    //                                   'widget'      => $widgetId];
                     $graph = BarChart::launchGraph($graph_datas, []);
 
                     $params = ["widgetId"  => $widgetId,
-                               "name"      => $name,
-                               "onsubmit"  => true,
-                               "opt"       => $opt,
-                               "default" => $default,
-                               "criterias" => $criterias,
-                               "export"    => true,
-                               "canvas"    => true,
-                               "nb"        =>20];
+                        "name"      => $name,
+                        "onsubmit"  => true,
+                        "opt"       => $opt,
+                        "default" => $default,
+                        "criterias" => $criterias,
+                        "export"    => true,
+                        "canvas"    => true,
+                        "nb"        => 20];
                     $widget->setWidgetHeader(Helper::getGraphHeader($params));
 
 
@@ -221,7 +257,7 @@ class Dashboard extends CommonGLPI
 
 
                     $widget->setWidgetHtmlContent(
-                        $graph
+                        $graph,
                     );
 
                     return $widget;
@@ -324,7 +360,7 @@ class Dashboard extends CommonGLPI
                 && in_array($entities_criteria, $_SESSION['glpiactiveentities'] ?? [])) {
                 $where = array_merge(
                     $where,
-                    getEntitiesRestrictCriteria('glpi_tickets', '', $entities_criteria, (bool) $sons_criteria)
+                    getEntitiesRestrictCriteria('glpi_tickets', '', $entities_criteria, (bool) $sons_criteria),
                 );
             } else {
                 $where = array_merge($where, getEntitiesRestrictCriteria('glpi_tickets'));

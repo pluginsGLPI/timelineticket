@@ -1,5 +1,41 @@
 <?php
 
+/**
+ * -------------------------------------------------------------------------
+ * TimelineTicket
+ * Copyright (C) 2013-2026 by the TimelineTicket Development Team.
+ *
+ * https://github.com/pluginsGLPI/timelineticket
+ * ------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of TimelineTicket project.
+ *
+ * TimelineTicket plugin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TimelineTicket plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with TimelineTicket plugin. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * ------------------------------------------------------------------------
+ *
+ * @copyright Copyright (C) 2013-2025 TimelineTicket team
+ * @license   AGPL License 3.0 or (at your option) any later version
+ * @link      https://github.com/pluginsGLPI/timelineticket
+ * @package   TimelineTicket plugin
+ * @since     2013
+ *            http://www.gnu.org/licenses/agpl-3.0-standalone.html
+ * --------------------------------------------------------------------------
+ */
+
 /*
  -------------------------------------------------------------------------
  TimelineTicket
@@ -66,7 +102,6 @@ if (!defined('GLPI_ROOT')) {
 
 class Display extends CommonDBTM
 {
-
     public static function getTypeName($nb = 0)
     {
         return _n('Timeline of ticket', 'Timeline of tickets', $nb, 'timelineticket');
@@ -90,6 +125,12 @@ class Display extends CommonDBTM
 
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
+        // Re-check the plugin right at render time, mirroring plugin_timelineticket_item_stats.
+        // The tab is only registered when the right is held (evaluated at session init), but
+        // do not rely solely on that gate: enforce it again here before disclosing the timeline.
+        if (!Session::haveRightsOr('plugin_timelineticket_ticket', [READ, UPDATE])) {
+            return false;
+        }
         if ($item->getType() == 'Ticket') {
             self::showForTicket($item);
         }
@@ -105,7 +146,7 @@ class Display extends CommonDBTM
 
         $tab[] = [
             'id' => 'common',
-            'name' => self::getTypeName(1)
+            'name' => self::getTypeName(1),
         ];
 
         $tab[] = [
@@ -115,7 +156,7 @@ class Display extends CommonDBTM
             'linkfield' => 'tickets_id',
             'name' => __('Group'),
             'datatype' => 'itemlink',
-            'forcegroupby' => true
+            'forcegroupby' => true,
         ];
 
         return $tab;
@@ -209,7 +250,7 @@ class Display extends CommonDBTM
             [
                 'tickets_id' => $ticket->getID(),
                 'reconstructTicket' => 'reconstructTicket',
-            ]
+            ],
         );
         $reconstruct_button = ob_get_clean();
 
@@ -219,7 +260,7 @@ class Display extends CommonDBTM
             'calendars_strategy',
             $ticket->fields['entities_id'],
             'calendars_id',
-            0
+            0,
         );
         if ($calendars_id > 0
             && $calendar->getFromDB($calendars_id)) {
@@ -238,7 +279,7 @@ class Display extends CommonDBTM
                 'calendars_strategy',
                 $ticket->fields['entities_id'],
                 'calendars_id',
-                0
+                0,
             );
 
             if ($calendars_id > 0
@@ -246,12 +287,12 @@ class Display extends CommonDBTM
                 if ($ticket->fields['closedate']) {
                     $dateend = $calendar->getActiveTimeBetween(
                         $ticket->fields['time_to_resolve'],
-                        $ticket->fields['solvedate']
+                        $ticket->fields['solvedate'],
                     );
                 } else {
                     $dateend = $calendar->getActiveTimeBetween(
                         $ticket->fields['time_to_resolve'],
-                        date('Y-m-d H:i:s')
+                        date('Y-m-d H:i:s'),
                     );
                 }
             } else {
@@ -683,11 +724,11 @@ class Display extends CommonDBTM
                         break;
                     case 'followup':
                         $cls  = 'tt-card-followup' . (($ev['is_private'] ?? false) ? ' tt-card-private' : '');
-                        $tlbl = ($ev['is_private'] ?? false) ? _n('Followup', 'Followups', 1)." (".__('Private').")" : _n('Followup', 'Followups', 1);
+                        $tlbl = ($ev['is_private'] ?? false) ? _n('Followup', 'Followups', 1) . " (" . __('Private') . ")" : _n('Followup', 'Followups', 1);
                         break;
                     case 'task':
                         $cls  = 'tt-card-task' . (($ev['is_private'] ?? false) ? ' tt-card-private' : '');
-                        $tlbl = ($ev['is_private'] ?? false) ? _n('Task', 'Tasks', 1)." (".__('Private').")" : _n('Task', 'Tasks', 1);
+                        $tlbl = ($ev['is_private'] ?? false) ? _n('Task', 'Tasks', 1) . " (" . __('Private') . ")" : _n('Task', 'Tasks', 1);
                         break;
                     case 'solution':
                         $cls  = 'tt-card-solution';
@@ -758,7 +799,7 @@ class Display extends CommonDBTM
         $req = $DB->request([
             'FROM' => $item->getTable(),
             'WHERE' => ['tickets_id' => $ticket->getID()],
-            'ORDER' => ['id ASC']
+            'ORDER' => ['id ASC'],
         ]);
         $a_gantt = [];
 
@@ -791,12 +832,12 @@ class Display extends CommonDBTM
             }
 
 
-//            $calendars_id = Entity::getUsedConfig(
-//                'calendars_strategy',
-//                $ticket->fields['entities_id'],
-//                'calendars_id',
-//                0
-//            );
+            //            $calendars_id = Entity::getUsedConfig(
+            //                'calendars_strategy',
+            //                $ticket->fields['entities_id'],
+            //                'calendars_id',
+            //                0
+            //            );
 
             if ($item instanceof AssignState) {
                 $end_date = $datareq['date'];
@@ -823,7 +864,7 @@ class Display extends CommonDBTM
         if (count($a_gantt) > 0) {
 
             $chartService = new ChartService();
-//            $calendar = new Calendar();
+            //            $calendar = new Calendar();
             $data = new DataTable();
 
             $data->addColumn(new Column(ColumnType::String, id: 'Task ID'));
@@ -907,15 +948,15 @@ class Display extends CommonDBTM
             $chart = $chartService->createTimelineChart('ticket' . get_class($item), $data);
             $chart->options->avoidOverlappingGridLines = false;
             $chart->options->height = $height;
-//        if ($item instanceof AssignState) {
-//            $chart->options->colors = ['#49bf4d', '#49bf4d', 'orange', '#1b2f62'];
-//        }
+            //        if ($item instanceof AssignState) {
+            //            $chart->options->colors = ['#49bf4d', '#49bf4d', 'orange', '#1b2f62'];
+            //        }
             $chart->options->timeline = new TimelineOptions(
                 rowLabelStyle: new ChartLabelStyle(
                     color: '#333',
                     fontName: 'inter, -apple-system, blinkmacsystemfont, san francisco, segoe ui, roboto, helvetica neue, sans-serif',
-                    fontSize: '12px'
-                )
+                    fontSize: '12px',
+                ),
             );
 
             // Draw all charts

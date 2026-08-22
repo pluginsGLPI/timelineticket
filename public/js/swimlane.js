@@ -1,16 +1,37 @@
-/*
- * Timelineticket — swimlane arrow renderer.
+/**
+ * -------------------------------------------------------------------------
+ * TimelineTicket
+ * Copyright (C) 2013-2026 by the TimelineTicket Development Team.
  *
- * Draws the per-type arrow chains between event cards of the ticket timeline
- * swimlane and wires the filter toolbar. Previously this logic was emitted as an
- * inline <script> block from Display::showSwimlane(); it now lives here as an ES
- * module loaded through add_javascript_module (CSP friendly, no inline script,
- * no eval, no jQuery).
+ * https://github.com/pluginsGLPI/timelineticket
+ * ------------------------------------------------------------------------
  *
- * Per-render data (uid + chronological card-id chains) is read from the wrap
- * element's data-* attributes. The ticket tab is injected asynchronously, so we
- * init immediately and keep watching the DOM until each swimlane appears; every
- * wrap is initialised once (guarded by data-tt-init).
+ * LICENSE
+ *
+ * This file is part of TimelineTicket project.
+ *
+ * TimelineTicket plugin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TimelineTicket plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with TimelineTicket plugin. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * ------------------------------------------------------------------------
+ *
+ * @copyright Copyright (C) 2013-2025 TimelineTicket team
+ * @license   AGPL License 3.0 or (at your option) any later version
+ * @link      https://github.com/pluginsGLPI/timelineticket
+ * @package   TimelineTicket plugin
+ * @since     2013
+ *            http://www.gnu.org/licenses/agpl-3.0-standalone.html
+ * --------------------------------------------------------------------------
  */
 
 const TYPE_OFFSETS = {

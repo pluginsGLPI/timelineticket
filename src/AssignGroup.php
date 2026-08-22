@@ -1,5 +1,41 @@
 <?php
 
+/**
+ * -------------------------------------------------------------------------
+ * TimelineTicket
+ * Copyright (C) 2013-2026 by the TimelineTicket Development Team.
+ *
+ * https://github.com/pluginsGLPI/timelineticket
+ * ------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of TimelineTicket project.
+ *
+ * TimelineTicket plugin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TimelineTicket plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with TimelineTicket plugin. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * ------------------------------------------------------------------------
+ *
+ * @copyright Copyright (C) 2013-2025 TimelineTicket team
+ * @license   AGPL License 3.0 or (at your option) any later version
+ * @link      https://github.com/pluginsGLPI/timelineticket
+ * @package   TimelineTicket plugin
+ * @since     2013
+ *            http://www.gnu.org/licenses/agpl-3.0-standalone.html
+ * --------------------------------------------------------------------------
+ */
+
 /*
  -------------------------------------------------------------------------
  TimelineTicket
@@ -58,8 +94,6 @@ if (!defined('GLPI_ROOT')) {
 
 class AssignGroup extends CommonDBTM
 {
-
-
     public static function addGroupTicket(Group_Ticket $item)
     {
 
@@ -67,21 +101,21 @@ class AssignGroup extends CommonDBTM
             $ptAssignGroup = new self();
             $ticket        = new Ticket();
             $ticket->getFromDB($item->fields['tickets_id']);
-//            $calendar     = new Calendar();
-//            $calendars_id = Entity::getUsedConfig(
-//                        'calendars_strategy',
-//                        $ticket->fields['entities_id'],
-//                        'calendars_id',
-//                        0
-//                    );
+            //            $calendar     = new Calendar();
+            //            $calendars_id = Entity::getUsedConfig(
+            //                        'calendars_strategy',
+            //                        $ticket->fields['entities_id'],
+            //                        'calendars_id',
+            //                        0
+            //                    );
             $datedebut    = $ticket->fields['date'];
-//            if ($calendars_id > 0
-// && $calendar->getFromDB($calendars_id)) {
-//                $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
-//            } else {
+            //            if ($calendars_id > 0
+            // && $calendar->getFromDB($calendars_id)) {
+            //                $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
+            //            } else {
             // cas 24/24 - 7/7
             $delay = max(0, strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut));
-//            }
+            //            }
             $ok = 1;
 
             $ptConfig = new Config();
@@ -112,13 +146,13 @@ class AssignGroup extends CommonDBTM
 
         $ticket->getFromDB($item->fields['tickets_id']);
 
-//        $calendar     = new Calendar();
-//        $calendars_id = Entity::getUsedConfig(
-//                        'calendars_strategy',
-//                        $ticket->fields['entities_id'],
-//                        'calendars_id',
-//                        0
-//                    );
+        //        $calendar     = new Calendar();
+        //        $calendars_id = Entity::getUsedConfig(
+        //                        'calendars_strategy',
+        //                        $ticket->fields['entities_id'],
+        //                        'calendars_id',
+        //                        0
+        //                    );
 
         $iterator = $DB->request([
             'SELECT' => ['MAX' => 'date AS datedebut', 'id'],
@@ -126,9 +160,10 @@ class AssignGroup extends CommonDBTM
             'WHERE' => [
                 'tickets_id' => $item->fields['tickets_id'],
                 'groups_id' => $item->fields['groups_id'],
-                'delay' => NULL,
+                'delay' => null,
             ],
         ]);
+        $datedebut = null;
         if (count($iterator) > 0) {
             foreach ($iterator as $data) {
                 $datedebut = $data['datedebut'];
@@ -141,12 +176,12 @@ class AssignGroup extends CommonDBTM
         if (!$datedebut) {
             $delay = 0;
             // Utilisation calendrier
-//        } elseif ($calendars_id > 0
-// && $calendar->getFromDB($calendars_id)) {
-//            $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
-//            if ($delay == 0 || is_null($delay)) {
-//                $delay = 1;
-//            }
+            //        } elseif ($calendars_id > 0
+            // && $calendar->getFromDB($calendars_id)) {
+            //            $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
+            //            if ($delay == 0 || is_null($delay)) {
+            //                $delay = 1;
+            //            }
         } else {
             // cas 24/24 - 7/7
             $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
@@ -174,21 +209,21 @@ class AssignGroup extends CommonDBTM
             if ($ticket->countGroups(CommonITILActor::ASSIGN)) {
                 foreach ($ticket->getGroups(CommonITILActor::ASSIGN) as $d) {
                     $ptAssignGroup = new self();
-//                    $calendar      = new Calendar();
-//                    $calendars_id = Entity::getUsedConfig(
-//                        'calendars_strategy',
-//                        $ticket->fields['entities_id'],
-//                        'calendars_id',
-//                        0
-//                    );
+                    //                    $calendar      = new Calendar();
+                    //                    $calendars_id = Entity::getUsedConfig(
+                    //                        'calendars_strategy',
+                    //                        $ticket->fields['entities_id'],
+                    //                        'calendars_id',
+                    //                        0
+                    //                    );
                     $datedebut     = $ticket->fields['date'];
-//                    if ($calendars_id > 0
-// && $calendar->getFromDB($calendars_id)) {
-//                        $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
-//                    } else {
-                        // cas 24/24 - 7/7
-                        $delay = max(0, strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut));
-//                    }
+                    //                    if ($calendars_id > 0
+                    // && $calendar->getFromDB($calendars_id)) {
+                    //                        $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
+                    //                    } else {
+                    // cas 24/24 - 7/7
+                    $delay = max(0, strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut));
+                    //                    }
 
                     $input               = [];
                     $input['tickets_id'] = $ticket->getID();
@@ -203,8 +238,8 @@ class AssignGroup extends CommonDBTM
             && $ticket->fields["status"] == Ticket::WAITING) {
             if ($ticket->countGroups(CommonITILActor::ASSIGN)) {
                 foreach ($ticket->getGroups(CommonITILActor::ASSIGN) as $d) {
-//                    $calendar      = new Calendar();
-//                    $calendars_id  = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
+                    //                    $calendar      = new Calendar();
+                    //                    $calendars_id  = Entity::getUsedConfig('calendars_strategy', $ticket->fields['entities_id'], 'calendars_id', 0);
                     $ptAssignGroup = new self();
 
                     $iterator = $DB->request([
@@ -213,9 +248,10 @@ class AssignGroup extends CommonDBTM
                         'WHERE' => [
                             'tickets_id' => $ticket->getID(),
                             'groups_id' => $d["groups_id"],
-                            'delay' => NULL,
+                            'delay' => null,
                         ],
                     ]);
+                    $datedebut = null;
                     if (count($iterator) > 0) {
                         foreach ($iterator as $data) {
                             $datedebut = $data['datedebut'];
@@ -228,9 +264,9 @@ class AssignGroup extends CommonDBTM
                     if (!$datedebut) {
                         $delay = 0;
                         // Utilisation calendrier
-//                    } elseif ($calendars_id > 0
-// && $calendar->getFromDB($calendars_id)) {
-//                        $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
+                        //                    } elseif ($calendars_id > 0
+                        // && $calendar->getFromDB($calendars_id)) {
+                        //                        $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
                     } else {
                         // cas 24/24 - 7/7
                         $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
@@ -246,13 +282,13 @@ class AssignGroup extends CommonDBTM
                 || $ticket->input["status"] == Ticket::CLOSED)) {
             if ($ticket->countGroups(CommonITILActor::ASSIGN)) {
                 foreach ($ticket->getGroups(CommonITILActor::ASSIGN) as $d) {
-//                    $calendar      = new Calendar();
-//                    $calendars_id = Entity::getUsedConfig(
-//                        'calendars_strategy',
-//                        $ticket->fields['entities_id'],
-//                        'calendars_id',
-//                        0
-//                    );
+                    //                    $calendar      = new Calendar();
+                    //                    $calendars_id = Entity::getUsedConfig(
+                    //                        'calendars_strategy',
+                    //                        $ticket->fields['entities_id'],
+                    //                        'calendars_id',
+                    //                        0
+                    //                    );
                     $ptAssignGroup = new self();
 
                     $iterator = $DB->request([
@@ -261,9 +297,10 @@ class AssignGroup extends CommonDBTM
                         'WHERE' => [
                             'tickets_id' => $ticket->getID(),
                             'groups_id' => $d["groups_id"],
-                            'delay' => NULL,
+                            'delay' => null,
                         ],
                     ]);
+                    $datedebut = null;
                     if (count($iterator) > 0) {
                         foreach ($iterator as $data) {
                             $datedebut = $data['datedebut'];
@@ -276,9 +313,9 @@ class AssignGroup extends CommonDBTM
                     if (!$datedebut) {
                         $delay = 0;
                         // Utilisation calendrier
-//                    } elseif ($calendars_id > 0
-// && $calendar->getFromDB($calendars_id)) {
-//                        $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
+                        //                    } elseif ($calendars_id > 0
+                        // && $calendar->getFromDB($calendars_id)) {
+                        //                        $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
                     } else {
                         // cas 24/24 - 7/7
                         $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
@@ -299,25 +336,25 @@ class AssignGroup extends CommonDBTM
     public function insertGroupChange(Ticket $ticket, $date, $groups_id, $type)
     {
 
-//        $calendar = new Calendar();
+        //        $calendar = new Calendar();
 
         if ($type == 'new') {
-//            $calendars_id = Entity::getUsedConfig(
-//                'calendars_strategy',
-//                $ticket->fields['entities_id'],
-//                'calendars_id',
-//                0
-//            );
-//            if ($calendars_id > 0
-// && $calendar->getFromDB($calendars_id)) {
-//                $begin = $calendar->getActiveTimeBetween(
-//                    Tool::convertDateToRightTimezoneForCalendarUse($ticket->fields['date']),
-//                    Tool::convertDateToRightTimezoneForCalendarUse($date)
-//                );
-//            } else {
-                // cas 24/24 - 7/7
-                $begin = max(0, strtotime($date) - strtotime($ticket->fields['date']));
-//            }
+            //            $calendars_id = Entity::getUsedConfig(
+            //                'calendars_strategy',
+            //                $ticket->fields['entities_id'],
+            //                'calendars_id',
+            //                0
+            //            );
+            //            if ($calendars_id > 0
+            // && $calendar->getFromDB($calendars_id)) {
+            //                $begin = $calendar->getActiveTimeBetween(
+            //                    Tool::convertDateToRightTimezoneForCalendarUse($ticket->fields['date']),
+            //                    Tool::convertDateToRightTimezoneForCalendarUse($date)
+            //                );
+            //            } else {
+            // cas 24/24 - 7/7
+            $begin = max(0, strtotime($date) - strtotime($ticket->fields['date']));
+            //            }
 
             $this->add(['tickets_id' => $ticket->getField("id"),
                 'date'       => $date,
@@ -329,22 +366,22 @@ class AssignGroup extends CommonDBTM
                 "delay"      => null], [], 1);
             if (count($a_dbentry) == 1) {
                 $input        = current($a_dbentry);
-//                $calendars_id = Entity::getUsedConfig(
-//                    'calendars_strategy',
-//                    $ticket->fields['entities_id'],
-//                    'calendars_id',
-//                    0
-//                );
-//                if ($calendars_id > 0
-// && $calendar->getFromDB($calendars_id)) {
-//                    $input['delay'] = $calendar->getActiveTimeBetween(
-//                        Tool::convertDateToRightTimezoneForCalendarUse($input['date']),
-//                        Tool::convertDateToRightTimezoneForCalendarUse($date)
-//                    );
-//                } else {
-                    // cas 24/24 - 7/7
-                    $input['delay'] = strtotime($date) - strtotime($input['date']);
-//                }
+                //                $calendars_id = Entity::getUsedConfig(
+                //                    'calendars_strategy',
+                //                    $ticket->fields['entities_id'],
+                //                    'calendars_id',
+                //                    0
+                //                );
+                //                if ($calendars_id > 0
+                // && $calendar->getFromDB($calendars_id)) {
+                //                    $input['delay'] = $calendar->getActiveTimeBetween(
+                //                        Tool::convertDateToRightTimezoneForCalendarUse($input['date']),
+                //                        Tool::convertDateToRightTimezoneForCalendarUse($date)
+                //                    );
+                //                } else {
+                // cas 24/24 - 7/7
+                $input['delay'] = strtotime($date) - strtotime($input['date']);
+                //                }
                 $this->update($input);
             }
         }
@@ -372,10 +409,10 @@ class AssignGroup extends CommonDBTM
                     'timestamp' => $date,
                     'label'     => Dropdown::getDropdownName(
                         "glpi_groups",
-                        $data['groups_id']
+                        $data['groups_id'],
                     ) . " (" . Html::timestampToString(
                         $data['delay'],
-                        true
+                        true,
                     ) . ")",
                     'class'     => $class];
             }
@@ -410,7 +447,7 @@ class AssignGroup extends CommonDBTM
 
         $criteria = [
             'SELECT' => 'id',
-            'FROM' => 'glpi_tickets'
+            'FROM' => 'glpi_tickets',
         ];
         if ($id > 0) {
             $criteria['WHERE'] = ['id' => $id];
@@ -426,7 +463,7 @@ class AssignGroup extends CommonDBTM
                     'itemtype_link'  => 'Group',
                     'items_id'  => $data['id'],
                     'itemtype'  => 'Ticket',
-                    'id_search_option'  => 8
+                    'id_search_option'  => 8,
                 ],
                 'ORDERBY' => 'date_mod ASC',
             ];
