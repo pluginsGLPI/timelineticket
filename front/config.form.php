@@ -139,7 +139,14 @@ if (isset($_POST["reconstructStates"])) {
 } else {
     $ptConfig->showReconstructForm();
 
-    $ptConfig->getFromDB(1);
-    $ptConfig->showConfigForm();
+    // The global add_waiting setting (Config singleton, id 1) is a config-admin
+    // setting: only disclose it to operators holding config READ. A plugin
+    // technician (plugin_timelineticket_ticket UPDATE) legitimately reaches this
+    // page for the per-ticket rebuild form above, but must not see the global
+    // plugin configuration they cannot save anyway.
+    if (Session::haveRight("config", READ)) {
+        $ptConfig->getFromDB(1);
+        $ptConfig->showConfigForm();
+    }
     Html::footer();
 }
