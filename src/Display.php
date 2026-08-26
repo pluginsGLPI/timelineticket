@@ -94,6 +94,7 @@ use Sportlog\GoogleCharts\ChartService;
 use ITILFollowup;
 use Ticket;
 use TicketTask;
+use TicketValidation;
 use User;
 
 if (!defined('GLPI_ROOT')) {
@@ -531,29 +532,37 @@ class Display extends CommonDBTM
         }
 
         // ── 3e. Load validations ──────────────────────────────────────────────
-        $valid_iter = $DB->request([
-            'SELECT' => ['id', 'submission_date', 'users_id', 'status', 'comment_submission'],
-            'FROM'   => 'glpi_ticketvalidations',
-            'WHERE'  => ['tickets_id' => $ticket_id],
-            'ORDER'  => ['submission_date ASC'],
-        ]);
-        foreach ($valid_iter as $row) {
-            $author = new User();
-            $author->getFromDB((int) $row['users_id']);
-            $status_labels = [
-                0 => __('Waiting'),
-                1 => __('Refused'),
-                2 => __('Granted'),
-            ];
-            $vstatus = $status_labels[(int) $row['status']] ?? __('Waiting');
-            $all_events[] = [
-                'ts'      => strtotime($row['submission_date']),
-                'label'   => $author->getFriendlyName(),
-                'excerpt' => $vstatus . (($row['comment_submission'] ?? '') !== ''
-                    ? ' — ' . mb_strimwidth(strip_tags((string) $row['comment_submission']), 0, 40, '…')
-                    : ''),
-                'type'    => 'validation',
-            ];
+        // Respect GLPI validation visibility: TicketValidation::canView() requires a
+        // dedicated 'ticketvalidation' right (create/validate/purge), independent of
+        // the ticket-view right that gates this tab. Without this guard the swimlane
+        // would disclose the requester name, the approval decision, and a comment
+        // excerpt to users the core Validation tab hides them from. Mirrors the
+        // canViewItem() gating on the followups/tasks blocks above.
+        if (TicketValidation::canView()) {
+            $valid_iter = $DB->request([
+                'SELECT' => ['id', 'submission_date', 'users_id', 'status', 'comment_submission'],
+                'FROM'   => 'glpi_ticketvalidations',
+                'WHERE'  => ['tickets_id' => $ticket_id],
+                'ORDER'  => ['submission_date ASC'],
+            ]);
+            foreach ($valid_iter as $row) {
+                $author = new User();
+                $author->getFromDB((int) $row['users_id']);
+                $status_labels = [
+                    0 => __('Waiting'),
+                    1 => __('Refused'),
+                    2 => __('Granted'),
+                ];
+                $vstatus = $status_labels[(int) $row['status']] ?? __('Waiting');
+                $all_events[] = [
+                    'ts'      => strtotime($row['submission_date']),
+                    'label'   => $author->getFriendlyName(),
+                    'excerpt' => $vstatus . (($row['comment_submission'] ?? '') !== ''
+                        ? ' — ' . mb_strimwidth(strip_tags((string) $row['comment_submission']), 0, 40, '…')
+                        : ''),
+                    'type'    => 'validation',
+                ];
+            }
         }
 
         // ── 4. Resolve which status was active for each event ────────────────
