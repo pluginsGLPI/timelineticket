@@ -81,6 +81,7 @@ use Dropdown;
 use Glpi\Application\View\TemplateRenderer;
 use Group;
 use Migration;
+use Session;
 use Toolbox;
 
 if (!defined('GLPI_ROOT')) {
@@ -235,6 +236,27 @@ class Grouplevel extends CommonDropdown
         if (isset($params["add_groups"])) {
             $input = [];
 
+            // Re-validate the posted group at the sink: the display dropdown
+            // (showAddGroup) only offers assignable groups within the
+            // Grouplevel's entity, but those constraints are not enforced on the
+            // POST. Without this, a forged request could store a group from
+            // another entity or a non-assignable group, whose name would then
+            // leak in the timeline and Gantt labels. Force an integer value too.
+            $groups_id_assign = (int) ($params["_groups_id_assign"] ?? 0);
+            $group            = new Group();
+            if (
+                $groups_id_assign <= 0
+                || !$group->getFromDB($groups_id_assign)
+                || (int) $group->fields['is_assign'] !== 1
+                || !Session::haveAccessToEntity(
+                    $group->fields['entities_id'],
+                    $group->fields['is_recursive'],
+                )
+            ) {
+                // Invalid or out-of-scope group: ignore the add, leave the level untouched.
+                return ['id' => $params['id']];
+            }
+
             $restrict = ["id" => $params['id']];
             $configs  = $dbu->getAllDataFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
 
@@ -244,14 +266,14 @@ class Grouplevel extends CommonDropdown
                     if (!empty($config["groups"])) {
                         $groups = json_decode($config["groups"], true);
                         if (count($groups) > 0) {
-                            if (!in_array($params["_groups_id_assign"], $groups)) {
-                                array_push($groups, $params["_groups_id_assign"]);
+                            if (!in_array($groups_id_assign, $groups)) {
+                                array_push($groups, $groups_id_assign);
                             }
                         } else {
-                            $groups = [$params["_groups_id_assign"]];
+                            $groups = [$groups_id_assign];
                         }
                     } else {
-                        $groups = [$params["_groups_id_assign"]];
+                        $groups = [$groups_id_assign];
                     }
                 }
             }
