@@ -92,12 +92,20 @@ class Profile extends \Profile
 
         $rights = self::getAllRights(true);
 
+        // The tab is displayed on "profile" READ, but the matrix it renders is fully editable
+        // and posts to the core profile controller, which requires UPDATE. Nothing illegitimate
+        // could be written -- the controller refuses it -- yet a read-only session was shown a
+        // write interface and got a brutal denial on submit. Compute the capability the way the
+        // core does and let the template honour it.
+        $canedit = Session::haveRightsOr('profile', [CREATE, UPDATE, PURGE]);
+
         $twig = TemplateRenderer::getInstance();
         $twig->display('@timelineticket/profile.html.twig', [
             'id' => $item->getID(),
             'profile' => $profile,
             'title' => self::getTypeName(Session::getPluralNumber()),
             'rights' => $rights,
+            'canedit' => $canedit,
         ]);
 
         return true;

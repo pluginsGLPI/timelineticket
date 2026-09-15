@@ -58,18 +58,15 @@ $grplevel = new Grouplevel();
 if (isset($_POST["reconstructStates"])) {
     // Global, all-entity rebuild: restrict to config administrators.
     Session::checkRight("config", UPDATE);
-    $ptState = new AssignState();
-    $ptState->reconstructTimeline();
+    reconstructAllTimelines(new AssignState());
     Html::back();
 } elseif (isset($_POST["reconstructGroups"])) {
     Session::checkRight("config", UPDATE);
-    $ptGroup = new AssignGroup();
-    $ptGroup->reconstructTimeline();
+    reconstructAllTimelines(new AssignGroup());
     Html::back();
 } elseif (isset($_POST["reconstructUsers"])) {
     Session::checkRight("config", UPDATE);
-    $ptUser = new AssignUser();
-    $ptUser->reconstructTimeline();
+    reconstructAllTimelines(new AssignUser());
     Html::back();
 } elseif (isset($_POST["reconstructTicket"])) {
     $tickets_id = (int) ($_POST['tickets_id'] ?? 0);
@@ -101,7 +98,12 @@ if (isset($_POST["reconstructStates"])) {
     $ptConfig->update($_POST);
     Html::back();
 } else {
-    $ptConfig->showReconstructForm();
+    // The three buttons of that form trigger a global, all-entity rebuild, which the branches
+    // above gate on config UPDATE: a plugin technician was offered buttons whose submission
+    // could only end on an access denied page. Show the form to the operators who may use it.
+    if (Session::haveRight("config", UPDATE)) {
+        $ptConfig->showReconstructForm();
+    }
 
     // The global add_waiting setting (Config singleton, id 1) is a config-admin
     // setting: only disclose it to operators holding config READ. A plugin
@@ -113,4 +115,31 @@ if (isset($_POST["reconstructStates"])) {
         $ptConfig->showConfigForm();
     }
     Html::footer();
+}
+
+/**
+ * Run a global timeline rebuild and report the outcome to the operator.
+ *
+ * reconstructTimeline() runs in a transaction and rolls it back before rethrowing, so a failed
+ * rebuild leaves the previous content in place. Without this catch the operator only got a bare
+ * error page, with no way to tell whether the table had been emptied or not.
+ *
+ * @param AssignState|AssignGroup|AssignUser $handler Timeline table to rebuild
+ *
+ * @return void
+ */
+function reconstructAllTimelines(AssignState|AssignGroup|AssignUser $handler): void
+{
+    try {
+        $handler->reconstructTimeline();
+        Session::addMessageAfterRedirect(__s('Timeline rebuilt', 'timelineticket'), false, INFO);
+    } catch (Throwable $e) {
+        global $PHPLOGGER;
+        $PHPLOGGER->error('Unable to rebuild the timeline.', ['exception' => $e]);
+        Session::addMessageAfterRedirect(
+            __s('The timeline rebuild failed, no change has been applied', 'timelineticket'),
+            false,
+            ERROR,
+        );
+    }
 }

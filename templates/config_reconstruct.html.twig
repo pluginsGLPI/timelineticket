@@ -44,6 +44,9 @@
             </tr>
             <tr class="tab_bg_1">
                 <td class="center">
+                    <div class="alert alert-warning text-start" role="alert">
+                        {{ __('A global rebuild first deletes every stored row of the corresponding timeline, then recomputes it from the ticket history. Rows whose history entries have already been purged cannot be recovered.', 'timelineticket') }}
+                    </div>
                     <button type="submit" name="reconstructStates" class="btn btn-primary my-2">
                         {{ _x('button', 'Reconstruct states timeline for all tickets', 'timelineticket') }}
                     </button>

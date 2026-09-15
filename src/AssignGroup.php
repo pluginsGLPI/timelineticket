@@ -49,11 +49,53 @@ use Group;
 use Group_Ticket;
 use Html;
 use Migration;
+use Throwable;
 use Ticket;
 use Toolbox;
 
+use function htmlescape;
+
 class AssignGroup extends CommonDBTM
 {
+    public static $rightname = 'plugin_timelineticket_ticket';
+
+    /**
+     * Replay the visibility of the parent ticket at class level.
+     *
+     * These rows carry no entities_id column, so CommonDBTM::checkEntity() returns true
+     * without checking anything and the inherited canViewItem() reduces to the global plugin
+     * right alone. The screens of the plugin re-check the ticket themselves, but the generic
+     * access paths of the core do not: the historical API only calls can($id, READ), which
+     * would hand out the assignment map -- tickets, groups, users, delays -- of every entity
+     * of the instance. Overriding here means every path inherits the control.
+     **/
+    public function canViewItem(): bool
+    {
+        if (!parent::canViewItem()) {
+            return false;
+        }
+
+        $tickets_id = (int) ($this->fields['tickets_id'] ?? 0);
+        $ticket     = new Ticket();
+
+        return $tickets_id > 0 && $ticket->can($tickets_id, READ);
+    }
+
+    /**
+     * Same reasoning as canViewItem(), on the write side.
+     **/
+    public function canUpdateItem(): bool
+    {
+        if (!parent::canUpdateItem()) {
+            return false;
+        }
+
+        $tickets_id = (int) ($this->fields['tickets_id'] ?? 0);
+        $ticket     = new Ticket();
+
+        return $tickets_id > 0 && $ticket->can($tickets_id, UPDATE);
+    }
+
     public static function addGroupTicket(Group_Ticket $item)
     {
 
@@ -367,10 +409,15 @@ class AssignGroup extends CommonDBTM
                 $class = ($size == $nb) ? 'now' : 'checked';
                 $groups[$date . '_groups_id'] = [
                     'timestamp' => $date,
-                    'label'     => Dropdown::getDropdownName(
+                    // Html::showDatesTimelineGraph() hands this label to the core template
+                    // components/dates_timeline.html.twig, which writes it inside a <label>
+                    // with the |raw filter. The group name is a free text field fed by any
+                    // profile allowed to create a group, so it reaches the browser as markup
+                    // unless the plugin escapes it before the hand over.
+                    'label'     => htmlescape(Dropdown::getDropdownName(
                         "glpi_groups",
                         $data['groups_id'],
-                    ) . " (" . Html::timestampToString(
+                    )) . " (" . Html::timestampToString(
                         $data['delay'],
                         true,
                     ) . ")",
@@ -396,6 +443,35 @@ class AssignGroup extends CommonDBTM
     */
 
     public function reconstructTimeline($id = 0)
+    {
+        global $DB;
+
+        // The rebuild deletes the rows it is about to recompute -- the whole table when $id is
+        // 0 -- and then re-inserts them one by one from glpi_logs. Any failure in between (PHP
+        // time limit, fatal error, database hiccup) used to leave the table truncated or half
+        // rebuilt, with no way back and nothing telling the operator. A single transaction makes
+        // the operation all or nothing: on error the previous content is restored and the
+        // exception is rethrown, so the caller can report the failure.
+        $DB->beginTransaction();
+        try {
+            $this->rebuildTimelineRows((int) $id);
+            $DB->commit();
+        } catch (Throwable $e) {
+            $DB->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Delete and rebuild the group rows of one ticket, or of every ticket when $id is 0.
+     *
+     * Always called from inside the transaction opened by reconstructTimeline().
+     *
+     * @param int $id Ticket id, 0 for a global rebuild
+     *
+     * @return void
+     */
+    private function rebuildTimelineRows(int $id): void
     {
         global $DB;
 

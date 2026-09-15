@@ -63,11 +63,23 @@ use User;
 
 class Display extends CommonDBTM
 {
+    public static $rightname = 'plugin_timelineticket_ticket';
+
     /**
      * URL of the Google Charts bootstrap injected by sportlog/google-charts.
      * A local copy of that file is shipped in public/js/google-charts/.
+     * Only that bootstrap is served locally: the rendering modules it fetches at draw time
+     * (corechart, timeline) cannot be shipped with the plugin, the Google Charts terms of
+     * service requiring the library to be loaded from Google's own servers and allowing
+     * neither its redistribution nor its self-hosting. The outbound dependency and the
+     * content security policy entry it needs are documented in the README, which scopes that
+     * entry to https://www.gstatic.com/charts/ rather than to the whole domain, and the tab
+     * shows an explicit notice, rather than an empty frame, when the modules cannot be reached.
      */
     private const GOOGLE_CHARTS_REMOTE_LOADER = 'https://www.gstatic.com/charts/loader.js';
+
+    /** Opening of the script the charts library builds around the serialised data table. */
+    private const CHART_PAYLOAD_PREFIX = 'GoogleCharts.loadCharts(';
 
     public static function getTypeName($nb = 0)
     {
@@ -208,18 +220,25 @@ class Display extends CommonDBTM
     {
         global $DB;
 
-        // Reconstruct button (Html::showSimpleForm emits its own form + CSRF token)
-        ob_start();
-        Html::showSimpleForm(
-            PLUGIN_TIMELINETICKET_WEBDIR . "/front/config.form.php",
-            'delete_review_from_list',
-            _x('button', "Reconstruct history for this ticket", 'timelineticket'),
-            [
-                'tickets_id' => $ticket->getID(),
-                'reconstructTicket' => 'reconstructTicket',
-            ],
-        );
-        $reconstruct_button = ob_get_clean();
+        // Reconstruct button (Html::showSimpleForm emits its own form + CSRF token).
+        // The tab opens on plugin_timelineticket_ticket READ, but rebuilding deletes and
+        // re-inserts the rows of the ticket, so front/config.form.php requires UPDATE on it.
+        // Offering the button to a reader only produced a refusal: ask the same question here
+        // as the controller does, the way the global rebuild buttons already do.
+        $reconstruct_button = '';
+        if ($ticket->can($ticket->getID(), UPDATE)) {
+            ob_start();
+            Html::showSimpleForm(
+                PLUGIN_TIMELINETICKET_WEBDIR . "/front/config.form.php",
+                'delete_review_from_list',
+                _x('button', "Reconstruct history for this ticket", 'timelineticket'),
+                [
+                    'tickets_id' => $ticket->getID(),
+                    'reconstructTicket' => 'reconstructTicket',
+                ],
+            );
+            $reconstruct_button = ob_get_clean();
+        }
 
         // Used calendar link
         $calendar = new Calendar();
@@ -768,19 +787,41 @@ class Display extends CommonDBTM
     }
 
     /**
-     * Sanitize a row label before it is injected in the Google Charts data table.
+     * Neutralise the script breakout vector of the serialised chart payload.
      *
-     * Group, user and service level names come from the database and the generated
-     * chart markup is printed through a |raw Twig filter, so any tag character in a
-     * label would end up in the page as markup.
+     * The charts library serialises the data table with json_encode() and no flag, then
+     * interpolates the result in "GoogleCharts.loadCharts(%s, true);" inside an inline
+     * <script> block that this plugin prints through a |raw filter. Angle brackets therefore
+     * reach the page verbatim, and a row label holding "</script>" closes the block early --
+     * the labels are group names, user names and service level names, all editable from the
+     * interface by a user holding the corresponding right.
      *
-     * @param mixed $label Raw label read from the database
+     * The escaping is done here, at the serialisation boundary where the output context is
+     * known, rather than by stripping characters from the labels upstream: inside a JSON
+     * string "<" is a valid escape that decodes back to "<", so the label keeps its
+     * original text on the chart instead of being silently mangled. JSON carries no angle
+     * bracket outside of its strings, so nothing else in the payload is affected.
      *
-     * @return string
-     */
-    private static function sanitizeChartLabel($label): string
+     * Only the payload script is rewritten, and only between its tags: the template script
+     * shipped by the library is plain JavaScript, where angle brackets are comparison
+     * operators and must stay untouched.
+     *
+     * @param string $tag One script tag as returned by ChartLoader::load()
+     **/
+    private static function hardenChartPayload(string $tag): string
     {
-        return str_replace(['<', '>'], '', (string) $label);
+        $opening_end = strpos($tag, '>' . self::CHART_PAYLOAD_PREFIX);
+        $closing     = strrpos($tag, '</script>');
+        if ($opening_end === false || $closing === false || $closing <= $opening_end) {
+            return $tag;
+        }
+
+        $start   = $opening_end + 1;
+        $payload = substr($tag, $start, $closing - $start);
+
+        return substr($tag, 0, $start)
+               . str_replace(['<', '>'], ['\u003C', '\u003E'], $payload)
+               . substr($tag, $closing);
     }
 
     public static function showTimelineGraph(Ticket $ticket, $item)
@@ -890,16 +931,19 @@ class Display extends CommonDBTM
                     $i[] = $v['users_id'];
                 } elseif ($item instanceof AssignGroup) {
 
-                    if (count($mylevels) > 0) {
-                        foreach ($mylevels as $levelname => $groups) {
-                            if (in_array($v['groups_id'], $groups)) {
-                                $name = $levelname;
-                            } else {
-                                $name = Dropdown::getDropdownName("glpi_groups", $v['groups_id']);
-                            }
+                    // The loop used to assign $name on every iteration, with no break and no
+                    // memory of the match: the value finally kept was always the one computed
+                    // for the last configured level, so a group belonging to the first level
+                    // was labelled with its own name instead. Start from the fallback and stop
+                    // on the first level that actually holds the group. The stored column is a
+                    // JSON blob, so a malformed row decodes to null, on which in_array() would
+                    // raise a TypeError.
+                    $name = Dropdown::getDropdownName("glpi_groups", $v['groups_id']);
+                    foreach ($mylevels as $levelname => $groups) {
+                        if (is_array($groups) && in_array($v['groups_id'], $groups)) {
+                            $name = $levelname;
+                            break;
                         }
-                    } else {
-                        $name = Dropdown::getDropdownName("glpi_groups", $v['groups_id']);
                     }
 
 
@@ -922,14 +966,14 @@ class Display extends CommonDBTM
                     $k[] = $v['old_status'];
                 }
                 $data->addRows([
-                    [self::sanitizeChartLabel($name), $date($v['begin_date']), $date($v['end_date'])],
+                    [$name, $date($v['begin_date']), $date($v['end_date'])],
                 ]);
                 $first++;
                 if ($first == count($a_gantt) && $item instanceof AssignState) {
                     if ($v['new_status'] != Ticket::CLOSED) {
                         $name = Ticket::getStatus($v['new_status']);
                         $data->addRows([
-                            [self::sanitizeChartLabel($name), $date($v['end_date']), $date(date('Y-m-d H:i:s'))],
+                            [$name, $date($v['end_date']), $date(date('Y-m-d H:i:s'))],
                         ]);
                         $height += 50;
                     }
@@ -958,11 +1002,11 @@ class Display extends CommonDBTM
             // documented in the README.
             $boot_scripts = $chartService->load();
             foreach ($boot_scripts as $key => $tag) {
-                $boot_scripts[$key] = str_replace(
+                $boot_scripts[$key] = self::hardenChartPayload(str_replace(
                     self::GOOGLE_CHARTS_REMOTE_LOADER,
                     PLUGIN_TIMELINETICKET_WEBDIR . '/js/google-charts/loader.js',
                     $tag,
-                );
+                ));
             }
 
             // Draw all charts

@@ -47,13 +47,55 @@ use Entity;
 use Glpi\Application\View\TemplateRenderer;
 use Html;
 use Migration;
+use Throwable;
 use Ticket;
 use Ticket_User;
 use Toolbox;
 use User;
 
+use function htmlescape;
+
 class AssignUser extends CommonDBTM
 {
+    public static $rightname = 'plugin_timelineticket_ticket';
+
+    /**
+     * Replay the visibility of the parent ticket at class level.
+     *
+     * These rows carry no entities_id column, so CommonDBTM::checkEntity() returns true
+     * without checking anything and the inherited canViewItem() reduces to the global plugin
+     * right alone. The screens of the plugin re-check the ticket themselves, but the generic
+     * access paths of the core do not: the historical API only calls can($id, READ), which
+     * would hand out the assignment map -- tickets, groups, users, delays -- of every entity
+     * of the instance. Overriding here means every path inherits the control.
+     **/
+    public function canViewItem(): bool
+    {
+        if (!parent::canViewItem()) {
+            return false;
+        }
+
+        $tickets_id = (int) ($this->fields['tickets_id'] ?? 0);
+        $ticket     = new Ticket();
+
+        return $tickets_id > 0 && $ticket->can($tickets_id, READ);
+    }
+
+    /**
+     * Same reasoning as canViewItem(), on the write side.
+     **/
+    public function canUpdateItem(): bool
+    {
+        if (!parent::canUpdateItem()) {
+            return false;
+        }
+
+        $tickets_id = (int) ($this->fields['tickets_id'] ?? 0);
+        $ticket     = new Ticket();
+
+        return $tickets_id > 0 && $ticket->can($tickets_id, UPDATE);
+    }
+
     public static function addUserTicket(Ticket_User $item)
     {
 
@@ -409,7 +451,10 @@ class AssignUser extends CommonDBTM
                 }
                 $users[$date . '_users_id'] = [
                     'timestamp' => $date,
-                    'label'     => getUserName($data['users_id']) . " (" . Html::timestampToString($data['delay']) . ")",
+                    // Same sink as in AssignGroup::showGroupTimeline(): the core template
+                    // components/dates_timeline.html.twig emits this label with |raw, and the
+                    // user name is built from first name, surname and login, all free text.
+                    'label'     => htmlescape(getUserName($data['users_id'])) . " (" . Html::timestampToString($data['delay']) . ")",
                     'class'     => $class];
             }
             $title = __('Ticket assign technician history', 'timelineticket');
@@ -433,6 +478,35 @@ class AssignUser extends CommonDBTM
    */
 
     public function reconstructTimeline($id = 0)
+    {
+        global $DB;
+
+        // The rebuild deletes the rows it is about to recompute -- the whole table when $id is
+        // 0 -- and then re-inserts them one by one from glpi_logs. Any failure in between (PHP
+        // time limit, fatal error, database hiccup) used to leave the table truncated or half
+        // rebuilt, with no way back and nothing telling the operator. A single transaction makes
+        // the operation all or nothing: on error the previous content is restored and the
+        // exception is rethrown, so the caller can report the failure.
+        $DB->beginTransaction();
+        try {
+            $this->rebuildTimelineRows((int) $id);
+            $DB->commit();
+        } catch (Throwable $e) {
+            $DB->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Delete and rebuild the user rows of one ticket, or of every ticket when $id is 0.
+     *
+     * Always called from inside the transaction opened by reconstructTimeline().
+     *
+     * @param int $id Ticket id, 0 for a global rebuild
+     *
+     * @return void
+     */
+    private function rebuildTimelineRows(int $id): void
     {
         global $DB;
 

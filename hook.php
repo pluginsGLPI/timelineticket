@@ -41,6 +41,7 @@ use GlpiPlugin\Timelineticket\AssignGroup;
 use GlpiPlugin\Timelineticket\AssignState;
 use GlpiPlugin\Timelineticket\AssignUser;
 use GlpiPlugin\Timelineticket\Config;
+use GlpiPlugin\Timelineticket\Display;
 use GlpiPlugin\Timelineticket\Grouplevel;
 use GlpiPlugin\Timelineticket\Profile;
 
@@ -58,6 +59,26 @@ function plugin_timelineticket_install()
     Grouplevel::install($migration);
 
     Config::install($migration);
+
+    // The classes were renamed when the plugin moved from inc/ to src/: PluginTimelineticketState
+    // became AssignState, PluginTimelineticketGrouplevel became Grouplevel, and so on. Each class
+    // handles its own table above, but nothing ever updated the itemtype columns the core fills
+    // in: display preferences, saved searches, history entries and dropdown translations kept the
+    // legacy class names and silently went inert on upgrade, which reads as data loss. Rename them
+    // here, once the tables are in place and before any new row is seeded, otherwise the update
+    // collides with a freshly inserted row (error 1062).
+    $renamed_itemtypes = [
+        'PluginTimelineticketState'       => AssignState::class,
+        'PluginTimelineticketAssignGroup' => AssignGroup::class,
+        'PluginTimelineticketAssignUser'  => AssignUser::class,
+        'PluginTimelineticketGrouplevel'  => Grouplevel::class,
+        'PluginTimelineticketConfig'      => Config::class,
+        'PluginTimelineticketDisplay'     => Display::class,
+    ];
+    foreach ($renamed_itemtypes as $old_itemtype => $new_itemtype) {
+        // Structure is already handled by the install() methods above, hence the false.
+        $migration->renameItemtype($old_itemtype, $new_itemtype, false);
+    }
 
     if (isset($_SESSION['glpiactiveprofile'])
             && isset($_SESSION['glpiactiveprofile']['id'])) {
@@ -84,6 +105,42 @@ function plugin_timelineticket_item_stats($item)
 function plugin_timelineticket_uninstall()
 {
     global $DB;
+
+    // The core creates rows of its own for every itemtype the plugin exposes. Dropping the
+    // plugin tables leaves them behind, pointing at classes that no longer exist: they pollute
+    // configuration exports forever and, on a later reinstall, resurface as display preferences
+    // and saved searches built on search option ids that no longer mean anything. Purge them
+    // before the tables go away.
+    $purged_itemtypes = [
+        AssignState::class,
+        AssignGroup::class,
+        AssignUser::class,
+        Grouplevel::class,
+        Config::class,
+        Display::class,
+    ];
+
+    $savedsearches_ids = [];
+    $savedsearches_iterator = $DB->request([
+        'SELECT' => 'id',
+        'FROM'   => 'glpi_savedsearches',
+        'WHERE'  => ['itemtype' => $purged_itemtypes],
+    ]);
+    foreach ($savedsearches_iterator as $saved_search) {
+        $savedsearches_ids[] = $saved_search['id'];
+    }
+    if (count($savedsearches_ids) > 0) {
+        $DB->delete('glpi_savedsearches_alerts', ['savedsearches_id' => $savedsearches_ids]);
+        $DB->delete('glpi_savedsearches_users', ['savedsearches_id' => $savedsearches_ids]);
+        $DB->delete('glpi_savedsearches', ['id' => $savedsearches_ids]);
+    }
+    // glpi_savedsearches_users also records the default search per itemtype, in rows that do
+    // not necessarily point at one of the searches deleted above.
+    $DB->delete('glpi_savedsearches_users', ['itemtype' => $purged_itemtypes]);
+
+    $DB->delete('glpi_displaypreferences', ['itemtype' => $purged_itemtypes]);
+    $DB->delete('glpi_logs', ['itemtype' => $purged_itemtypes]);
+    $DB->delete('glpi_dropdowntranslations', ['itemtype' => $purged_itemtypes]);
 
     AssignState::uninstall();
     AssignGroup::uninstall();

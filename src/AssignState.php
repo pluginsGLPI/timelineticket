@@ -44,10 +44,50 @@ use DBConnection;
 use Glpi\Application\View\TemplateRenderer;
 use Html;
 use Migration;
+use Throwable;
 use Ticket;
 
 class AssignState extends CommonDBTM
 {
+    public static $rightname = 'plugin_timelineticket_ticket';
+
+    /**
+     * Replay the visibility of the parent ticket at class level.
+     *
+     * These rows carry no entities_id column, so CommonDBTM::checkEntity() returns true
+     * without checking anything and the inherited canViewItem() reduces to the global plugin
+     * right alone. The screens of the plugin re-check the ticket themselves, but the generic
+     * access paths of the core do not: the historical API only calls can($id, READ), which
+     * would hand out the assignment map -- tickets, groups, users, delays -- of every entity
+     * of the instance. Overriding here means every path inherits the control.
+     **/
+    public function canViewItem(): bool
+    {
+        if (!parent::canViewItem()) {
+            return false;
+        }
+
+        $tickets_id = (int) ($this->fields['tickets_id'] ?? 0);
+        $ticket     = new Ticket();
+
+        return $tickets_id > 0 && $ticket->can($tickets_id, READ);
+    }
+
+    /**
+     * Same reasoning as canViewItem(), on the write side.
+     **/
+    public function canUpdateItem(): bool
+    {
+        if (!parent::canUpdateItem()) {
+            return false;
+        }
+
+        $tickets_id = (int) ($this->fields['tickets_id'] ?? 0);
+        $ticket     = new Ticket();
+
+        return $tickets_id > 0 && $ticket->can($tickets_id, UPDATE);
+    }
+
     public static function addAssignState(Ticket $ticket)
     {
         // Instantiation of the object from the class AssignState
@@ -274,6 +314,35 @@ class AssignState extends CommonDBTM
     {
         global $DB;
 
+        // The rebuild deletes the rows it is about to recompute -- the whole table when $id is
+        // 0 -- and then re-inserts them one by one from glpi_logs. Any failure in between (PHP
+        // time limit, fatal error, database hiccup) used to leave the table truncated or half
+        // rebuilt, with no way back and nothing telling the operator. A single transaction makes
+        // the operation all or nothing: on error the previous content is restored and the
+        // exception is rethrown, so the caller can report the failure.
+        $DB->beginTransaction();
+        try {
+            $this->rebuildTimelineRows((int) $id);
+            $DB->commit();
+        } catch (Throwable $e) {
+            $DB->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Delete and rebuild the state rows of one ticket, or of every ticket when $id is 0.
+     *
+     * Always called from inside the transaction opened by reconstructTimeline().
+     *
+     * @param int $id Ticket id, 0 for a global rebuild
+     *
+     * @return void
+     */
+    private function rebuildTimelineRows(int $id): void
+    {
+        global $DB;
+
         $ticket = new Ticket();
         if ($id == 0) {
             $DB->delete($this->getTable(), [1]);
@@ -345,6 +414,16 @@ class AssignState extends CommonDBTM
         $default_key_sign  = DBConnection::getDefaultPrimaryKeySignOption();
         $table  = self::getTable();
 
+        // The legacy table has to be taken over BEFORE the CREATE TABLE below, not after it.
+        // The rename used to sit at the end of the method, guarded by "the target table does
+        // not exist yet" -- a condition the create above had just made false for good. The
+        // branch was therefore unreachable: an instance still carrying the pre-rename table
+        // ended up with an empty _assignstates, its whole status history stranded in an orphan
+        // table no code reads any more, and the Timeline tab silently blank on every old ticket.
+        if (!$DB->tableExists($table) && $DB->tableExists('glpi_plugin_timelineticket_states')) {
+            $DB->doQuery("RENAME TABLE `glpi_plugin_timelineticket_states` TO `$table`;");
+        }
+
         if (!$DB->tableExists($table)) {
             $query = "CREATE TABLE `$table` (
                         `id` int {$default_key_sign} NOT NULL auto_increment,
@@ -367,30 +446,23 @@ class AssignState extends CommonDBTM
             'solved'        => Ticket::SOLVED,
             'closed'        => Ticket::CLOSED];
 
-        // Update field in tables
-        foreach (['glpi_plugin_timelineticket_assignstates'] as $table) {
-            // Migrate datas
-            foreach ($status as $old => $new) {
-                $query = "UPDATE `$table`
-                   SET `old_status` = '$new'
-                   WHERE `old_status` = '$old'";
-                $DB->doQuery($query);
+        // Migrate datas. This used to be wrapped in a foreach over a one-element array whose
+        // value was the very table $table already holds, which silently reassigned $table for
+        // the rest of the method: same table today, a trap for the next edit.
+        foreach ($status as $old => $new) {
+            $query = "UPDATE `$table`
+               SET `old_status` = '$new'
+               WHERE `old_status` = '$old'";
+            $DB->doQuery($query);
 
-                $query = "UPDATE `$table`
-                   SET `new_status` = '$new'
-                   WHERE `new_status` = '$old'";
-                $DB->doQuery($query);
-            }
+            $query = "UPDATE `$table`
+               SET `new_status` = '$new'
+               WHERE `new_status` = '$old'";
+            $DB->doQuery($query);
         }
 
         $query = "ALTER TABLE `$table` CHANGE `delay` `delay` int(11) DEFAULT NULL;";
         $DB->doQuery($query);
-
-        if (!$DB->tableExists("glpi_plugin_timelineticket_assignstates")
-                && $DB->tableExists("glpi_plugin_timelineticket_states")) {
-            $query = "RENAME TABLE `glpi_plugin_timelineticket_states` TO `glpi_plugin_timelineticket_assignstates`;";
-            $DB->doQuery($query);
-        }
     }
 
     public static function uninstall()

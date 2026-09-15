@@ -37,6 +37,7 @@
  */
 
 //Options for GLPI 0.71 and newer : need slave db to access the report
+use Glpi\Exception\Http\NotFoundHttpException;
 use GlpiPlugin\Reports\AutoReport;
 use GlpiPlugin\Reports\DateIntervalCriteria;
 use GlpiPlugin\Reports\RequestTypeCriteria;
@@ -51,6 +52,13 @@ use GlpiPlugin\Timelineticket\Tool;
 // the reports-plugin menu gate. Require the plugin's ticket read right before running any query or
 // emitting output, consistent with the display gate enforced across the rest of the plugin.
 Session::checkRight('plugin_timelineticket_ticket', READ);
+
+// Everything below is rendered by the classes of the reports plugin, and the menu that normally
+// reaches this file belongs to it. Called by a forged URL while that plugin is inactive, the
+// script died on a fatal "class not found" and printed a stack trace instead of an answer.
+if (!Plugin::isPluginActive('reports')) {
+    throw new NotFoundHttpException();
+}
 
 // Safe self URL for reflected form actions / pager links. Never echo $_SERVER['PHP_SELF'] raw
 // (reflected-XSS vector); under the GLPI 11 router it also resolves to the front controller, so
@@ -118,11 +126,16 @@ if (isset($_POST["display_type"])) {
     // key and raises a TypeError on a non numeric one. Confront it with the list of
     // supported modes and fall back to HTML, keeping the negative sign that means
     // "every page".
+    // The two PDF formats are no longer accepted. The branch answering them included
+    // lib/ezpdf/class.ezpdf.php, a library removed from GLPI 11: any reader of the plugin
+    // could pick "PDF" in the output selector and get a fatal error on a half sent page,
+    // repeatedly and at no cost. Rendering through Glpi\Search\Output\Pdf would mean
+    // rewriting the whole report around displayData(); until then the format is refused
+    // and the request falls back to HTML rather than failing.
+    // Every other output type is rendered by the legacy Search helpers, which are kept here.
     $allowed_output_types = [
         Search::HTML_OUTPUT,
-        Search::PDF_OUTPUT_LANDSCAPE,
         Search::CSV_OUTPUT,
-        Search::PDF_OUTPUT_PORTRAIT,
         Search::NAMES_OUTPUT,
         Search::ODS_OUTPUT,
         Search::XLSX_OUTPUT,
@@ -143,26 +156,46 @@ $title = $report->getFullTitle();
 $dbu   = new DbUtils();
 
 // SQL statement
-$query = "SELECT glpi_tickets.*
-               FROM `glpi_tickets`
-               WHERE `glpi_tickets`.`status` = '" . Ticket::CLOSED . "'";
-$query .= $dbu->getEntitiesRestrictRequest('AND', "glpi_tickets", '', '', false);
-$query .= $date->getSqlCriteriasRestriction();
-$query .= $category->getSqlCriteriasRestriction();
+// Tickets moved to the trash are excluded, as src/Dashboard.php already does: they used to
+// keep appearing in the three reports with their requesters, and skewed the durations.
+// The statement used to be assembled by concatenating strings and run through doQuery(): every
+// fragment -- the entity restriction, the criteria of the reports plugin, the visibility
+// perimeter, the sort -- carried its own quoting, and a single one getting it wrong was an
+// injection. The query builder quotes the values itself and the fragments reach it as criteria.
+$where = [
+    'glpi_tickets.status'     => Ticket::CLOSED,
+    'glpi_tickets.is_deleted' => 0,
+];
+Tool::addWhereCriteria($where, $dbu->getEntitiesRestrictCriteria('glpi_tickets', '', '', false));
+Tool::addWhereCriteria($where, $date->getNewSqlCriteriasRestriction());
+Tool::addWhereCriteria($where, $category->getNewSqlCriteriasRestriction());
 if (isset($_POST['requesttypes_id']) && $_POST['requesttypes_id'] > 0) {
-    $query .= $requesttype->getSqlCriteriasRestriction();
+    Tool::addWhereCriteria($where, $requesttype->getNewSqlCriteriasRestriction());
 }
-$query .= getOrderBy('closedate', $columns);
+// Replay the core's ticket visibility perimeter inside the query, so the row count that feeds
+// Html::printPager() below describes the same set as the rows actually rendered. The per row
+// can($id, READ) further down stays in place as defence in depth.
+Tool::addWhereCriteria($where, Tool::getTicketVisibilityCriteria());
 
-$res   = $DB->doQuery($query);
-$nbtot = ($res ? $DB->numrows($res) : 0);
+$criteria = [
+    'SELECT' => 'glpi_tickets.*',
+    'FROM'   => 'glpi_tickets',
+    'WHERE'  => $where,
+];
+$order_criteria = getOrderByCriteria('closedate', $columns);
+if ($order_criteria !== []) {
+    $criteria['ORDER'] = $order_criteria;
+}
+
+$iterator = $DB->request($criteria);
+$nbtot    = count($iterator);
 if ($limit) {
     $start = (int) ($_GET["start"] ?? 0);
     if ($start >= $nbtot) {
         $start = 0;
     }
     if ($start > 0 || $start + $limit < $nbtot) {
-        $res = $DB->doQuery($query . " LIMIT $start,$limit");
+        $iterator = $DB->request($criteria + ['START' => $start, 'LIMIT' => $limit]);
     }
 } else {
     $start = 0;
@@ -175,10 +208,6 @@ if ($nbtot == 0) {
     }
     echo "<div class='center red b'>" . __s('No results found') . "</div>";
     Html::footer();
-} elseif ($output_type == Search::PDF_OUTPUT_PORTRAIT
-           || $output_type == Search::PDF_OUTPUT_LANDSCAPE
-) {
-    include(GLPI_ROOT . "/lib/ezpdf/class.ezpdf.php");
 } elseif ($output_type == Search::HTML_OUTPUT) {
     if (!$HEADER_LOADED) {
         Html::header($title, $_SERVER['PHP_SELF'], "utils", "report");
@@ -195,21 +224,43 @@ if ($nbtot == 0) {
 
     $param = "";
     foreach ($_POST as $key => $val) {
+        // The criteria form above is closed by Html::closeForm(), which emits a hidden
+        // _glpi_csrf_token: the token was therefore part of $_POST and ended up both in
+        // the regenerated hidden fields and in the $param string that printPager()
+        // publishes in every pagination href. A session token thus reached the browser
+        // history, the proxy logs and the Referer header. Internal _glpi_* fields have
+        // no business in a report URL, and every generated form gets a fresh token.
+        if (str_starts_with((string) $key, '_glpi_')) {
+            continue;
+        }
+        // urlencode() raises a TypeError on an array, so a criterion nested two levels deep
+        // -- groups[0][0]=1, which nothing prevents from being posted -- interrupted the
+        // rendering on a fatal error in the middle of an already sent page. The sort link
+        // builder further down already carries this guard; it simply had never been
+        // reported here. The key is encoded too, so a bracket or a separator sent as a
+        // field name cannot forge an extra parameter in the pagination URL.
         if (is_array($val)) {
             foreach ($val as $k => $v) {
+                if (!is_scalar($v)) {
+                    continue;
+                }
                 $name =  $key . "[$k]";
                 echo Html::hidden($name, ['value' => $v]);
                 if (!empty($param)) {
                     $param .= "&";
                 }
-                $param .= $key . "[" . $k . "]=" . urlencode($v);
+                $param .= urlencode((string) $key) . "[" . urlencode((string) $k) . "]="
+                          . urlencode((string) $v);
             }
         } else {
+            if (!is_scalar($val)) {
+                continue;
+            }
             echo Html::hidden($key, ['value' => $val]);
             if (!empty($param)) {
                 $param .= "&";
             }
-            $param .= "$key=" . urlencode($val);
+            $param .= urlencode((string) $key) . "=" . urlencode((string) $val);
         }
     }
     Dropdown::showOutputFormat();
@@ -220,7 +271,7 @@ if ($nbtot == 0) {
     Html::printPager($start, $nbtot, $self_url, $param);
 }
 
-if ($res && $nbtot > 0) {
+if ($nbtot > 0) {
 
     $mylevels = [];
     $restrict = $dbu->getEntitiesRestrictCriteria("glpi_plugin_timelineticket_grouplevels", '', '', true) +
@@ -232,12 +283,29 @@ if ($res && $nbtot > 0) {
         }
     }
 
-    $nbCols = $DB->numFields($res);
-    $nbrows = $DB->numrows($res);
+    $nbCols = count($DB->listFields('glpi_tickets'));
+    // Replay the core's per ticket visibility. The query only carries the entity restriction, so
+    // a profile holding READMY, READGROUP or READASSIGN on tickets -- and not READALL -- used to
+    // receive every closed ticket of its entities: requesters, category, durations and a link to
+    // the ticket form. can($id, READ) is what the core uses at every other rendering point: it
+    // confronts the global right, the per item rules and the entity, where canViewItem() alone
+    // would skip the first two. Filtering here rather than inside the row loop below keeps the
+    // header counter consistent with the rows actually rendered. The query itself now carries the
+    // same perimeter (Tool::getTicketVisibilityCriteria()), so the pager total printed above
+    // describes the same set; this loop stays in place as defence in depth.
+    $visible_rows    = [];
+    $visible_tickets = [];
+    foreach ($iterator as $data) {
+        $ticket = new Ticket();
+        if (!$ticket->can($data['id'], READ)) {
+            continue;
+        }
+        $visible_rows[]               = $data;
+        $visible_tickets[$data['id']] = $ticket;
+    }
+
+    $nbrows = count($visible_rows);
     $num    = 1;
-    $link   = $_SERVER['PHP_SELF'];
-    $order  = 'ASC';
-    $issort = false;
 
     echo Search::showHeader($output_type, $nbrows, $nbCols, false);
 
@@ -262,10 +330,9 @@ if ($res && $nbtot > 0) {
     echo Search::showEndLine($output_type);
 
     $row_num = 1;
-    while ($data = $DB->fetchAssoc($res)) {
+    foreach ($visible_rows as $data) {
 
-        $ticket = new Ticket();
-        $ticket->getFromDB($data['id']);
+        $ticket = $visible_tickets[$data['id']];
 
         $timelevels = [];
         if (!empty($mylevels)) {
@@ -381,26 +448,33 @@ function showTitle($output_type, &$num, $title, $columnname, $sort = false)
 }
 
 /**
- * Build the ORDER BY clause
+ * Build the ORDER clause, as query builder criteria.
  *
- * @param $default string, name of the column used by default
- * @param $columns
+ * @param string                      $default Column sorted on when the request carries none
+ * @param array<string, array<mixed>> $columns Sortable columns of the report
  *
- * @return string
+ * @return array<int, string>
  */
-function getOrderBy($default, $columns)
+function getOrderByCriteria($default, $columns)
 {
 
     if (!isset($_REQUEST['order']) || $_REQUEST['order'] != 'DESC') {
         $_REQUEST['order'] = 'ASC';
     }
     $order = $_REQUEST['order'];
-    $sort  = isset($_REQUEST['sort']) ? $_REQUEST['sort'] : $default;
+    // array_key_exists() raises a TypeError on a non scalar key: sort[]=x in the query
+    // string answered 500 with a stack trace instead of falling back to the default column.
+    $sort  = isset($_REQUEST['sort']) && is_scalar($_REQUEST['sort'])
+        ? (string) $_REQUEST['sort']
+        : $default;
 
+    // The column name is confronted with the sortable columns of the report and the direction
+    // is one of two literals, so the string handed to the builder carries nothing from the
+    // request that has not been whitelisted first.
     if (array_key_exists($sort, $columns)) {
-        return " ORDER BY " . $sort . " " . $order;
+        return [$sort . ' ' . $order];
     }
-    return '';
+    return [];
 }
 
 /**

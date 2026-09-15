@@ -185,3 +185,36 @@
     pointer-events: none;
     overflow: visible;
 }
+
+/*
+ * Google Charts resolves its drawing modules from www.gstatic.com when a chart is drawn.
+ * On an instance with no outbound access, or under a strict script-src content security
+ * policy, the container simply stays empty and the tab used to show nothing at all, with
+ * no way for the user to tell a plugin failure from a ticket without history.
+ * The notice below is out of the flow and invisible, and only surfaces once the modules
+ * have had time to arrive; a drawn chart injects an <svg>, which removes it outright.
+ */
+.tt-chart {
+    position: relative;
+    min-height: 2rem;
+}
+
+.tt-chart-fallback {
+    position: absolute;
+    inset: 0 0 auto 0;
+    margin: 0;
+    opacity: 0;
+    visibility: hidden;
+    animation: tt-chart-fallback-reveal 0s linear 5s forwards;
+}
+
+@keyframes tt-chart-fallback-reveal {
+    to {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+.tt-chart:has(svg) .tt-chart-fallback {
+    display: none;
+}

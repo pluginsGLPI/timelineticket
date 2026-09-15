@@ -36,12 +36,14 @@
 
 <div class="spaced">
     <form method="post" action="{{ 'Profile'|itemtype_form_path }}">
-        {% do profile.displayRightsChoiceMatrix(rights, {'title': title}) %}
+        {% do profile.displayRightsChoiceMatrix(rights, {'title': title, 'canedit': canedit}) %}
 
-        <div class="center">
-            <input type="hidden" name="id" value="{{ id }}">
-            {{ call('Html::submit', [_x('button', 'Save'), {'name': 'update'}])|raw }}
-        </div>
+        {% if canedit %}
+            <div class="center">
+                <input type="hidden" name="id" value="{{ id }}">
+                {{ call('Html::submit', [_x('button', 'Save'), {'name': 'update'}])|raw }}
+            </div>
+        {% endif %}
 
         <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}">
     </form>

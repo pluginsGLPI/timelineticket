@@ -147,7 +147,10 @@ class Dashboard extends CommonGLPI
 
                     $time_per_tech = self::getNumberAffectationPerTech($params);
                     $labels = [];
-                    switch ($opt['multiple_time']) {
+                    // A widget saved before the period selector existed carries no
+                    // multiple_time key: reading it raised a warning and fell through to an
+                    // empty label list instead of simply drawing nothing.
+                    switch ($opt['multiple_time'] ?? '') {
                         case "MONTH":
                             $begin = new DateTime($opt['begin']);
                             $end = new DateTime($opt['end']);
@@ -374,7 +377,8 @@ class Dashboard extends CommonGLPI
                 $where = array_merge($where, getEntitiesRestrictCriteria('glpi_tickets'));
             }
 
-            switch ($opt["multiple_time"]) {
+            // Same missing key as above, on the widget that queries the assignments.
+            switch ($opt["multiple_time"] ?? '') {
                 case "MONTH":
                     $begin    = new DateTime($opt['begin']);
                     $end      = new DateTime($opt['end']);

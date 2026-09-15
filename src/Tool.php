@@ -45,7 +45,10 @@ use Config;
 use DateTime;
 use DateTimeZone;
 use Entity;
+use Glpi\DBAL\QuerySubQuery;
+use Glpi\Exception\Http\AccessDeniedHttpException;
 use Search;
+use Session;
 use SLA;
 use Ticket;
 
@@ -72,6 +75,64 @@ class Tool
         }
 
         return htmlescape((string) $value);
+    }
+
+    /**
+     * Ticket visibility perimeter of the current session, as query builder criteria.
+     *
+     * The three "spent time by group" reports list glpi_tickets and count the rows to feed
+     * Html::printPager(). Every row is then filtered with can($id, READ), so the rendered list
+     * was right but the announced total was not: a profile holding READMY, READGROUP or
+     * READASSIGN -- and not READALL -- was told how many closed tickets its entities hold, and
+     * paged through mostly empty pages. Ticket::getCriteriaFromProfile() builds that perimeter,
+     * with joins of its own on the tu, gt and glpi_ticketvalidations aliases: keeping it inside
+     * a sub query is what lets it be combined with the criteria of the report without any of
+     * those aliases colliding with the outer ones.
+     *
+     * getCriteriaFromProfile() returns an empty array both for READALL (everything is visible)
+     * and for a profile that may see nothing at all, so the two cases are told apart by an
+     * explicit READALL check.
+     *
+     * @return array<string, QuerySubQuery> Empty for READALL, one condition on the ticket id otherwise
+     */
+    public static function getTicketVisibilityCriteria(): array
+    {
+        if (Session::haveRight('ticket', Ticket::READALL)) {
+            return [];
+        }
+
+        $visibility_criteria = Ticket::getCriteriaFromProfile();
+        if (!isset($visibility_criteria['WHERE'])) {
+            throw new AccessDeniedHttpException();
+        }
+
+        return [
+            'glpi_tickets.id' => new QuerySubQuery([
+                'SELECT'   => 'glpi_tickets.id',
+                'DISTINCT' => true,
+                'FROM'     => 'glpi_tickets',
+            ] + $visibility_criteria),
+        ];
+    }
+
+    /**
+     * Append a restriction to a WHERE criteria list, dropping the empty ones.
+     *
+     * The criteria helpers of the reports plugin answer an empty array -- and, for a dropdown
+     * left on "all", null -- when the field carries no filter. Pushed as is, an empty array is
+     * rendered as "()" by DBmysqlIterator and null makes it throw, so a criteria form submitted
+     * blank would answer a SQL error instead of the whole period.
+     *
+     * @param array<int|string, mixed> $where       Criteria list being built, modified in place
+     * @param mixed                    $restriction Restriction returned by a criteria helper
+     *
+     * @return void
+     */
+    public static function addWhereCriteria(array &$where, $restriction): void
+    {
+        if (is_array($restriction) && count($restriction) > 0) {
+            $where[] = $restriction;
+        }
     }
 
     /**

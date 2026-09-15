@@ -80,7 +80,9 @@ function plugin_init_timelineticket()
     if (Plugin::isPluginActive('timelineticket')) { // check if plugin is active
         $PLUGIN_HOOKS[Hooks::CHANGE_PROFILE]['timelineticket'] = [Profile::class, 'initProfile'];
 
-        $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['timelineticket'][] = 'js/google-charts/loader.js';
+        // The Google Charts bootstrap is only needed where a chart is actually drawn:
+        // Display::showTimelineGraph() injects it next to the chart markup. Registering it
+        // here would load it on every page of the central interface instead.
         // Swimlane arrow renderer, loaded as an ES module (no inline <script>).
         $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT_MODULE]['timelineticket'][] = 'js/swimlane.js';
         $PLUGIN_HOOKS[Hooks::ADD_CSS]['timelineticket'][] = 'css/timelineticket.css';

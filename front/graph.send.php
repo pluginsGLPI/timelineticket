@@ -38,8 +38,11 @@
 
 use Glpi\Exception\Http\BadRequestHttpException;
 
+// file[]=x made the cast below emit an "Array to string conversion" warning and then look
+// for a file literally named "Array": refuse anything that is not a string up front.
 if (($uid = Session::getLoginUserID(false))
-    && isset($_GET["file"])) {
+    && isset($_GET["file"])
+    && is_string($_GET["file"])) {
     // The file name is built as "<users_id>_<name>.<extension>": reject anything that
     // does not follow that shape instead of letting list()/explode() return nulls.
     $parts = explode("_", (string) $_GET["file"], 2);

@@ -172,23 +172,28 @@ class Grouplevel extends CommonDropdown
         ]);
     }
 
-    public function getLaskRank()
+    /**
+     * Rank of the last service level of the entity perimeter.
+     *
+     * @return int 0 when the perimeter holds none yet
+     **/
+    public static function getLastRank(): int
     {
         $dbu      = new DbUtils();
         $restrict = $dbu->getEntitiesRestrictCriteria("glpi_plugin_timelineticket_grouplevels", '', '', true)
                   + ["ORDER" => "rank DESC"] + ["LIMIT" => 1];
         $configs  = $dbu->getAllDataFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
-        if (!empty($configs)) {
-            foreach ($configs as $config) {
-                return $config['rank'];
-            }
+        foreach ($configs as $config) {
+            return (int) $config['rank'];
         }
+
+        return 0;
     }
 
     public function post_getEmpty()
     {
 
-        $this->fields['rank'] = self::getLaskRank() + 1;
+        $this->fields['rank'] = self::getLastRank() + 1;
     }
 
     public function prepareInputForUpdate($params)
@@ -253,7 +258,10 @@ class Grouplevel extends CommonDropdown
                     if (!empty($config["groups"])) {
                         $groups = json_decode($config["groups"], true);
                         if (count($groups) > 0) {
-                            if (($key = array_search($params["_groups_id_assign"], $groups)) !== false) {
+                            // The stored identifiers are integers (the add branch above casts
+                            // them), the posted one is a string: compare on the same type.
+                            $key = array_search((int) ($params["_groups_id_assign"] ?? 0), $groups);
+                            if ($key !== false) {
                                 unset($groups[$key]);
                             }
                         }
@@ -270,9 +278,88 @@ class Grouplevel extends CommonDropdown
             $input['id']     = $params['id'];
             $input['groups'] = $group;
         } else {
-            $input = $params;
+            $input = $this->sanitizeGroupsColumn($params);
         }
+        return parent::prepareInputForUpdate($input);
+    }
+
+    public function prepareInputForAdd($input)
+    {
+        // Creation went through no filtering at all. CommonDropdown hands every posted key to
+        // this method, so a direct POST on the dropdown form stored the longtext groups column
+        // verbatim -- the very value the update path refuses -- and the group names of another
+        // entity then leaked in the timeline and in the Gantt labels of every ticket. The row
+        // being created carries no identifier to authorise, so the value itself is what has to
+        // be confronted, exactly as on update.
+        return parent::prepareInputForAdd($this->sanitizeGroupsColumn($input));
+    }
+
+    /**
+     * Confront a posted groups column with the perimeter of the session.
+     *
+     * Grouplevel is a CommonDropdown, so the core form controller hands every posted key
+     * straight to prepareInputForAdd()/prepareInputForUpdate(): the longtext groups column is
+     * writable verbatim by a direct POST, which walks past the entity and is_assign controls
+     * that only guard the add_groups branch. check($id, UPDATE) authorises the row being
+     * edited, never the value posted into it, so the value has to be confronted here.
+     *
+     * @param array<string, mixed> $input Posted input
+     *
+     * @return array<string, mixed>
+     **/
+    private function sanitizeGroupsColumn(array $input): array
+    {
+        if (array_key_exists('groups', $input)) {
+            $filtered        = $this->filterAssignableGroups(json_decode((string) $input['groups'], true));
+            $input['groups'] = count($filtered) > 0 ? json_encode($filtered) : "";
+        }
+
         return $input;
+    }
+
+
+    /**
+     * Keep only the group identifiers this session may legitimately store in a service
+     * level: existing groups, flagged assignable, and inside its entity perimeter. This
+     * is the sink counterpart of the dropdown built by showAddGroup(), whose constraints
+     * live in the display only.
+     *
+     * @param mixed $groups value decoded from the posted groups column
+     *
+     * @return array<int, int>
+     **/
+    private function filterAssignableGroups($groups): array
+    {
+        if (!is_array($groups)) {
+            // Anything that is not a list of identifiers -- malformed JSON included --
+            // empties the column rather than being stored and broken at display time.
+            return [];
+        }
+
+        $filtered = [];
+        $group    = new Group();
+        foreach ($groups as $groups_id) {
+            if (!is_scalar($groups_id)) {
+                continue;
+            }
+
+            $groups_id = (int) $groups_id;
+            if (
+                $groups_id <= 0
+                || !$group->getFromDB($groups_id)
+                || (int) $group->fields['is_assign'] !== 1
+                || !Session::haveAccessToEntity(
+                    $group->fields['entities_id'],
+                    $group->fields['is_recursive'],
+                )
+            ) {
+                continue;
+            }
+
+            $filtered[] = $groups_id;
+        }
+
+        return array_values(array_unique($filtered));
     }
 
     public static function install(Migration $migration)
