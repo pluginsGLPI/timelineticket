@@ -48,10 +48,6 @@ use Migration;
 use Session;
 use Toolbox;
 
-if (!defined('GLPI_ROOT')) {
-    die("Sorry. You can't access directly to this file");
-}
-
 class Grouplevel extends CommonDropdown
 {
     public static function getTypeName($nb = 0)
@@ -94,7 +90,8 @@ class Grouplevel extends CommonDropdown
                     TemplateRenderer::getInstance()->display('@timelineticket/grouplevel_groups.html.twig', [
                         'form_url' => Toolbox::getItemTypeFormURL(Config::class),
                         'id'       => $ID,
-                        'groups'   => $groups_list,
+                        'groups'     => $groups_list,
+                        'can_update' => self::canUpdate(),
                     ]);
                 }
                 break;

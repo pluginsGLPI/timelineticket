@@ -40,15 +40,22 @@ use Glpi\Exception\Http\BadRequestHttpException;
 
 if (($uid = Session::getLoginUserID(false))
     && isset($_GET["file"])) {
-    list($userID, $filename) = explode("_", $_GET["file"], 2);
+    // The file name is built as "<users_id>_<name>.<extension>": reject anything that
+    // does not follow that shape instead of letting list()/explode() return nulls.
+    $parts = explode("_", (string) $_GET["file"], 2);
+    $userID = $parts[0] ?? '';
+    $filename = $parts[1] ?? '';
+    $extension = pathinfo($filename, PATHINFO_EXTENSION);
     $resolved = realpath(GLPI_GRAPH_DIR . "/" . $_GET["file"]);
     $base_dir = realpath(GLPI_GRAPH_DIR);
-    if (($userID == $uid)
+    if (count($parts) === 2
+        && $extension !== ''
+        && ctype_digit($userID)
+        && (int) $userID === (int) $uid
         && $resolved !== false
         && $base_dir !== false
         && strpos($resolved, $base_dir . DIRECTORY_SEPARATOR) === 0
         && file_exists($resolved)) {
-        list($fname, $extension) = explode(".", $filename);
         return Toolbox::getFileAsResponse($resolved, 'glpi.' . $extension);
     } else {
         throw new BadRequestHttpException('Unauthorized access to this file');

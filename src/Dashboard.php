@@ -49,6 +49,7 @@ use GlpiPlugin\Mydashboard\Html;
 use GlpiPlugin\Mydashboard\Menu;
 use GlpiPlugin\Mydashboard\Preference;
 use GlpiPlugin\Mydashboard\Widget;
+use Group;
 use Plugin;
 use Session;
 
@@ -134,11 +135,15 @@ class Dashboard extends CommonGLPI
 
                     $default = Helper::manageCriterias($params);
 
-                    if (!isset($opt['technicians_groups_id']) || (isset($opt["technicians_groups_id"])
-                                                                  && count($opt["technicians_groups_id"]) == 0)
+                    // The technician group filter is posted by the dashboard form:
+                    // drop every id the session is not allowed to see before using it,
+                    // then fall back to the groups of the current user.
+                    $opt['technicians_groups_id'] = self::filterAccessibleGroups($opt['technicians_groups_id'] ?? []);
+                    if (count($opt['technicians_groups_id']) == 0
                         && count($_SESSION['glpigroups']) > 0) {
                         $opt['technicians_groups_id'] = $_SESSION['glpigroups'];
                     }
+                    $params['opt'] = $opt;
 
                     $time_per_tech = self::getNumberAffectationPerTech($params);
                     $labels = [];
@@ -231,6 +236,46 @@ class Dashboard extends CommonGLPI
     }
 
     /**
+     * Keep only the group ids the current session is actually allowed to see.
+     *
+     * The technician group filter is posted by the dashboard form, so its values can
+     * be forged. Without this filter a user could read the assignment statistics of
+     * any group of any entity, including entities outside their perimeter.
+     *
+     * @param mixed $groups_id Raw value posted for the technician group filter
+     *
+     * @return array List of accessible group ids
+     */
+    private static function filterAccessibleGroups($groups_id): array
+    {
+        if (!is_array($groups_id)) {
+            $groups_id = $groups_id === null || $groups_id === '' ? [] : [$groups_id];
+        }
+
+        $group    = new Group();
+        $filtered = [];
+        foreach ($groups_id as $id) {
+            $id = (int) $id;
+            if ($id <= 0 || isset($filtered[$id])) {
+                continue;
+            }
+            if (!$group->getFromDB($id)) {
+                continue;
+            }
+            if (!Session::haveAccessToEntity(
+                $group->fields['entities_id'],
+                $group->fields['is_recursive'],
+            )) {
+                continue;
+            }
+            $filtered[$id] = $id;
+        }
+
+        return array_values($filtered);
+    }
+
+
+    /**
      * @param $params
      *
      * @return array
@@ -258,13 +303,12 @@ class Dashboard extends CommonGLPI
         $sons_criteria = $opt['is_recursive_entities'] ?? $default['is_recursive_entities'];
         $type_criteria = (int) ($opt['type'] ?? $default['type']);
 
-
         $techlist = [];
-        $selected_group = [];
-        if (isset($opt["technicians_groups_id"])
-            && count($opt["technicians_groups_id"]) > 0) {
-            $selected_group = $opt['technicians_groups_id'];
-        } elseif (count($_SESSION['glpigroups']) > 0) {
+        // Same filtering as in getWidgetContentForItem(): the posted group ids can be
+        // forged, so only keep the ones the session is actually allowed to see. This
+        // method is also reachable on its own, hence the duplicated guard.
+        $selected_group = self::filterAccessibleGroups($opt['technicians_groups_id'] ?? []);
+        if (count($selected_group) === 0 && count($_SESSION['glpigroups']) > 0) {
             $selected_group = $_SESSION['glpigroups'];
         }
         if (count($selected_group) > 0) {

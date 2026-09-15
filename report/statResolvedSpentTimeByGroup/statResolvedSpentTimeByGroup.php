@@ -37,8 +37,10 @@
  */
 
 //Options for GLPI 0.71 and newer : need slave db to access the report
+use GlpiPlugin\Reports\DateIntervalCriteria;
 use GlpiPlugin\Timelineticket\AssignGroup;
 use GlpiPlugin\Timelineticket\Tool;
+use GlpiPlugin\Reports\AutoReport;
 
 // Authorization: this report is a direct entry point reachable by forging its URL, which bypasses
 // the reports-plugin menu gate. Require the plugin's ticket read right before running any query or
@@ -55,7 +57,7 @@ $DBCONNECTION_REQUIRED = 1;
 
 
 // Instantiate Report with Name
-$report = new PluginReportsAutoReport(__("statResolvedSpentTimeByGroup_report_title", "timelineticket"));
+$report = new AutoReport(__("statResolvedSpentTimeByGroup_report_title", "timelineticket"));
 //Report's search criterias
 $dateYear = date("Y-m-d", mktime(0, 0, 0, date("m"), 1, date("Y") - 1));
 $lastday  = cal_days_in_month(CAL_GREGORIAN, date("m"), date("Y"));
@@ -71,7 +73,7 @@ if (date("d") == $lastday) {
 $endDate = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d"), date("Y")));
 
 
-$date = new PluginReportsDateIntervalCriteria($report, '`glpi_tickets`.`solvedate`', __('Date of solving'));
+$date = new DateIntervalCriteria($report, '`glpi_tickets`.`solvedate`', __('Date of solving'));
 $date->setStartDate($dateMonthbegin);
 $date->setEndDate($dateMonthend);
 
@@ -107,7 +109,24 @@ if (!isset($_REQUEST['sort'])) {
 $limit = (int) $_SESSION['glpilist_limit'];
 
 if (isset($_POST["display_type"])) {
-    $output_type = $_POST["display_type"];
+    // Search::showHeader()/showItem() hand this value to
+    // SearchEngine::getOutputForLegacyKey(int $output_type), which throws on an unknown
+    // key and raises a TypeError on a non numeric one. Confront it with the list of
+    // supported modes and fall back to HTML, keeping the negative sign that means
+    // "every page".
+    $allowed_output_types = [
+        Search::HTML_OUTPUT,
+        Search::PDF_OUTPUT_LANDSCAPE,
+        Search::CSV_OUTPUT,
+        Search::PDF_OUTPUT_PORTRAIT,
+        Search::NAMES_OUTPUT,
+        Search::ODS_OUTPUT,
+        Search::XLSX_OUTPUT,
+    ];
+    $posted_output_type = is_numeric($_POST["display_type"]) ? (int) $_POST["display_type"] : Search::HTML_OUTPUT;
+    $output_type        = in_array(abs($posted_output_type), $allowed_output_types, true)
+        ? $posted_output_type
+        : Search::HTML_OUTPUT;
     if ($output_type < 0) {
         $output_type = -$output_type;
         $limit       = 0;
@@ -162,7 +181,7 @@ if ($nbtot == 0) {
     echo "<div class='center'>";
 
     echo "<table class='tab_cadre_fixe'>";
-    echo "<tr><th>$title</th></tr>\n";
+    echo "<tr><th>" . htmlescape($title) . "</th></tr>\n";
 
     echo "<tr class='tab_bg_2 center'><td class='center'>";
     echo "<form method='POST' action='" . $self_url . "?start=$start'>\n";
@@ -236,7 +255,9 @@ if ($res && $nbtot > 0) {
         foreach ($mylevels as $key => $val) {
             //         showTitle($output_type, $num, __('Tasks number by', 'timelineticket') . "&nbsp;" . $key, '', false);
             //         showTitle($output_type, $num, __('Tasks duration by', 'timelineticket') . "&nbsp;" . $key, '', false);
-            showTitle($output_type, $num, __('Duration by', 'timelineticket') . "&nbsp;" . $key, '', false);
+            // Service level names come from the database and land in a <th> through showHeaderItem(),
+            // which does not escape its value.
+            showTitle($output_type, $num, __('Duration by', 'timelineticket') . "&nbsp;" . Tool::escapeForOutput($output_type, $key), '', false);
         }
     }
     showTitle($output_type, $num, __('Total waiting duration of ticket', 'timelineticket'), 'waiting_duration', false);
@@ -254,7 +275,9 @@ if ($res && $nbtot > 0) {
             foreach ($ticket->getUsers(CommonITILActor::REQUESTER) as $d) {
                 $k = $d['users_id'];
                 if ($k) {
-                    $userdata .= getUserName($k);
+                    // The column is deliberately HTML (names are joined with <br>), so each name
+                    // has to be escaped individually rather than the whole string at the sink.
+                    $userdata .= Tool::escapeForOutput($output_type, getUserName($k));
                 }
                 if ($ticket->countUsers(CommonITILActor::REQUESTER) > 1) {
                     $userdata .= "<br>";
@@ -391,10 +414,10 @@ if ($res && $nbtot > 0) {
         //show Entity ticket
         echo Search::showItem(
             $output_type,
-            Dropdown::getDropdownName(
+            Tool::escapeForOutput($output_type, Dropdown::getDropdownName(
                 'glpi_entities',
                 $data['entities_id'],
-            ),
+            )),
             $num,
             $row_num,
         );
@@ -431,10 +454,10 @@ if ($res && $nbtot > 0) {
         //show type ticket
         echo Search::showItem($output_type, Ticket::getTicketTypeName($data['type']), $num, $row_num);
         //show category ticket
-        echo Search::showItem($output_type, Dropdown::getDropdownName(
+        echo Search::showItem($output_type, Tool::escapeForOutput($output_type, Dropdown::getDropdownName(
             "glpi_itilcategories",
             $data["itilcategories_id"],
-        ), $num, $row_num);
+        )), $num, $row_num);
         //show title and link ticket
         $out = $ticket->getLink();
         echo Search::showItem($output_type, $out, $num, $row_num);
@@ -456,14 +479,16 @@ if ($res && $nbtot > 0) {
         foreach ($iterator as $datasolution) {
             $users_id_solver = $datasolution['users_id'];
         }
-        echo Search::showItem($output_type, getUserName($users_id_solver), $num, $row_num);
+        echo Search::showItem($output_type, Tool::escapeForOutput($output_type, getUserName($users_id_solver)), $num, $row_num);
 
         //show group solver ticket
 
         $groups = "";
 
         foreach ($ticket->getGroups(CommonITILActor::ASSIGN) as $current_group) {
-            $groups .= Dropdown::getDropdownName("glpi_groups", $current_group["groups_id"]);
+            // The column is deliberately HTML (names are joined with <br>), so each name
+            // has to be escaped individually rather than the whole string at the sink.
+            $groups .= Tool::escapeForOutput($output_type, Dropdown::getDropdownName("glpi_groups", $current_group["groups_id"]));
             $groups .= "<br>";
         }
 
@@ -471,10 +496,10 @@ if ($res && $nbtot > 0) {
         //show request source ticket
         echo Search::showItem(
             $output_type,
-            Dropdown::getDropdownName(
+            Tool::escapeForOutput($output_type, Dropdown::getDropdownName(
                 'glpi_requesttypes',
                 $data["requesttypes_id"],
-            ),
+            )),
             $num,
             $row_num,
         );
@@ -498,7 +523,7 @@ if ($res && $nbtot > 0) {
         }
         echo Search::showItem(
             $output_type,
-            Dropdown::getDropdownName('glpi_slas', $data["slas_id_ttr"]),
+            Tool::escapeForOutput($output_type, Dropdown::getDropdownName('glpi_slas', $data["slas_id_ttr"])),
             $num,
             $row_num,
         );
@@ -663,9 +688,15 @@ function showTitle($output_type, &$num, $title, $columnname, $sort = false)
     $link  = htmlspecialchars(strtok($_SERVER['REQUEST_URI'] ?? '', '?'), ENT_QUOTES);
     $first = true;
     foreach ($_REQUEST as $name => $value) {
+        // urlencode() raises a TypeError on an array, and the key was concatenated raw,
+        // letting URL separators through: skip anything that is not a scalar and encode
+        // both sides of the pair.
+        if (!is_scalar($value)) {
+            continue;
+        }
         if (!in_array($name, ['sort', 'order', 'PHPSESSID'])) {
             $link  .= ($first ? '?' : '&amp;');
-            $link  .= $name . '=' . urlencode($value);
+            $link  .= urlencode((string) $name) . '=' . urlencode((string) $value);
             $first = false;
         }
     }

@@ -45,10 +45,6 @@ use Dropdown;
 use Glpi\Application\View\TemplateRenderer;
 use Migration;
 
-if (!defined('GLPI_ROOT')) {
-    die("Sorry. You can't access directly to this file");
-}
-
 class Config extends CommonDBTM
 {
     public function showReconstructForm()
@@ -81,7 +77,7 @@ class Config extends CommonDBTM
     {
 
         // can exists for template
-        if ($item->getType() == Grouplevel::class) {
+        if ($item->getType() == Grouplevel::class && Grouplevel::canUpdate()) {
             return self::createTabEntry(_sx('button', 'Add an item'));
         }
         return '';
@@ -90,6 +86,11 @@ class Config extends CommonDBTM
 
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
+        // This tab only holds the "add a group" form: do not render it to a profile
+        // that is not allowed to update the service level it belongs to.
+        if (!Grouplevel::canUpdate()) {
+            return false;
+        }
 
         Grouplevel::showAddGroup($item);
         return true;

@@ -46,10 +46,6 @@ use Html;
 use Migration;
 use Ticket;
 
-if (!defined('GLPI_ROOT')) {
-    die("Sorry. You can't access directly to this file");
-}
-
 class AssignState extends CommonDBTM
 {
     public static function addAssignState(Ticket $ticket)

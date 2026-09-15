@@ -41,6 +41,9 @@
                 {# group.name auto-escaped by Twig (raw DB value from getDropdownName) #}
                 <td>{{ group.name }}</td>
                 <td>
+                    {# Removing a group updates the service level: hide the button when
+                       the profile cannot update it. The POST is checked server side too. #}
+                    {% if can_update %}
                     <form method="post" action="{{ form_url }}">
                         <input type="hidden" name="delete_groups" value="delete_groups">
                         <input type="hidden" name="id" value="{{ id }}">
@@ -51,6 +54,7 @@
                             <i class="ti ti-trash"></i>
                         </button>
                     </form>
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}

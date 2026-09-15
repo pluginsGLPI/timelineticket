@@ -40,27 +40,48 @@ namespace GlpiPlugin\Timelineticket;
 
 use Calendar;
 use CommonGLPI;
+use CommonDBTM;
 use Config;
 use DateTime;
 use DateTimeZone;
 use Entity;
+use Search;
 use SLA;
 use Ticket;
 
-if (!defined('GLPI_ROOT')) {
-    die("Sorry. You can't access directly to this file");
-}
+use function htmlescape;
 
 class Tool
 {
     /**
+     * Escape a database value before handing it to the legacy search output helpers.
+     *
+     * Search::showItem() and Search::showHeaderItem() emit their value verbatim, so HTML
+     * escaping is the caller's responsibility. Only the HTML output needs it: the CSV, ODS,
+     * XLSX and PDF exports must keep the raw text, otherwise entities leak into the file.
+     *
+     * @param int|string $output_type One of the Search::*_OUTPUT constants
+     * @param mixed      $value       Raw value read from the database
+     *
+     * @return string
+     */
+    public static function escapeForOutput($output_type, $value): string
+    {
+        if ((int) $output_type !== Search::HTML_OUTPUT) {
+            return (string) $value;
+        }
+
+        return htmlescape((string) $value);
+    }
+
+    /**
      * Return array with all data
      *
      * @param Ticket   $ticket
-     * @param      $type 'user' or 'group'
+     * @param CommonDBTM $item Assignment item (AssignGroup or AssignUser)
      * @param int $withblank option to fill blank zones
      *
-     * @return
+     * @return array
      */
     public static function getDetails(Ticket $ticket, $item, $withblank = 1)
     {

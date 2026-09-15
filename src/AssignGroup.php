@@ -52,10 +52,6 @@ use Migration;
 use Ticket;
 use Toolbox;
 
-if (!defined('GLPI_ROOT')) {
-    die("Sorry. You can't access directly to this file");
-}
-
 class AssignGroup extends CommonDBTM
 {
     public static function addGroupTicket(Group_Ticket $item)

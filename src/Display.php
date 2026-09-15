@@ -61,12 +61,14 @@ use TicketTask;
 use TicketValidation;
 use User;
 
-if (!defined('GLPI_ROOT')) {
-    die("Sorry. You can't access directly to this file");
-}
-
 class Display extends CommonDBTM
 {
+    /**
+     * URL of the Google Charts bootstrap injected by sportlog/google-charts.
+     * A local copy of that file is shipped in public/js/google-charts/.
+     */
+    private const GOOGLE_CHARTS_REMOTE_LOADER = 'https://www.gstatic.com/charts/loader.js';
+
     public static function getTypeName($nb = 0)
     {
         return _n('Timeline of ticket', 'Timeline of tickets', $nb, 'timelineticket');
@@ -765,6 +767,22 @@ class Display extends CommonDBTM
         ]);
     }
 
+    /**
+     * Sanitize a row label before it is injected in the Google Charts data table.
+     *
+     * Group, user and service level names come from the database and the generated
+     * chart markup is printed through a |raw Twig filter, so any tag character in a
+     * label would end up in the page as markup.
+     *
+     * @param mixed $label Raw label read from the database
+     *
+     * @return string
+     */
+    private static function sanitizeChartLabel($label): string
+    {
+        return str_replace(['<', '>'], '', (string) $label);
+    }
+
     public static function showTimelineGraph(Ticket $ticket, $item)
     {
         global $DB;
@@ -904,14 +922,14 @@ class Display extends CommonDBTM
                     $k[] = $v['old_status'];
                 }
                 $data->addRows([
-                    [$name, $date($v['begin_date']), $date($v['end_date'])],
+                    [self::sanitizeChartLabel($name), $date($v['begin_date']), $date($v['end_date'])],
                 ]);
                 $first++;
                 if ($first == count($a_gantt) && $item instanceof AssignState) {
                     if ($v['new_status'] != Ticket::CLOSED) {
                         $name = Ticket::getStatus($v['new_status']);
                         $data->addRows([
-                            [$name, $date($v['end_date']), $date(date('Y-m-d H:i:s'))],
+                            [self::sanitizeChartLabel($name), $date($v['end_date']), $date(date('Y-m-d H:i:s'))],
                         ]);
                         $height += 50;
                     }
@@ -932,9 +950,24 @@ class Display extends CommonDBTM
                 ),
             );
 
+            // The library emits a script tag of its own, pointing at the Google Charts
+            // bootstrap hosted on gstatic.com. The very same loader is shipped with the
+            // plugin, so serve the local copy instead: the bootstrap that runs in an
+            // authenticated GLPI page is then versioned and auditable. The loader still
+            // resolves the chart modules from gstatic.com at draw time, which is
+            // documented in the README.
+            $boot_scripts = $chartService->load();
+            foreach ($boot_scripts as $key => $tag) {
+                $boot_scripts[$key] = str_replace(
+                    self::GOOGLE_CHARTS_REMOTE_LOADER,
+                    PLUGIN_TIMELINETICKET_WEBDIR . '/js/google-charts/loader.js',
+                    $tag,
+                );
+            }
+
             // Draw all charts
             TemplateRenderer::getInstance()->display('@timelineticket/chart.html.twig', [
-                'chart' => $chartService->render('ticket' . get_class($item)),
+                'chart' => implode('', $boot_scripts) . $chartService->render('ticket' . get_class($item)),
             ]);
         }
     }

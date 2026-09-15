@@ -52,10 +52,6 @@ use Ticket_User;
 use Toolbox;
 use User;
 
-if (!defined('GLPI_ROOT')) {
-    die("Sorry. You can't access directly to this file");
-}
-
 class AssignUser extends CommonDBTM
 {
     public static function addUserTicket(Ticket_User $item)
