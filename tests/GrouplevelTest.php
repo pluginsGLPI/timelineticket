@@ -40,9 +40,32 @@ namespace GlpiPlugin\Timelineticket\Tests;
 
 use Glpi\Tests\DbTestCase;
 use GlpiPlugin\Timelineticket\Grouplevel;
+use Group;
 
 class GrouplevelTest extends DbTestCase
 {
+    /**
+     * A service level only ever stores groups the operator may actually assign, inside its own
+     * entity: prepareInputForAdd() and prepareInputForUpdate() both confront existence, the
+     * is_assign flag and the two entity perimeters before writing the column. The tests below
+     * used to name the group "1", which satisfies none of that on a freshly installed test
+     * database -- the identifier either does not exist or is not flagged assignable in the root
+     * entity -- so the column came back empty and every expectation read as a regression of the
+     * filter rather than as a missing fixture. Build the group the test needs instead of naming
+     * one by number.
+     */
+    private function createAssignableGroup(string $name): int
+    {
+        $group = $this->createItem(Group::class, [
+            'name'         => $name,
+            'entities_id'  => 0,
+            'is_recursive' => 0,
+            'is_assign'    => 1,
+        ]);
+
+        return (int) $group->getID();
+    }
+
     public function testGetTypeNameSingular(): void
     {
         $this->assertSame('Service level', Grouplevel::getTypeName(1));
@@ -116,6 +139,8 @@ class GrouplevelTest extends DbTestCase
     {
         $this->login('glpi', 'glpi');
 
+        $groups_id = $this->createAssignableGroup('Assignable group to add');
+
         $grouplevel = $this->createItem(Grouplevel::class, [
             'name'        => 'Group Level',
             'entities_id' => 0,
@@ -126,50 +151,55 @@ class GrouplevelTest extends DbTestCase
         $result = $grouplevel->prepareInputForUpdate([
             'id'                => $grouplevel->getID(),
             'add_groups'        => 'add_groups',
-            '_groups_id_assign' => 1,
+            '_groups_id_assign' => $groups_id,
         ]);
 
         $decoded = json_decode($result['groups'], true);
-        $this->assertContains(1, $decoded);
+        $this->assertContains($groups_id, $decoded);
     }
 
     public function testPrepareInputForUpdateDeletesGroupFromList(): void
     {
         $this->login('glpi', 'glpi');
 
+        $removed_id = $this->createAssignableGroup('Assignable group to remove');
+        $kept_id    = $this->createAssignableGroup('Assignable group to keep');
+
         $grouplevel = $this->createItem(Grouplevel::class, [
             'name'        => 'Group Level Delete',
             'entities_id' => 0,
             'rank'        => 4,
-            'groups'      => json_encode([1, 2]),
+            'groups'      => json_encode([$removed_id, $kept_id]),
         ]);
 
         $result = $grouplevel->prepareInputForUpdate([
             'id'                => $grouplevel->getID(),
             'delete_groups'     => 'delete_groups',
-            '_groups_id_assign' => 1,
+            '_groups_id_assign' => $removed_id,
         ]);
 
         $decoded = json_decode($result['groups'], true);
-        $this->assertNotContains(1, $decoded);
-        $this->assertContains(2, $decoded);
+        $this->assertNotContains($removed_id, $decoded);
+        $this->assertContains($kept_id, $decoded);
     }
 
     public function testPrepareInputForUpdateDoesNotAddDuplicateGroup(): void
     {
         $this->login('glpi', 'glpi');
 
+        $groups_id = $this->createAssignableGroup('Assignable group already listed');
+
         $grouplevel = $this->createItem(Grouplevel::class, [
             'name'        => 'Group Level No Dup',
             'entities_id' => 0,
             'rank'        => 5,
-            'groups'      => json_encode([1]),
+            'groups'      => json_encode([$groups_id]),
         ]);
 
         $result = $grouplevel->prepareInputForUpdate([
             'id'                => $grouplevel->getID(),
             'add_groups'        => 'add_groups',
-            '_groups_id_assign' => 1,
+            '_groups_id_assign' => $groups_id,
         ]);
 
         $decoded = json_decode($result['groups'], true);
@@ -180,17 +210,19 @@ class GrouplevelTest extends DbTestCase
     {
         $this->login('glpi', 'glpi');
 
+        $groups_id = $this->createAssignableGroup('Assignable group alone');
+
         $grouplevel = $this->createItem(Grouplevel::class, [
             'name'        => 'Group Level One',
             'entities_id' => 0,
             'rank'        => 6,
-            'groups'      => json_encode([1]),
+            'groups'      => json_encode([$groups_id]),
         ]);
 
         $result = $grouplevel->prepareInputForUpdate([
             'id'                => $grouplevel->getID(),
             'delete_groups'     => 'delete_groups',
-            '_groups_id_assign' => 1,
+            '_groups_id_assign' => $groups_id,
         ]);
 
         $this->assertSame('', $result['groups']);

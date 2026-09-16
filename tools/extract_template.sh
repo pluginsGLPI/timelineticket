@@ -67,7 +67,7 @@ do
     # 1. Convert file content to replace "{{ function(.*) }}" by "<?php function(.*); ?>" and extract strings via std input
     # 2. Replace "standard input:line_no" by file location in po file comments
     cat $file | perl -0pe "s/\{\{(.*?)\}\}/<?php \1; ?>/gism" | xgettext - \
-        -o locales/glpi.pot \
+        -o locales/timelineticket.pot \
         -L PHP \
         --add-comments=TRANS \
         --from-code=UTF-8 \
@@ -81,7 +81,7 @@ do
         --keyword=__s:$F_ARGS__S \
         --keyword=_sx:$F_ARGS_SX \
         --keyword=_sn:$F_ARGS_SN
-    sed -i -r "s|standard input:([0-9]+)|`echo $file | sed "s|./||"`:\1|g" locales/glpi.pot
+    sed -i -r "s|standard input:([0-9]+)|`echo $file | sed "s|./||"`:\1|g" locales/timelineticket.pot
 done
 
 # --- Report des nouvelles chaînes dans les traductions existantes ---
@@ -89,5 +89,5 @@ done
 # restent marquées obsolètes (#~) dans les .po et ne sont plus compilées dans les .mo.
 for po_file in locales/*.po; do
     [ -e "$po_file" ] || continue
-    msgmerge --quiet --no-fuzzy-matching --backup=none --update "$po_file" locales/glpi.pot
+    msgmerge --quiet --no-fuzzy-matching --backup=none --update "$po_file" locales/timelineticket.pot
 done
