@@ -3,6 +3,6 @@ host = https://www.transifex.com
 
 [o:infotelGLPI:p:GLPI_timelineticket:r:glpipot]
 file_filter = locales/<lang>.po
-source_file = locales/glpi.pot
+source_file = locales/timelineticket.pot
 source_lang = en_GB
 type        = PO
