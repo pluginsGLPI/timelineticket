@@ -210,6 +210,19 @@ function plugin_timelineticket_getDatabaseRelations()
 function plugin_timelineticket_getAddSearchOptions($itemtype)
 {
     $sopt = [];
+
+    // The core calls this for every active plugin without checking any right of its own
+    // (Plugin::getAddSearchOptions), so the gate has to stand here. Search was the only
+    // rendering of the plugin that escaped it: the tab, the statistics hook, the dashboard
+    // widget and the three reports all confront plugin_timelineticket_ticket. A profile from
+    // which that right had been removed could still add the two columns below to a ticket
+    // search and rebuild the whole assignment history -- including the past assignments the
+    // ticket form no longer shows. Returning an empty array withdraws the options from the
+    // column picker and from the criteria, exactly as removing the right hides the tab.
+    if (!Session::haveRightsOr('plugin_timelineticket_ticket', [READ, UPDATE])) {
+        return $sopt;
+    }
+
     if ($itemtype == 'Ticket') {
         // Point to glpi_groups.name so "Contains <name>" searches work
         $sopt[9131]['table']         = 'glpi_groups';

@@ -45,6 +45,12 @@ The Gantt charts are drawn by **Google Charts**. The bootstrap script is served 
 but that loader still fetches its rendering modules from `https://www.gstatic.com/charts/`
 (and, for map charts, `ajax.googleapis.com` / `maps.googleapis.com`) when a chart is displayed.
 
+**The charts are disabled by default.** Because that call leaves the network from the browser of
+a logged-in user, drawing them is a decision of the operator, not a side effect of installing or
+upgrading the plugin. Turn them on in *Setup > Plugins > TimelineTicket*, option **Draw the
+timeline as a chart (Google Charts)**. While the option is off, no request is made to Google and
+the tabs keep their detail tables — the chart area is simply not rendered.
+
 Consequences for restricted installations:
 
 * an instance with no outbound Internet access, or with a strict `script-src 'self'` CSP,
@@ -76,6 +82,14 @@ localement (`public/js/google-charts/loader.js`, injecté uniquement sur les pag
 réellement un graphique), mais ce chargeur récupère toujours ses modules de rendu depuis
 `https://www.gstatic.com/charts/` (et, pour les cartes, `ajax.googleapis.com` /
 `maps.googleapis.com`) au moment de l'affichage.
+
+**Les graphiques sont désactivés par défaut.** Cet appel sortant part du navigateur d'un
+utilisateur connecté : leur affichage relève donc d'une décision de l'exploitant, et non d'un
+effet de bord de l'installation ou de la mise à jour du plugin. Ils s'activent dans
+*Configuration > Plugins > TimelineTicket*, option **Afficher la chronologie sous forme de
+graphique (Google Charts)**. Tant que l'option est désactivée, aucune requête n'est émise vers
+Google et les onglets conservent leurs tableaux de détail — seule la zone du graphique n'est pas
+rendue.
 
 Conséquences pour les installations cloisonnées :
 

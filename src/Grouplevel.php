@@ -48,6 +48,26 @@ use Migration;
 use Session;
 use Toolbox;
 
+/**
+ * Service levels, declared as a dropdown of the plugin in setup.php.
+ *
+ * There is deliberately no front/grouplevel.php nor front/grouplevel.form.php. Since GLPI 11
+ * those two files are dead weight for a plugin dropdown: LegacyItemtypeRouteListener resolves
+ * /marketplace/timelineticket/front/grouplevel[.form].php to this class -- the missing file
+ * makes LegacyRouterListener stand down, and the itemtype listener then hands the request to
+ * GenericListController for the list and DropdownFormController for the form. Both controllers
+ * enforce the rights themselves, through the "dropdown" right this class inherits from
+ * CommonDropdown. Adding the front files back would only duplicate that, with the risk of a
+ * weaker gate than the one of the core.
+ *
+ * That reasoning holds for this dropdown and for this dropdown only. It rests on the "dropdown"
+ * right of the core carrying, by itself, the whole perimeter of a table of nomenclature. It does
+ * not extend to AssignState, AssignGroup and AssignUser, whose only right is the global
+ * plugin_timelineticket_ticket: no notion of entity or of ticket visibility is attached to it,
+ * and the search engine reads their tables in raw SQL without ever calling their canViewItem().
+ * Those three, and the tableless Display, therefore do carry a front/ file of their own, whose
+ * only purpose is to refuse the route -- see front/assignstate.php.
+ */
 class Grouplevel extends CommonDropdown
 {
     public static function getTypeName($nb = 0)
@@ -218,6 +238,17 @@ class Grouplevel extends CommonDropdown
                     $group->fields['entities_id'],
                     $group->fields['is_recursive'],
                 )
+                // haveAccessToEntity() above answers for the operator, not for the level: an
+                // operator active on two entities could name a group of the second one in a
+                // level of the first. Confront the entity of the level as the dropdown does.
+                // It is read from the stored row and never from the POST, because this branch
+                // writes id and groups only -- a posted entities_id would widen the check
+                // without ever moving the level.
+                || count($this->filterGroupsOfLevelEntity(
+                    [$groups_id_assign],
+                    (int) ($this->fields['entities_id'] ?? 0),
+                    (int) ($this->fields['is_recursive'] ?? 0),
+                )) === 0
             ) {
                 // Invalid or out-of-scope group: ignore the add, leave the level untouched.
                 return ['id' => $params['id']];
@@ -310,7 +341,15 @@ class Grouplevel extends CommonDropdown
     private function sanitizeGroupsColumn(array $input): array
     {
         if (array_key_exists('groups', $input)) {
-            $filtered        = $this->filterAssignableGroups(json_decode((string) $input['groups'], true));
+            // This path writes the whole row, entity included, so the destination entity is the
+            // one the level will actually carry -- read it from the input when it is there, and
+            // fall back on the stored row otherwise. Confronting the groups with anything else
+            // would either be too strict on a legitimate move between entities, or too lax.
+            $filtered        = $this->filterAssignableGroups(
+                json_decode((string) $input['groups'], true),
+                (int) ($input['entities_id'] ?? $this->fields['entities_id'] ?? 0),
+                (int) ($input['is_recursive'] ?? $this->fields['is_recursive'] ?? 0),
+            );
             $input['groups'] = count($filtered) > 0 ? json_encode($filtered) : "";
         }
 
@@ -324,11 +363,13 @@ class Grouplevel extends CommonDropdown
      * is the sink counterpart of the dropdown built by showAddGroup(), whose constraints
      * live in the display only.
      *
-     * @param mixed $groups value decoded from the posted groups column
+     * @param mixed $groups       value decoded from the posted groups column
+     * @param int   $entities_id  entity the level belongs to
+     * @param int   $is_recursive whether the level is shared with the child entities
      *
      * @return array<int, int>
      **/
-    private function filterAssignableGroups($groups): array
+    private function filterAssignableGroups($groups, int $entities_id, int $is_recursive): array
     {
         if (!is_array($groups)) {
             // Anything that is not a list of identifiers -- malformed JSON included --
@@ -359,7 +400,66 @@ class Grouplevel extends CommonDropdown
             $filtered[] = $groups_id;
         }
 
-        return array_values(array_unique($filtered));
+        // The loop above confronts the perimeter of the operator; the level has its own, and it
+        // is the narrower of the two. Keep both, this one as the defence-in-depth guard.
+        return $this->filterGroupsOfLevelEntity(
+            array_values(array_unique($filtered)),
+            $entities_id,
+            $is_recursive,
+        );
+    }
+
+    /**
+     * Keep, among the identifiers handed, the groups the service level's own entity may name.
+     *
+     * Session::haveAccessToEntity() confronts the perimeter of the operator, which is wider
+     * than the one of the level. showAddGroup() already restricts its proposals to the entity
+     * of the level -- it hands 'entity' and 'entity_sons' to the core dropdown -- so the sink
+     * has to replay that same constraint. Without it, an operator active on entities A and B
+     * could post a group of B into a level of A; that group name then surfaced in the timeline
+     * labels and in the headers of the three "spent time by group" reports, read by users of A
+     * who have no access to B at all.
+     *
+     * The restriction goes through the same core helper as the dropdown rather than being
+     * reimplemented here, so display and sink cannot drift apart: a group is in scope when it
+     * sits in the entity of the level -- or in one of its children when the level is recursive
+     * -- or when it is itself recursive in one of the ancestors of that entity.
+     *
+     * @param array<int, int> $groups_ids   identifiers already normalized to positive integers
+     * @param int             $entities_id  entity the level belongs to
+     * @param int             $is_recursive whether the level is shared with the child entities
+     *
+     * @return array<int, int>
+     **/
+    private function filterGroupsOfLevelEntity(array $groups_ids, int $entities_id, int $is_recursive): array
+    {
+        global $DB;
+
+        if (count($groups_ids) === 0) {
+            return [];
+        }
+
+        $dbu             = new DbUtils();
+        $entity_restrict = $is_recursive === 1
+            ? $dbu->getSonsOf('glpi_entities', $entities_id)
+            : $entities_id;
+
+        $allowed  = [];
+        $iterator = $DB->request([
+            'SELECT' => 'id',
+            'FROM'   => Group::getTable(),
+            'WHERE'  => [
+                Group::getTable() . '.id' => $groups_ids,
+                $dbu->getEntitiesRestrictCriteria(Group::getTable(), '', $entity_restrict, true),
+            ],
+        ]);
+        foreach ($iterator as $row) {
+            $allowed[] = (int) $row['id'];
+        }
+
+        // Intersect rather than return the rows as they came: the order of the column is the
+        // display order of the level, and the database returns them in whichever order it likes.
+        return array_values(array_intersect($groups_ids, $allowed));
     }
 
     public static function install(Migration $migration)

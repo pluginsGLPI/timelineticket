@@ -64,3 +64,14 @@ if (($uid = Session::getLoginUserID(false))
         throw new BadRequestHttpException('Unauthorized access to this file');
     }
 }
+
+// Every other path used to fall off the end of the script and answer 200 with an empty body,
+// which let a caller tell "no file parameter" apart from "file present but refused" and so
+// enumerate, by difference, the entries of GLPI_GRAPH_DIR whose name starts with its own id.
+// Reject explicitly instead, so all refusals look alike.
+//
+// This endpoint is in fact dead code: nothing in the plugin writes to GLPI_GRAPH_DIR any more
+// -- the charts are drawn in the browser by Google Charts -- and no caller references this
+// file. It should be deleted outright rather than kept alive without a consumer; a guard no
+// feature exercises is a guard nobody will maintain correctly.
+throw new BadRequestHttpException('Unauthorized access to this file');

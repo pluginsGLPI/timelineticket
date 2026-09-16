@@ -95,7 +95,16 @@ if (isset($_POST["reconstructStates"])) {
 } elseif (isset($_POST["update"])) {
     // Global plugin config (singleton): saving requires config UPDATE.
     Session::checkRight("config", UPDATE);
-    $ptConfig->update($_POST);
+
+    // Hand over the keys the form actually offers rather than the whole POST: CommonDBTM
+    // writes any posted key that matches a column, so passing $_POST straight through is an
+    // implicit mass assignment. It is harmless on today's table -- id, add_waiting and
+    // use_google_charts are all it holds -- but it would silently expose whatever column a
+    // later version adds.
+    $ptConfig->update(array_intersect_key(
+        $_POST,
+        array_flip(['id', 'add_waiting', 'use_google_charts']),
+    ));
     Html::back();
 } else {
     // The three buttons of that form trigger a global, all-entity rebuild, which the branches

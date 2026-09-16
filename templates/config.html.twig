@@ -45,6 +45,16 @@
                 {# GLPI-generated dropdown markup, safe to output as-is #}
                 <td>{{ add_waiting_dropdown|raw }}</td>
             </tr>
+            <tr class="tab_bg_1 top">
+                <td>
+                    {{ __('Draw the timeline as a chart (Google Charts)', 'timelineticket') }}
+                    <div class="text-muted">
+                        {{ __('The chart modules are fetched from www.gstatic.com when the tab is opened, which requires outbound access and a content security policy entry. The detail table is displayed either way.', 'timelineticket') }}
+                    </div>
+                </td>
+                {# GLPI-generated dropdown markup, safe to output as-is #}
+                <td>{{ use_google_charts_dropdown|raw }}</td>
+            </tr>
             <tr class="tab_bg_1">
                 <td colspan="2">
                     <input type="hidden" name="id" value="1">

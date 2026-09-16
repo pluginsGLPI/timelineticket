@@ -105,7 +105,12 @@ $columns = ['solvedate'                  => ['sorton' => 'solvedate'],
 $output_type = Search::HTML_OUTPUT;
 
 if (isset($_POST['list_limit'])) {
-    $_SESSION['glpilist_limit'] = (int) $_POST['list_limit'];
+    // Clamp before writing: this is a GLPI-wide session preference, and the value went in
+    // unbounded. A zero or negative one made the pagination test below false, so the render
+    // loop walked every closed ticket of the perimeter, each row costing a Ticket::can(), two
+    // getAllDataFromTable() and a getUserGroups() per task. The bad value also stuck in the
+    // session and degraded every core list for that user afterwards.
+    $_SESSION['glpilist_limit'] = min(max((int) $_POST['list_limit'], 5), 1000);
     unset($_POST['list_limit']);
 }
 if (!isset($_REQUEST['sort'])) {
@@ -116,7 +121,7 @@ if (!isset($_REQUEST['sort'])) {
 $limit = (int) $_SESSION['glpilist_limit'];
 
 if (isset($_POST["display_type"])) {
-    // Search::showHeader()/showItem() hand this value to
+    // Tool::showHeader()/showItem() hand this value to
     // SearchEngine::getOutputForLegacyKey(int $output_type), which throws on an unknown
     // key and raises a TypeError on a non numeric one. Confront it with the list of
     // supported modes and fall back to HTML, keeping the negative sign that means
@@ -127,11 +132,17 @@ if (isset($_POST["display_type"])) {
     // repeatedly and at no cost. Rendering through Glpi\Search\Output\Pdf would mean
     // rewriting the whole report around displayData(); until then the format is refused
     // and the request falls back to HTML rather than failing.
-    // Every other output type is rendered by the legacy Search helpers, which are kept here.
+    // The "names list" format is refused too. Its output is a single column of item names meant
+    // to be pasted back into a search field, which says nothing of a report whose point is the
+    // durations spread over a dozen columns, and the legacy helpers answered it with a blank
+    // page anyway.
+    // HTML is still rendered by the legacy Search helpers. CSV, ODS and XLSX go through the
+    // Tool::show*() wrappers, which buffer the cells and hand them to the export classes of the
+    // core: those helpers only know how to write HTML and used to return an empty string for
+    // every other output, so the three export formats answered an empty file.
     $allowed_output_types = [
         Search::HTML_OUTPUT,
         Search::CSV_OUTPUT,
-        Search::NAMES_OUTPUT,
         Search::ODS_OUTPUT,
         Search::XLSX_OUTPUT,
     ];
@@ -298,9 +309,9 @@ if ($nbtot > 0) {
     $nbrows = count($visible_rows);
     $num    = 1;
 
-    echo Search::showHeader($output_type, $nbrows, $nbCols, false);
+    echo Tool::showHeader($output_type, $nbrows, $nbCols, false);
 
-    echo Search::showNewLine($output_type);
+    echo Tool::showNewLine($output_type);
     showTitle($output_type, $num, __('id'), 'id', true);
     showTitle($output_type, $num, __('Entity'), 'entities_id', true);
     showTitle($output_type, $num, __('Status'), 'status', false);
@@ -329,7 +340,7 @@ if ($nbtot > 0) {
     }
     showTitle($output_type, $num, __('Total waiting duration of ticket', 'timelineticket'), 'waiting_duration', false);
     showTitle($output_type, $num, __('Total duration of ticket', 'timelineticket'), 'TOTAL', false);
-    echo Search::showEndLine($output_type);
+    echo Tool::showEndLine($output_type);
 
     $row_num = 1;
     foreach ($visible_rows as $data) {
@@ -474,11 +485,11 @@ if ($nbtot > 0) {
 
         $row_num++;
         $num = 1;
-        echo Search::showNewLine($output_type);
+        echo Tool::showNewLine($output_type);
         //show ID ticket
-        echo Search::showItem($output_type, $data['id'], $num, $row_num);
+        echo Tool::showItem($output_type, $data['id'], $num, $row_num);
         //show Entity ticket
-        echo Search::showItem(
+        echo Tool::showItem(
             $output_type,
             Tool::escapeForOutput($output_type, Dropdown::getDropdownName(
                 'glpi_entities',
@@ -488,47 +499,47 @@ if ($nbtot > 0) {
             $row_num,
         );
         //show ticket status
-        echo Search::showItem(
+        echo Tool::showItem(
             $output_type,
             Ticket::getStatus($data["status"]),
             $num,
             $row_num,
         );
         //show creation date ticket
-        echo Search::showItem(
+        echo Tool::showItem(
             $output_type,
             Html::convDateTime($data['date']),
             $num,
             $row_num,
         );
         //show modification date ticket
-        echo Search::showItem(
+        echo Tool::showItem(
             $output_type,
             Html::convDateTime($data['date_mod']),
             $num,
             $row_num,
         );
         //show priority ticket
-        echo Search::showItem(
+        echo Tool::showItem(
             $output_type,
             Ticket::getPriorityName($data['priority']),
             $num,
             $row_num,
         );
         //show requester ticket
-        echo Search::showItem($output_type, $userdata, $num, $row_num);
+        echo Tool::showItem($output_type, $userdata, $num, $row_num);
         //show type ticket
-        echo Search::showItem($output_type, Ticket::getTicketTypeName($data['type']), $num, $row_num);
+        echo Tool::showItem($output_type, Ticket::getTicketTypeName($data['type']), $num, $row_num);
         //show category ticket
-        echo Search::showItem($output_type, Tool::escapeForOutput($output_type, Dropdown::getDropdownName(
+        echo Tool::showItem($output_type, Tool::escapeForOutput($output_type, Dropdown::getDropdownName(
             "glpi_itilcategories",
             $data["itilcategories_id"],
         )), $num, $row_num);
         //show title and link ticket
         $out = $ticket->getLink();
-        echo Search::showItem($output_type, $out, $num, $row_num);
+        echo Tool::showItem($output_type, $out, $num, $row_num);
         //show solve date ticket
-        echo Search::showItem($output_type, Html::convDateTime($data['solvedate']), $num, $row_num);
+        echo Tool::showItem($output_type, Html::convDateTime($data['solvedate']), $num, $row_num);
         //show solver ticket
         $users_id_solver = 0;
         $iterator        = $DB->request([
@@ -545,7 +556,7 @@ if ($nbtot > 0) {
         foreach ($iterator as $datasolution) {
             $users_id_solver = $datasolution['users_id'];
         }
-        echo Search::showItem($output_type, Tool::escapeForOutput($output_type, getUserName($users_id_solver)), $num, $row_num);
+        echo Tool::showItem($output_type, Tool::escapeForOutput($output_type, getUserName($users_id_solver)), $num, $row_num);
 
         //show group solver ticket
 
@@ -558,9 +569,9 @@ if ($nbtot > 0) {
             $groups .= "<br>";
         }
 
-        echo Search::showItem($output_type, $groups, $num, $row_num);
+        echo Tool::showItem($output_type, $groups, $num, $row_num);
         //show request source ticket
-        echo Search::showItem(
+        echo Tool::showItem(
             $output_type,
             Tool::escapeForOutput($output_type, Dropdown::getDropdownName(
                 'glpi_requesttypes',
@@ -573,27 +584,27 @@ if ($nbtot > 0) {
         if ($output_type == Search::HTML_OUTPUT
           || $output_type == Search::PDF_OUTPUT_PORTRAIT
           || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
-            echo Search::showItem(
+            echo Tool::showItem(
                 $output_type,
                 Html::timestampToString($data["takeintoaccount_delay_stat"]),
                 $num,
                 $row_num,
             );
         } else {
-            echo Search::showItem(
+            echo Tool::showItem(
                 $output_type,
                 convertTimestamp($data["takeintoaccount_delay_stat"]),
                 $num,
                 $row_num,
             );
         }
-        echo Search::showItem(
+        echo Tool::showItem(
             $output_type,
             Tool::escapeForOutput($output_type, Dropdown::getDropdownName('glpi_slas', $data["slas_id_ttr"])),
             $num,
             $row_num,
         );
-        echo Search::showItem($output_type, Dropdown::getYesNo($is_late), $num, $row_num);
+        echo Tool::showItem($output_type, Dropdown::getYesNo($is_late), $num, $row_num);
         $time = 0;
         if (!empty($mylevels)) {
             foreach ($mylevels as $key => $val) {
@@ -651,11 +662,11 @@ if ($nbtot > 0) {
                 //            if ($output_type == Search::HTML_OUTPUT
                 //                || $output_type == Search::PDF_OUTPUT_PORTRAIT
                 //                || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
-                //               echo Search::showItem($output_type, $nbtasks, $num, $row_num);
-                //               echo Search::showItem($output_type, Html::timestampToString($timetask), $num, $row_num);
+                //               echo Tool::showItem($output_type, $nbtasks, $num, $row_num);
+                //               echo Tool::showItem($output_type, Html::timestampToString($timetask), $num, $row_num);
                 //            } else {
-                //               echo Search::showItem($output_type, $nbtasks, $num, $row_num);
-                //               echo Search::showItem($output_type, convertTimestamp($timetask), $num, $row_num);
+                //               echo Tool::showItem($output_type, $nbtasks, $num, $row_num);
+                //               echo Tool::showItem($output_type, convertTimestamp($timetask), $num, $row_num);
                 //            }
                 if ($time < 0) {
                     $time = $time_passed;
@@ -663,9 +674,9 @@ if ($nbtot > 0) {
                 if ($output_type == Search::HTML_OUTPUT
                 || $output_type == Search::PDF_OUTPUT_PORTRAIT
                 || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
-                    echo Search::showItem($output_type, Html::timestampToString($time), $num, $row_num);
+                    echo Tool::showItem($output_type, Html::timestampToString($time), $num, $row_num);
                 } else {
-                    echo Search::showItem($output_type, convertTimestamp($time), $num, $row_num);
+                    echo Tool::showItem($output_type, convertTimestamp($time), $num, $row_num);
                 }
             }
         }
@@ -674,22 +685,22 @@ if ($nbtot > 0) {
         if ($output_type == Search::HTML_OUTPUT
           || $output_type == Search::PDF_OUTPUT_PORTRAIT
           || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
-            echo Search::showItem($output_type, Html::timestampToString($waiting), $num, $row_num);
+            echo Tool::showItem($output_type, Html::timestampToString($waiting), $num, $row_num);
         } else {
-            echo Search::showItem($output_type, convertTimestamp($waiting), $num, $row_num);
+            echo Tool::showItem($output_type, convertTimestamp($waiting), $num, $row_num);
         }
 
         $total = $ticket->fields["solve_delay_stat"];
         if ($output_type == Search::HTML_OUTPUT
           || $output_type == Search::PDF_OUTPUT_PORTRAIT
           || $output_type == Search::PDF_OUTPUT_LANDSCAPE) {
-            echo Search::showItem($output_type, Html::timestampToString($total), $num, $row_num);
+            echo Tool::showItem($output_type, Html::timestampToString($total), $num, $row_num);
         } else {
-            echo Search::showItem($output_type, convertTimestamp($total), $num, $row_num);
+            echo Tool::showItem($output_type, convertTimestamp($total), $num, $row_num);
         }
-        echo Search::showEndLine($output_type);
+        echo Tool::showEndLine($output_type);
     }
-    echo Search::showFooter($output_type, $title);
+    echo Tool::showFooter($output_type, $title);
 }
 
 if ($output_type == Search::HTML_OUTPUT) {
@@ -739,7 +750,7 @@ function showTitle($output_type, &$num, $title, $columnname, $sort = false)
 {
 
     if ($output_type != Search::HTML_OUTPUT || $sort == false) {
-        echo Search::showHeaderItem($output_type, $title, $num);
+        echo Tool::showHeaderItem($output_type, $title, $num);
         return;
     }
     $order  = 'ASC';
@@ -768,7 +779,7 @@ function showTitle($output_type, &$num, $title, $columnname, $sort = false)
     }
     $link .= ($first ? '?' : '&amp;') . 'sort=' . urlencode($columnname);
     $link .= '&amp;order=' . $order;
-    echo Search::showHeaderItem($output_type, $title, $num, $link, $issort, ($order == 'ASC' ? 'DESC' : 'ASC'));
+    echo Tool::showHeaderItem($output_type, $title, $num, $link, $issort, ($order == 'ASC' ? 'DESC' : 'ASC'));
 }
 
 /**
@@ -798,6 +809,13 @@ function getOrderByCriteria($default, $columns)
     // request that has not been whitelisted first.
     if (array_key_exists($sort, $columns)) {
         return [$sort . ' ' . $order];
+    }
+
+    // Fall back to the report's own default column, never to no ORDER BY at all: the query
+    // carries a LIMIT/OFFSET, and MySQL guarantees no stable order without an ORDER BY, so an
+    // unrecognised sort parameter made rows repeat across pages while others vanished.
+    if (array_key_exists($default, $columns)) {
+        return [$default . ' ' . $order];
     }
     return [];
 }

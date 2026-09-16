@@ -43,6 +43,7 @@ use DateInterval;
 use DatePeriod;
 use DateTime;
 use Glpi\DBAL\QueryExpression;
+use Glpi\Exception\Http\AccessDeniedHttpException;
 use GlpiPlugin\Mydashboard\Charts\BarChart;
 use GlpiPlugin\Mydashboard\Helper;
 use GlpiPlugin\Mydashboard\Html;
@@ -126,9 +127,33 @@ class Dashboard extends CommonGLPI
                         'end',
                         'technicians_groups_id'];
 
-                    $opt['begin'] = isset($opt['begin']) ? $opt['begin'] : date('Y-m-d H:i:s', strtotime('-1 year'));
-                    ;
-                    $opt['end'] = isset($opt['end']) ? $opt['end'] : date('Y-m-d H:i:s');
+                    // Normalize both bounds here, where the filter values are read, and not
+                    // only inside getNumberAffectationPerTech(): the label loops below hand
+                    // them straight to DateTime() and strtotime(), where an unparsable value
+                    // threw an uncaught exception -- a 500 on the widget rather than a chart.
+                    $opt['begin'] = self::normalizeSqlDate($opt['begin'] ?? null, '-1 year');
+                    $opt['end']   = self::normalizeSqlDate($opt['end'] ?? null, 'now');
+                    if ($opt['begin'] > $opt['end']) {
+                        [$opt['begin'], $opt['end']] = [$opt['end'], $opt['begin']];
+                    }
+
+                    // Cap the span according to the step: the range was unbounded, so a posted
+                    // begin=1000-01-01 / end=9999-12-31 with a DAY step built some 3.3 million
+                    // labels in memory before the chart was even assembled, exhausting the
+                    // worker. Each cap keeps the loops in the low thousands of iterations.
+                    $earliest_allowed = [
+                        'DAY'   => '-5 years',
+                        'WEEK'  => '-20 years',
+                        'MONTH' => '-50 years',
+                    ][$opt['multiple_time'] ?? ''] ?? null;
+                    if ($earliest_allowed !== null) {
+                        $floor = (new DateTime($opt['end']))
+                            ->modify($earliest_allowed)
+                            ->format('Y-m-d H:i:s');
+                        if ($opt['begin'] < $floor) {
+                            $opt['begin'] = $floor;
+                        }
+                    }
                     $params  = ["preferences" => $preferences,
                         "criterias"   => $criterias,
                         "opt"         => $opt];
@@ -375,6 +400,22 @@ class Dashboard extends CommonGLPI
                 );
             } else {
                 $where = array_merge($where, getEntitiesRestrictCriteria('glpi_tickets'));
+            }
+
+            // Entity scoping is not the ticket visibility perimeter: a profile holding
+            // plugin_timelineticket_ticket READ but only READMY / READGROUP / READASSIGN on
+            // tickets was counted assignments over every ticket of its entities, including the
+            // ones the core forbids it to open -- the group filter accepts any assignable group
+            // of the entity, not only the groups of the operator, so the workload of a team it
+            // does not belong to was readable month by month. Replay the perimeter the three
+            // reports already confront. It answers an empty array for READALL, leaving a full
+            // profile untouched, and raises when the profile may see no ticket at all: a widget
+            // answers that with an empty chart rather than with an error page, the dashboard
+            // holding other widgets the operator is entitled to.
+            try {
+                Tool::addWhereCriteria($where, Tool::getTicketVisibilityCriteria());
+            } catch (AccessDeniedHttpException $e) {
+                return $time_per_tech;
             }
 
             // Same missing key as above, on the widget that queries the assignments.

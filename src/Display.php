@@ -39,7 +39,6 @@
 namespace GlpiPlugin\Timelineticket;
 
 use Calendar;
-use CommonDBTM;
 use CommonGLPI;
 use CommonITILObject;
 use DateTime;
@@ -61,7 +60,17 @@ use TicketTask;
 use TicketValidation;
 use User;
 
-class Display extends CommonDBTM
+/**
+ * Renders the timeline tab of a ticket. Everything here is static presentation: there is no
+ * glpi_plugin_timelineticket_displays table and plugin_timelineticket_install() creates none,
+ * so the class descends from CommonGLPI -- which is all Plugin::registerClass() asks for an
+ * addtabon registration -- and not from CommonDBTM, whose whole contract is a table. The
+ * inheritance it carried made it look like a queryable itemtype to the generic routes of
+ * GLPI 11 and had it answer 1146 on a table that never existed; front/display.php closes the
+ * list route, and GenericFormController::checkIsValidClass() now closes the form one on its
+ * own.
+ */
+class Display extends CommonGLPI
 {
     public static $rightname = 'plugin_timelineticket_ticket';
 
@@ -116,31 +125,11 @@ class Display extends CommonDBTM
         return true;
     }
 
-    /**
-     * @return array
-     */
-    public function rawSearchOptions()
-    {
-        $tab = [];
-
-        $tab[] = [
-            'id' => 'common',
-            'name' => self::getTypeName(1),
-        ];
-
-        $tab[] = [
-            'id' => '1',
-            'table' => 'glpi_plugin_timelineticket_assigngroups',
-            'field' => 'groups_id',
-            'linkfield' => 'tickets_id',
-            'name' => __('Group'),
-            'datatype' => 'itemlink',
-            'forcegroupby' => true,
-        ];
-
-        return $tab;
-    }
-
+    // rawSearchOptions() stood here and described a column of
+    // glpi_plugin_timelineticket_assigngroups -- another class's table -- for a class that has
+    // none. Nothing read it: the two ticket search options the plugin publishes come from
+    // plugin_timelineticket_getAddSearchOptions(), which gates them on the plugin right. All
+    // it did was tell the generic list route of GLPI 11 that this class was worth searching.
 
     /**
      * Used to display each status time used for each group/user
@@ -533,12 +522,14 @@ class Display extends CommonDBTM
             foreach ($valid_iter as $row) {
                 $author = new User();
                 $author->getFromDB((int) $row['users_id']);
-                $status_labels = [
-                    0 => __('Waiting'),
-                    1 => __('Refused'),
-                    2 => __('Granted'),
-                ];
-                $vstatus = $status_labels[(int) $row['status']] ?? __('Waiting');
+                // Ask the core for the label rather than keep a table of our own: the one that
+                // stood here was indexed 0/1/2 while glpi_ticketvalidations.status carries the
+                // constants of CommonITILValidation (NONE = 1, WAITING = 2, ACCEPTED = 3,
+                // REFUSED = 4). Not one real value was named correctly -- a validation still
+                // waiting (2) read "Granted", and both an acceptance (3) and a refusal (4) fell
+                // through to the default and read "Waiting". getStatus() covers the four
+                // constants and follows the translations of the core.
+                $vstatus = (string) TicketValidation::getStatus((int) $row['status']);
                 $all_events[] = [
                     'ts'      => strtotime($row['submission_date']),
                     'label'   => $author->getFriendlyName(),
@@ -806,27 +797,104 @@ class Display extends CommonDBTM
      * shipped by the library is plain JavaScript, where angle brackets are comparison
      * operators and must stay untouched.
      *
+     * The marker is searched anywhere in the body rather than immediately after the opening
+     * tag, and the whole body is rewritten rather than only the tail after it. The previous
+     * form reproduced the exact layout of ChartLoader's private CHART_LOAD_SCRIPT constant, so
+     * an indentation, an IIFE or a DOMContentLoaded wrapper added by any 1.x release of the
+     * library -- composer.json allows them all -- silently disarmed the escaping and the tag
+     * was returned verbatim. Rewriting the whole body costs nothing here: the wrapper emitted
+     * around the serialised data carries no angle bracket of its own, and should a future
+     * release introduce one, the chart breaks visibly instead of shipping an unescaped label.
+     *
      * @param string $tag One script tag as returned by ChartLoader::load()
+     *
+     * @return string|null The hardened tag, or null when this tag carries no payload
      **/
-    private static function hardenChartPayload(string $tag): string
+    private static function hardenChartPayload(string $tag): ?string
     {
-        $opening_end = strpos($tag, '>' . self::CHART_PAYLOAD_PREFIX);
+        $opening_end = strpos($tag, '>');
         $closing     = strrpos($tag, '</script>');
         if ($opening_end === false || $closing === false || $closing <= $opening_end) {
-            return $tag;
+            return null;
         }
 
         $start   = $opening_end + 1;
         $payload = substr($tag, $start, $closing - $start);
+        if (!str_contains($payload, self::CHART_PAYLOAD_PREFIX)) {
+            return null;
+        }
 
         return substr($tag, 0, $start)
                . str_replace(['<', '>'], ['\u003C', '\u003E'], $payload)
                . substr($tag, $closing);
     }
 
+    /**
+     * Harden the payload script of a rendered chart markup.
+     *
+     * ChartService::render() returns the bootstrap tags and the chart container concatenated
+     * into a single string, whereas hardenChartPayload() works on one tag at a time -- and has
+     * to: the template script the library ships is plain JavaScript, whose angle brackets are
+     * comparison operators, so rewriting the whole string at once would break it. Split the
+     * markup back into script tags and hand each one over; every tag but the payload comes
+     * back untouched.
+     *
+     * Fail closed: the markup is only handed back when exactly one payload script was found
+     * and hardened. Finding none means the library no longer emits what this class knows how
+     * to escape, and returning the markup unchanged in that case would publish raw labels
+     * inside an inline script -- the very thing the escaping exists to prevent. The caller
+     * renders the fallback notice instead, so the failure is visible rather than silent.
+     *
+     * @param string $markup Markup as returned by ChartService::render()
+     *
+     * @return string|null The hardened markup, or null when no single payload could be found
+     **/
+    private static function hardenChartMarkup(string $markup): ?string
+    {
+        $payloads = 0;
+        $hardened = preg_replace_callback(
+            '#<script\b[^>]*>.*?</script>#s',
+            static function (array $matches) use (&$payloads): string {
+                $payload = self::hardenChartPayload($matches[0]);
+                if ($payload === null) {
+                    return $matches[0];
+                }
+                $payloads++;
+
+                return $payload;
+            },
+            $markup,
+        );
+
+        if ($hardened === null || $payloads !== 1) {
+            trigger_error(
+                sprintf(
+                    'timelineticket: expected exactly one Google Charts payload script, found %d.'
+                    . ' The chart was not rendered; check the sportlog/google-charts version.',
+                    $payloads,
+                ),
+                E_USER_WARNING,
+            );
+
+            return null;
+        }
+
+        return $hardened;
+    }
+
     public static function showTimelineGraph(Ticket $ticket, $item)
     {
         global $DB;
+
+        // The chart is what pulls https://www.gstatic.com/charts/ into an authenticated page:
+        // the bootstrap is served locally, but it resolves its rendering modules from Google at
+        // draw time. Leave that egress to the operator rather than making it a side effect of
+        // installing the plugin -- see Config::useGoogleCharts(), which is off by default. Both
+        // callers buffer this output and hand it to their template as the "chart" variable, so
+        // emitting nothing leaves the detail table -- the whole content of the tab -- in place.
+        if (!Config::useGoogleCharts()) {
+            return;
+        }
 
         $req = $DB->request([
             'FROM' => $item->getTable(),
@@ -1000,18 +1068,22 @@ class Display extends CommonDBTM
             // authenticated GLPI page is then versioned and auditable. The loader still
             // resolves the chart modules from gstatic.com at draw time, which is
             // documented in the README.
-            $boot_scripts = $chartService->load();
-            foreach ($boot_scripts as $key => $tag) {
-                $boot_scripts[$key] = self::hardenChartPayload(str_replace(
-                    self::GOOGLE_CHARTS_REMOTE_LOADER,
-                    PLUGIN_TIMELINETICKET_WEBDIR . '/js/google-charts/loader.js',
-                    $tag,
-                ));
-            }
+            // render() emits that bootstrap itself on its first call, and ChartService::load()
+            // never sets the flag render() tests -- only render() does. Calling load() first
+            // therefore left the flag down and render() emitted the whole bootstrap a second
+            // time, that copy being neither hardened nor pointed at the local loader. Render
+            // once, and harden what render() returns.
+            $markup = str_replace(
+                self::GOOGLE_CHARTS_REMOTE_LOADER,
+                PLUGIN_TIMELINETICKET_WEBDIR . '/js/google-charts/loader.js',
+                $chartService->render('ticket' . get_class($item)),
+            );
 
-            // Draw all charts
+            // Draw all charts. A null here means the escaping could not be applied, so the
+            // template gets no markup at all and shows its fallback notice: better a missing
+            // chart than one carrying unescaped labels into an inline script.
             TemplateRenderer::getInstance()->display('@timelineticket/chart.html.twig', [
-                'chart' => implode('', $boot_scripts) . $chartService->render('ticket' . get_class($item)),
+                'chart' => self::hardenChartMarkup($markup) ?? '',
             ]);
         }
     }

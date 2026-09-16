@@ -47,6 +47,7 @@ use DateTimeZone;
 use Entity;
 use Glpi\DBAL\QuerySubQuery;
 use Glpi\Exception\Http\AccessDeniedHttpException;
+use Glpi\Search\SearchEngine;
 use Search;
 use Session;
 use SLA;
@@ -56,6 +57,252 @@ use function htmlescape;
 
 class Tool
 {
+    /**
+     * Output types the reports render by buffering the cells instead of echoing them.
+     *
+     * In GLPI 11 the legacy Search::show*() helpers only know how to render HTML: showItem(),
+     * showNewLine(), showHeaderItem() and showFooter() return an empty string as soon as the
+     * output is not an HTMLSearchOutput, and no header is emitted either. Picking CSV, ODS or
+     * XLSX in the output selector of the three reports therefore answered a blank page. The
+     * modern path is Glpi\Search\Output\ExportSearchOutput::displayData(), which expects the
+     * data structure of the search engine rather than a stream of cells, so the wrappers below
+     * keep the call sites of the reports untouched and assemble that structure as the rows go by.
+     *
+     * @var array<int, int>
+     */
+    public const EXPORT_OUTPUT_TYPES = [
+        Search::CSV_OUTPUT,
+        Search::ODS_OUTPUT,
+        Search::XLSX_OUTPUT,
+    ];
+
+    /** @var array<int, string> Column headers buffered for the current export */
+    private static array $export_cols = [];
+
+    /** @var array<int, array<int, string>> Rows buffered for the current export */
+    private static array $export_rows = [];
+
+    /** @var array<int, string> Cells of the row being buffered */
+    private static array $export_row = [];
+
+    /**
+     * Is this output type rendered through the export buffer rather than the legacy helpers?
+     *
+     * @param int|string $output_type One of the Search::*_OUTPUT constants
+     *
+     * @return bool
+     */
+    public static function isExportOutput($output_type): bool
+    {
+        return in_array((int) $output_type, self::EXPORT_OUTPUT_TYPES, true);
+    }
+
+    /**
+     * Drop-in replacement for Search::showHeader() that also opens the export buffer.
+     *
+     * @param int|string $output_type One of the Search::*_OUTPUT constants
+     * @param int        $rows
+     * @param int        $cols
+     * @param bool|int   $fixed
+     *
+     * @return string
+     */
+    public static function showHeader($output_type, $rows, $cols, $fixed = 0): string
+    {
+        if (!self::isExportOutput($output_type)) {
+            return Search::showHeader($output_type, $rows, $cols, $fixed);
+        }
+
+        self::$export_cols = [];
+        self::$export_rows = [];
+        self::$export_row  = [];
+
+        return '';
+    }
+
+    /**
+     * Drop-in replacement for Search::showHeaderItem().
+     *
+     * @param int|string $output_type One of the Search::*_OUTPUT constants
+     * @param mixed      $value
+     * @param int        $num
+     * @param string     $linkto
+     * @param bool|int   $issort
+     * @param string     $order
+     * @param string     $options
+     *
+     * @return string
+     */
+    public static function showHeaderItem(
+        $output_type,
+        $value,
+        &$num,
+        $linkto = "",
+        $issort = 0,
+        $order = "",
+        $options = ""
+    ): string {
+        if (!self::isExportOutput($output_type)) {
+            return Search::showHeaderItem($output_type, $value, $num, $linkto, $issort, $order, $options);
+        }
+
+        self::$export_cols[] = (string) $value;
+        $num++;
+
+        return '';
+    }
+
+    /**
+     * Drop-in replacement for Search::showNewLine(), opening a buffered row.
+     *
+     * @param int|string $output_type One of the Search::*_OUTPUT constants
+     * @param bool       $odd
+     * @param bool       $is_deleted
+     *
+     * @return string
+     */
+    public static function showNewLine($output_type, $odd = false, $is_deleted = false): string
+    {
+        if (!self::isExportOutput($output_type)) {
+            return Search::showNewLine($output_type, $odd, $is_deleted);
+        }
+
+        self::$export_row = [];
+
+        return '';
+    }
+
+    /**
+     * Drop-in replacement for Search::showItem().
+     *
+     * @param int|string $output_type One of the Search::*_OUTPUT constants
+     * @param mixed      $value
+     * @param int        $num
+     * @param int        $row
+     * @param string     $extraparam
+     *
+     * @return string
+     */
+    public static function showItem($output_type, $value, &$num, $row, $extraparam = ''): string
+    {
+        if (!self::isExportOutput($output_type)) {
+            return Search::showItem($output_type, $value, $num, $row, $extraparam);
+        }
+
+        self::$export_row[] = (string) ($value ?? '');
+        $num++;
+
+        return '';
+    }
+
+    /**
+     * Drop-in replacement for Search::showEndLine(), closing the buffered row.
+     *
+     * @param int|string $output_type     One of the Search::*_OUTPUT constants
+     * @param bool       $is_header_line
+     *
+     * @return string
+     */
+    public static function showEndLine($output_type, bool $is_header_line = false): string
+    {
+        if (!self::isExportOutput($output_type)) {
+            return Search::showEndLine($output_type, $is_header_line);
+        }
+
+        // The header line is closed the same way as a data line, but its cells went to
+        // showHeaderItem() and the buffered row is then empty: keeping it would insert a blank
+        // line at the top of the file.
+        if (self::$export_row !== []) {
+            self::$export_rows[] = self::$export_row;
+        }
+        self::$export_row = [];
+
+        return '';
+    }
+
+    /**
+     * Drop-in replacement for Search::showFooter(), which sends the file for the export types.
+     *
+     * @param int|string $output_type One of the Search::*_OUTPUT constants
+     * @param string     $title
+     * @param int|null   $count
+     *
+     * @return string
+     */
+    public static function showFooter($output_type, $title = "", $count = null): string
+    {
+        if (!self::isExportOutput($output_type)) {
+            return Search::showFooter($output_type, $title, $count);
+        }
+
+        self::sendExport((int) $output_type);
+
+        return '';
+    }
+
+    /**
+     * Hand the buffered rows to the export writer of the core.
+     *
+     * displayData() expects the shape the search engine produces: one entry per column in
+     * data.cols, and one "<itemtype>_<column id>" key per cell in data.rows. Feeding it instead
+     * of writing the file here is what keeps the plugin on the escaping of the core -- in
+     * particular SpreadsheetValueBinder, which neutralises formula injection, and
+     * DataExport::normalizeValueForTextExport(), which flattens the cells the reports build as
+     * HTML (the requester list joined with line breaks, the link to the ticket) into plain text.
+     *
+     * @param int $output_type One of the Search::*_OUTPUT constants
+     *
+     * @return void
+     */
+    private static function sendExport(int $output_type): void
+    {
+        $cols = [];
+        foreach (self::$export_cols as $index => $name) {
+            $cols[] = [
+                'name'     => $name,
+                'itemtype' => Ticket::class,
+                'id'       => $index,
+                'meta'     => false,
+            ];
+        }
+
+        $rows = [];
+        foreach (self::$export_rows as $row) {
+            $formatted = [];
+            foreach ($cols as $index => $col) {
+                $formatted[$col['itemtype'] . '_' . $col['id']] = [
+                    'displayname' => $row[$index] ?? '',
+                ];
+            }
+            $rows[] = $formatted;
+        }
+
+        $count = count($rows);
+        $data  = [
+            'itemtype' => Ticket::class,
+            'search'   => [
+                'as_map'       => 0,
+                'is_deleted'   => 0,
+                'criteria'     => [],
+                'metacriteria' => [],
+            ],
+            'data'     => [
+                'totalcount' => $count,
+                'count'      => $count,
+                'begin'      => 0,
+                'end'        => max(0, $count - 1),
+                'cols'       => $cols,
+                'rows'       => $rows,
+            ],
+        ];
+
+        SearchEngine::getOutputForLegacyKey($output_type)->displayData($data);
+
+        self::$export_cols = [];
+        self::$export_rows = [];
+        self::$export_row  = [];
+    }
+
     /**
      * Escape a database value before handing it to the legacy search output helpers.
      *
