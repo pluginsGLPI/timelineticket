@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Timelineticket Development Team
-# This file is distributed under the same license as the GLPI - Timelineticket plugin package.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
 # Daisuke INOUE, 2025
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - timelineticket plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-28 20:09+0200\n"
+"POT-Creation-Date: 2026-09-16 13:09+0000\n"
 "PO-Revision-Date: 2013-09-30 11:47+0000\n"
 "Last-Translator: Daisuke INOUE, 2025\n"
 "Language-Team: Japanese (Japan) (http://app.transifex.com/infotelGLPI/GLPI_timelineticket/language/ja_JP/)\n"
@@ -18,159 +18,188 @@ msgstr ""
 "Language: ja_JP\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: hook.php:154 hook.php:169 setup.php:58 src/Display.php:71
-#: src/Display.php:213 src/Profile.php:72
+#: templates/chart.html.twig
+msgid ""
+"The chart could not be drawn: the Google Charts modules could not be loaded "
+"from www.gstatic.com. Check the outbound access and the content security "
+"policy of this instance."
+msgstr ""
+
+#: templates/ticket_timeline.html.twig setup.php:58 hook.php:230 hook.php:245
+#: src/Profile.php:70 src/Display.php:95
 msgid "Timeline of ticket"
 msgid_plural "Timeline of tickets"
 msgstr[0] "チケット履歴"
 
-#: src/AssignGroup.php:383
-msgid "Ticket assign group history"
-msgstr "チケット担当グループ履歴"
+#: templates/ticket_timeline.html.twig
+msgid "Used calendar"
+msgstr "使用したカレンダー"
 
-#: src/AssignState.php:189
-msgid "Ticket states history"
-msgstr "チケットの状態履歴"
+#: templates/ticket_timeline.html.twig
+msgid "Assignment swimlane"
+msgstr ""
 
-#: src/AssignState.php:222
-msgid "Statuses"
-msgstr "状態"
-
-#: src/AssignState.php:232
-msgid "Old status"
-msgstr "以前の状態"
-
-#: src/AssignState.php:233
-msgid "New status"
-msgstr "新しい状態"
-
-#: src/AssignState.php:236 src/Display.php:389 src/Display.php:421
+#: templates/ticket_timeline.html.twig templates/history.html.twig
 msgid "Delay"
 msgstr "遅延"
 
-#: src/AssignUser.php:418
-msgid "Ticket assign technician history"
-msgstr "チケット担当技術者履歴"
-
-#: src/Config.php:64
+#: templates/config_reconstruct.html.twig
 msgid "(Can take many time if you have many tickets)"
 msgstr "( 多くのチケットを担当している場合、時間がかかります )"
 
-#: src/Config.php:75
+#: templates/config_reconstruct.html.twig
+msgid ""
+"A global rebuild first deletes every stored row of the corresponding "
+"timeline, then recomputes it from the ticket history. Rows whose history "
+"entries have already been purged cannot be recovered."
+msgstr ""
+
+#: templates/config_reconstruct.html.twig
 msgctxt "button"
 msgid "Reconstruct states timeline for all tickets"
 msgstr "すべてのチケットの状態履歴を再構築"
 
-#: src/Config.php:84
+#: templates/config_reconstruct.html.twig
 msgctxt "button"
 msgid "Reconstruct technician groups timeline for all tickets"
 msgstr "すべてのチケットの担当グループ履歴を再構築"
 
-#: src/Config.php:94
+#: templates/config_reconstruct.html.twig
 msgctxt "button"
 msgid "Reconstruct technicians timeline for all tickets"
 msgstr "すべてのチケットの担当技術者履歴を再構築"
 
-#: src/Config.php:113
+#: templates/history.html.twig
+msgid "Statuses"
+msgstr "状態"
+
+#: templates/history.html.twig
+msgid "Old status"
+msgstr "以前の状態"
+
+#: templates/history.html.twig
+msgid "New status"
+msgstr "新しい状態"
+
+#: templates/config.html.twig
 msgid "Flags"
 msgstr "フラグ"
 
-#: src/Config.php:118
+#: templates/config.html.twig
 msgid "Input time on groups / users when ticket is waiting"
 msgstr "チケットが保留中の場合にグループ・ユーザーに設定する時間を入力する"
 
-#: src/Dashboard.php:82 src/Dashboard.php:106
+#: templates/config.html.twig
+msgid "Draw the timeline as a chart (Google Charts)"
+msgstr ""
+
+#: templates/config.html.twig
+msgid ""
+"The chart modules are fetched from www.gstatic.com when the tab is opened, "
+"which requires outbound access and a content security policy entry. The "
+"detail table is displayed either way."
+msgstr ""
+
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:73
+msgid "statSpentTimeProcessingByGroup_report_title"
+msgstr "statSpentTimeProcessingByGroup_report_title"
+
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:338
+msgid "Duration by \"in progress\""
+msgstr "期間 : 処理中"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:68
+msgid "statSpentTimeByGroup_report_title"
+msgstr "statSpentTimeByGroup_report_title"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:337
+msgid "Tasks number by"
+msgstr "タスク数順"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:338
+msgid "Tasks duration by"
+msgstr "タスク期間順"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:339
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:338
+msgid "Duration by"
+msgstr "期間 : "
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:342
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:341
+msgid "Total waiting duration of ticket"
+msgstr "チケットの総保留期間"
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:343
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:342
+msgid "Total duration of ticket"
+msgstr "チケットの総所要時間"
+
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:67
+msgid "statResolvedSpentTimeByGroup_report_title"
+msgstr "statResolvedSpentTimeByGroup_report_title"
+
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:326
+msgid "Solved by"
+msgstr "解決担当 : "
+
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:327
+msgid "Solved by (Group)"
+msgstr "解決グループ : "
+
+#: front/config.form.php:144
+msgid "Timeline rebuilt"
+msgstr ""
+
+#: front/config.form.php:149
+msgid "The timeline rebuild failed, no change has been applied"
+msgstr ""
+
+#: src/AssignGroup.php:426
+msgid "Ticket assign group history"
+msgstr "チケット担当グループ履歴"
+
+#: src/AssignUser.php:460
+msgid "Ticket assign technician history"
+msgstr "チケット担当技術者履歴"
+
+#: src/AssignState.php:227
+msgid "Ticket states history"
+msgstr "チケットの状態履歴"
+
+#: src/Dashboard.php:115
 msgid "Number of assignments per technician to a ticket"
 msgstr "チケットを担当する技術者の人数"
 
-#: src/Dashboard.php:87
-msgid "Number of time where a technician has been affected to a ticket"
-msgstr "技術者がチケットに関与した回数"
-
-#: src/Display.php:153
+#: src/Display.php:159
 msgid "Groups in charge of the ticket"
 msgstr "チケット担当グループ"
 
-#: src/Display.php:155
+#: src/Display.php:161
 msgid "Technicians in charge of the ticket"
 msgstr "チケット担当技術者"
 
-#: src/Display.php:220
+#: src/Display.php:223
 msgctxt "button"
 msgid "Reconstruct history for this ticket"
 msgstr "このチケットの履歴を再構築"
 
-#: src/Display.php:232
-msgid "Used calendar"
-msgstr "使用したカレンダー"
-
-#: src/Display.php:294
+#: src/Display.php:348
 msgid ""
 "This view displays time spent by status, group, technician. The display does"
 " not use working hours"
 msgstr "この画面には、状態・グループ・技術者が要した時間を表示します。この表示では勤務時間は表示しません"
 
-#: src/Display.php:360
-msgid "Assignment swimlane"
-msgstr ""
-
-#: src/Display.php:705
+#: src/Display.php:663
 msgid "Technician"
 msgid_plural "Technicians"
 msgstr[0] ""
 
-#: src/Grouplevel.php:59
+#: src/Grouplevel.php:76
 msgid "Service level"
 msgid_plural "Service levels"
 msgstr[0] "サービスレベル"
 
-#: src/Grouplevel.php:70 src/Grouplevel.php:143
+#: src/Grouplevel.php:87 src/Grouplevel.php:150
 msgid "List of associated groups"
 msgstr "関連グループの一覧"
-
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:48
-msgid "statResolvedSpentTimeByGroup_report_title"
-msgstr "statResolvedSpentTimeByGroup_report_title"
-
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:219
-msgid "Solved by"
-msgstr "解決担当 : "
-
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:220
-msgid "Solved by (Group)"
-msgstr "解決グループ : "
-
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:229
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:228
-msgid "Duration by"
-msgstr "期間 : "
-
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:232
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:231
-msgid "Total waiting duration of ticket"
-msgstr "チケットの総保留期間"
-
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:233
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:232
-msgid "Total duration of ticket"
-msgstr "チケットの総所要時間"
-
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:48
-msgid "statSpentTimeByGroup_report_title"
-msgstr "statSpentTimeByGroup_report_title"
-
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:226
-msgid "Tasks number by"
-msgstr "タスク数順"
-
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:227
-msgid "Tasks duration by"
-msgstr "タスク期間順"
-
-#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:49
-msgid "statSpentTimeProcessingByGroup_report_title"
-msgstr "statSpentTimeProcessingByGroup_report_title"
-
-#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:224
-msgid "Duration by \"in progress\""
-msgstr "期間 : 処理中"
