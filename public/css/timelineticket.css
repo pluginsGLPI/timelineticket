@@ -34,6 +34,41 @@
  * --------------------------------------------------------------------------
  */
 
+/* ── Variables pilotées par le thème ─────────────────────────────────────────
+ * Les taux de mélange valent 0 % en palette claire : chaque couleur d'origine
+ * sort alors exactement telle qu'elle est écrite, le rendu clair est donc
+ * strictement inchangé. En palette sombre, ils rapprochent fonds et accents
+ * des couleurs du thème. Le sélecteur data-glpi-theme-dark est posé sur <html>
+ * par GLPI et couvre toutes les palettes sombres, présentes et futures.
+ */
+:root {
+    --tt-dark-bg-mix: 0%;
+    --tt-dark-fg-mix: 0%;
+}
+
+:root[data-glpi-theme-dark="1"] {
+    --tt-dark-bg-mix: 80%;
+    --tt-dark-fg-mix: 55%;
+}
+
+/* ── En-têtes de tableau ─────────────────────────────────────────────────────
+ * Les utilitaires .bg-body-tertiary / .bg-body-secondary de Bootstrap résolvent
+ * --tblr-tertiary-bg et --tblr-secondary-bg, que Tabler ne redéfinit que sous
+ * [data-bs-theme="dark"] — un attribut que GLPI ne pose jamais. En palette
+ * sombre ils restaient donc clairs, avec du texte clair par-dessus.
+ * Le !important reproduit celui des utilitaires Bootstrap : sans lui, la règle
+ * de fond de .table (spécificité supérieure) reprendrait le dessus.
+ */
+.tt-th {
+    background-color: var(--tblr-bg-surface-tertiary, var(--tblr-bg-surface, #f3f4f6)) !important;
+}
+
+.tt-th-alt {
+    background-color: color-mix(in srgb,
+        var(--tblr-bg-surface-tertiary, var(--tblr-bg-surface, #f3f4f6)),
+        var(--tblr-body-color, #000) 8%) !important;
+}
+
 /* ── Swimlane toolbar ────────────────────────────────────────────────────── */
 
 .tt-toolbar {
@@ -54,7 +89,7 @@
 }
 
 .tt-swimlane {
-    border: 1px solid #ccc;
+    border: 1px solid var(--tblr-border-color, #ccc);
     border-radius: 4px;
     overflow: visible;
     font-size: .8rem;
@@ -63,7 +98,7 @@
 .tt-lane {
     display: flex;
     align-items: stretch;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid var(--tblr-border-color, #ccc);
     min-height: 100px;
 }
 
@@ -98,8 +133,8 @@
 
 .tt-card {
     position: relative;
-    background: #fff;
-    border: 1px solid #bbb;
+    background: var(--tblr-bg-surface, #fff);
+    border: 1px solid var(--tblr-border-color, #bbb);
     border-radius: 3px;
     padding: 5px 8px;
     font-size: .72rem;
@@ -117,42 +152,42 @@
 
 .tt-card .tt-card-name {
     font-weight: 600;
-    color: #333;
+    color: var(--tblr-body-color, #333);
     word-break: break-word;
 }
 
 .tt-card .tt-card-date {
     font-size: .6rem;
-    color: #999;
+    color: var(--tblr-muted, #999);
     margin-top: 2px;
 }
 
 .tt-card-group .tt-card-type {
-    color: #3a7bbf;
+    color: color-mix(in srgb, #3a7bbf, var(--tblr-body-color) var(--tt-dark-fg-mix, 0%));
 }
 
 .tt-card-user .tt-card-type {
-    color: #e05555;
+    color: color-mix(in srgb, #e05555, var(--tblr-body-color) var(--tt-dark-fg-mix, 0%));
 }
 
 .tt-card-followup .tt-card-type {
-    color: #0891b2;
+    color: color-mix(in srgb, #0891b2, var(--tblr-body-color) var(--tt-dark-fg-mix, 0%));
 }
 
 .tt-card-task .tt-card-type {
-    color: #b45309;
+    color: color-mix(in srgb, #b45309, var(--tblr-body-color) var(--tt-dark-fg-mix, 0%));
 }
 
 .tt-card-solution .tt-card-type {
-    color: #16a34a;
+    color: color-mix(in srgb, #16a34a, var(--tblr-body-color) var(--tt-dark-fg-mix, 0%));
 }
 
 .tt-card-validation .tt-card-type {
-    color: #7c3aed;
+    color: color-mix(in srgb, #7c3aed, var(--tblr-body-color) var(--tt-dark-fg-mix, 0%));
 }
 
 .tt-card-private {
-    border-left: 3px solid #aaa;
+    border-left: 3px solid var(--tblr-border-color, #aaa);
     opacity: .85;
 }
 
@@ -163,14 +198,14 @@
 
 .tt-card-excerpt {
     font-size: .65rem;
-    color: #666;
+    color: var(--tblr-muted, #666);
     margin-top: 2px;
     font-style: italic;
     word-break: break-word;
 }
 
 .tt-lane-empty {
-    color: #000;
+    color: var(--tblr-body-color, #000);
     font-style: italic;
     font-size: .72rem;
     align-self: center;
@@ -217,4 +252,18 @@
 
 .tt-chart:has(svg) .tt-chart-fallback {
     display: none;
+}
+
+/*
+ * Google Charts ships no dark theme, and a Timeline chart lets nothing through for its
+ * time axis or its grid lines, so those stayed black on black however the options were
+ * set. Invert the finished drawing instead: black axis labels and grid lines come out
+ * light, and hue-rotate puts the bar hues back roughly where they started -- what plain
+ * invert() alone turns into their complements. Nothing is lost by recolouring the bars
+ * here: Display.php leaves options->colors unset, so their colours are handed out by
+ * Google in order and carry no meaning of their own.
+ * Scoped to the <svg>: the fallback notice sits outside it and must stay readable.
+ */
+:root[data-glpi-theme-dark="1"] .tt-chart svg {
+    filter: invert(1) hue-rotate(180deg);
 }

@@ -46,11 +46,13 @@ use DbUtils;
 use Dropdown;
 use Entity;
 use Glpi\Application\View\TemplateRenderer;
+use Glpi\UI\ThemeManager;
 use Html;
 use Session;
 use Sportlog\GoogleCharts\Charts\Base\Column;
 use Sportlog\GoogleCharts\Charts\Base\ColumnType;
 use Sportlog\GoogleCharts\Charts\Base\DataTable;
+use Sportlog\GoogleCharts\Charts\Options\Common\ChartBackgroundColor;
 use Sportlog\GoogleCharts\Charts\Options\Common\ChartLabelStyle;
 use Sportlog\GoogleCharts\Charts\Options\TimelineChart\TimelineOptions;
 use Sportlog\GoogleCharts\ChartService;
@@ -652,7 +654,8 @@ class Display extends CommonGLPI
                 'key'   => 'group',
                 'btn'   => 'btn-outline-primary',
                 'icon'  => 'ti ti-users',
-                'style' => 'color:#395bae;border-color:#395bae',
+                'style' => 'color:' . self::toThemedForeground('#395bae')
+                    . ';border-color:' . self::toThemedForeground('#395bae'),
                 'label' => _n('Group', 'Groups', 2),
             ],
             [
@@ -687,7 +690,8 @@ class Display extends CommonGLPI
                 'key'   => 'validation',
                 'btn'   => 'btn-outline-secondary',
                 'icon'  => 'ti ti-shield-check',
-                'style' => 'color:#7c3aed;border-color:#7c3aed',
+                'style' => 'color:' . self::toThemedForeground('#7c3aed')
+                    . ';border-color:' . self::toThemedForeground('#7c3aed'),
                 'label' => __('Validation'),
             ],
         ];
@@ -739,7 +743,7 @@ class Display extends CommonGLPI
             $render_lanes[] = [
                 'label'     => $lane['label'],
                 'hdr_color' => $colors['hdr'],
-                'bg_color'  => $colors['bg'],
+                'bg_color'  => self::toThemedBackground($colors['bg']),
                 'cards'     => $cards,
             ];
         }
@@ -827,6 +831,34 @@ class Display extends CommonGLPI
         return substr($tag, 0, $start)
                . str_replace(['<', '>'], ['\u003C', '\u003E'], $payload)
                . substr($tag, $closing);
+    }
+
+    /**
+     * Wrap a colour so that it stays exactly as written under a light palette and
+     * shifts towards the theme surface under a dark one.
+     *
+     * The mix ratio lives in the plugin stylesheet: --tt-dark-bg-mix is 0% on :root
+     * and 80% under [data-glpi-theme-dark="1"]. At 0% the mix yields the original
+     * colour byte for byte, so nothing changes for light palettes. Colours carrying
+     * an alpha channel are handled by color-mix() as well, which is what the pale
+     * translucent lane backgrounds rely on.
+     *
+     * The result contains none of the five characters Twig escapes in an HTML
+     * context, so it survives {{ ... }} in a style attribute untouched.
+     */
+    private static function toThemedBackground(string $color): string
+    {
+        return 'color-mix(in srgb, ' . $color . ', var(--tblr-bg-surface) var(--tt-dark-bg-mix, 0%))';
+    }
+
+    /**
+     * Same idea for a foreground colour: --tt-dark-fg-mix lifts it towards the theme
+     * text colour under a dark palette, where several of the type accents fell below
+     * the readable contrast ratio on a black background.
+     */
+    private static function toThemedForeground(string $color): string
+    {
+        return 'color-mix(in srgb, ' . $color . ', var(--tblr-body-color) var(--tt-dark-fg-mix, 0%))';
     }
 
     /**
@@ -1054,6 +1086,17 @@ class Display extends CommonGLPI
             //        if ($item instanceof AssignState) {
             //            $chart->options->colors = ['#49bf4d', '#49bf4d', 'orange', '#1b2f62'];
             //        }
+            // Google Charts has no dark theme, and a Timeline chart exposes nothing for
+            // its time axis or its grid lines -- hAxis is not supported there. Only the
+            // canvas and the row labels can be reached from here, which left the axis
+            // labels black whatever we did. The stylesheet inverts the whole drawing
+            // under a dark palette instead; everything below is therefore still authored
+            // for a light canvas, and comes out light-on-dark after inversion.
+            // The canvas itself is dropped so the card shows through rather than being
+            // inverted into a flat black slab of its own.
+            if (ThemeManager::getInstance()->getCurrentTheme()->isDarkTheme()) {
+                $chart->options->backgroundColor = new ChartBackgroundColor(fill: 'transparent');
+            }
             $chart->options->timeline = new TimelineOptions(
                 rowLabelStyle: new ChartLabelStyle(
                     color: '#333',

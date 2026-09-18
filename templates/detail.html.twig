@@ -35,7 +35,7 @@
  #}
 
 <table class="table table-bordered text-center rounded">
-    <tr class="bg-body-tertiary">
+    <tr class="tt-th">
         <th colspan="{{ colspan }}">
             {{ __('Result details') }}{% if subtitle %} ({{ subtitle }}){% endif %}
         </th>
@@ -45,15 +45,15 @@
         <td colspan="{{ colspan }}" style="width:100%">{{ chart|raw }}</td>
     </tr>
     <tr>
-        <th class="bg-body-secondary"></th>
+        <th class="tt-th-alt"></th>
         {% for name in statuses %}
-            <th class="bg-body-tertiary">{{ name }}</th>
+            <th class="tt-th">{{ name }}</th>
         {% endfor %}
     </tr>
     {% for row in rows %}
         <tr>
             {# row.label is a raw DB value (group/user name), auto-escaped by Twig #}
-            <th class="bg-body-tertiary">{{ row.label }}</th>
+            <th class="tt-th">{{ row.label }}</th>
             {% for cell in row.cells %}
                 <td>{{ cell }}</td>
             {% endfor %}
