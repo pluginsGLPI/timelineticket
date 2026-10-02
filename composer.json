@@ -16,6 +16,7 @@
         }
     },
     "config": {
+        "autoloader-suffix": "PluginTimelineticket",
         "optimize-autoloader": true,
         "platform": {
             "php": "8.2.99"
