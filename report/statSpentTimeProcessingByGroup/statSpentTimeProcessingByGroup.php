@@ -217,7 +217,7 @@ if ($nbtot == 0) {
         Html::header($title, $_SERVER['PHP_SELF'], "utils", "report");
         Report::title();
     }
-    echo "<div class='center red b'>" . __s('No results found') . "</div>";
+    Tool::showReportEmpty();
     Html::footer();
 } elseif ($output_type == Search::HTML_OUTPUT) {
     if (!$HEADER_LOADED) {
@@ -225,59 +225,8 @@ if ($nbtot == 0) {
         Report::title();
     }
 
-    echo "<div class='center'>";
-
-    echo "<table class='tab_cadre_fixe'>";
-    echo "<tr><th>" . htmlescape($title) . "</th></tr>\n";
-
-    echo "<tr class='tab_bg_2 center'><td class='center'>";
-    echo "<form method='POST' action='" . $self_url . "?start=$start'>\n";
-
-    $param = "";
-    foreach ($_POST as $key => $val) {
-        // The criteria form above is closed by Html::closeForm(), which emits a hidden
-        // _glpi_csrf_token: the token was therefore part of $_POST and ended up both in
-        // the regenerated hidden fields and in the $param string that printPager()
-        // publishes in every pagination href. A session token thus reached the browser
-        // history, the proxy logs and the Referer header. Internal _glpi_* fields have
-        // no business in a report URL, and every generated form gets a fresh token.
-        if (str_starts_with((string) $key, '_glpi_')) {
-            continue;
-        }
-        // urlencode() raises a TypeError on an array, so a criterion nested two levels deep
-        // -- groups[0][0]=1, which nothing prevents from being posted -- interrupted the
-        // rendering on a fatal error in the middle of an already sent page. The sort link
-        // builder further down already carries this guard; it simply had never been
-        // reported here. The key is encoded too, so a bracket or a separator sent as a
-        // field name cannot forge an extra parameter in the pagination URL.
-        if (is_array($val)) {
-            foreach ($val as $k => $v) {
-                if (!is_scalar($v)) {
-                    continue;
-                }
-                $name =  $key . "[$k]";
-                echo Html::hidden($name, ['value' => $v]);
-                if (!empty($param)) {
-                    $param .= "&";
-                }
-                $param .= urlencode((string) $key) . "[" . urlencode((string) $k) . "]="
-                          . urlencode((string) $v);
-            }
-        } else {
-            if (!is_scalar($val)) {
-                continue;
-            }
-            echo Html::hidden($key, ['value' => $val]);
-            if (!empty($param)) {
-                $param .= "&";
-            }
-            $param .= urlencode((string) $key) . "=" . urlencode((string) $val);
-        }
-    }
-    Dropdown::showOutputFormat();
-    Html::closeForm();
-    echo "</td></tr>";
-    echo "</table></div>";
+    // Export form (templates/report_criteria.html.twig); $param feeds the pager links
+    $param = Tool::showReportExportForm($title, $self_url . "?start=$start", $_POST);
 
     Html::printPager($start, $nbtot, $self_url, $param);
 }

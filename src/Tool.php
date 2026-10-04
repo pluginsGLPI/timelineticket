@@ -45,6 +45,7 @@ use Config;
 use DateTime;
 use DateTimeZone;
 use Entity;
+use Glpi\Application\View\TemplateRenderer;
 use Glpi\DBAL\QuerySubQuery;
 use Glpi\Exception\Http\AccessDeniedHttpException;
 use Glpi\Search\SearchEngine;
@@ -92,6 +93,24 @@ class Tool
      *
      * @return bool
      */
+    public static function isHtmlOutput($output_type): bool
+    {
+        return (int) $output_type === Search::HTML_OUTPUT;
+    }
+
+    /**
+     * Columns of the HTML table: label (pre-escaped), sort link, sort state.
+     *
+     * @var list<array{label: string, link: string, sorted: bool, order: string}>
+     */
+    private static array $html_cols = [];
+
+    /** @var list<list<string>> */
+    private static array $html_rows = [];
+
+    /** @var list<string> */
+    private static array $html_row = [];
+
     public static function isExportOutput($output_type): bool
     {
         return in_array((int) $output_type, self::EXPORT_OUTPUT_TYPES, true);
@@ -109,6 +128,13 @@ class Tool
      */
     public static function showHeader($output_type, $rows, $cols, $fixed = 0): string
     {
+        if (self::isHtmlOutput($output_type)) {
+            self::$html_cols = [];
+            self::$html_rows = [];
+            self::$html_row  = [];
+
+            return '';
+        }
         if (!self::isExportOutput($output_type)) {
             return Search::showHeader($output_type, $rows, $cols, $fixed);
         }
@@ -142,6 +168,17 @@ class Tool
         $order = "",
         $options = ""
     ): string {
+        if (self::isHtmlOutput($output_type)) {
+            self::$html_cols[] = [
+                'label'  => (string) $value,
+                'link'   => (string) $linkto,
+                'sorted' => (bool) $issort,
+                'order'  => (string) $order,
+            ];
+            $num++;
+
+            return '';
+        }
         if (!self::isExportOutput($output_type)) {
             return Search::showHeaderItem($output_type, $value, $num, $linkto, $issort, $order, $options);
         }
@@ -163,6 +200,11 @@ class Tool
      */
     public static function showNewLine($output_type, $odd = false, $is_deleted = false): string
     {
+        if (self::isHtmlOutput($output_type)) {
+            self::$html_row = [];
+
+            return '';
+        }
         if (!self::isExportOutput($output_type)) {
             return Search::showNewLine($output_type, $odd, $is_deleted);
         }
@@ -185,6 +227,12 @@ class Tool
      */
     public static function showItem($output_type, $value, &$num, $row, $extraparam = ''): string
     {
+        if (self::isHtmlOutput($output_type)) {
+            self::$html_row[] = (string) ($value ?? '');
+            $num++;
+
+            return '';
+        }
         if (!self::isExportOutput($output_type)) {
             return Search::showItem($output_type, $value, $num, $row, $extraparam);
         }
@@ -205,6 +253,15 @@ class Tool
      */
     public static function showEndLine($output_type, bool $is_header_line = false): string
     {
+        if (self::isHtmlOutput($output_type)) {
+            // The header line only filled the columns
+            if (self::$html_row !== []) {
+                self::$html_rows[] = self::$html_row;
+            }
+            self::$html_row = [];
+
+            return '';
+        }
         if (!self::isExportOutput($output_type)) {
             return Search::showEndLine($output_type, $is_header_line);
         }
@@ -231,6 +288,12 @@ class Tool
      */
     public static function showFooter($output_type, $title = "", $count = null): string
     {
+        if (self::isHtmlOutput($output_type)) {
+            return TemplateRenderer::getInstance()->render('@timelineticket/report_table.html.twig', [
+                'cols' => self::$html_cols,
+                'rows' => self::$html_rows,
+            ]);
+        }
         if (!self::isExportOutput($output_type)) {
             return Search::showFooter($output_type, $title, $count);
         }
@@ -315,6 +378,60 @@ class Tool
      *
      * @return string
      */
+    /**
+     * Export form of the reports: the posted criteria are posted again with the output format.
+     * Returns the query string of those criteria, for the pager links.
+     *
+     * @param array<string, mixed> $post
+     */
+    public static function showReportExportForm(string $title, string $action, array $post): string
+    {
+        $hidden = [];
+        $param  = [];
+        foreach ($post as $key => $val) {
+            // Internal _glpi_* fields (the CSRF token of the criteria form) have no business in
+            // a report URL: every generated form gets a fresh token
+            if (str_starts_with((string) $key, '_glpi_')) {
+                continue;
+            }
+            // A criterion nested two levels deep is skipped, and keys are encoded so that a
+            // separator sent as a field name cannot forge an extra parameter
+            $is_list = is_array($val);
+            $values  = $is_list ? $val : [$val];
+            foreach ($values as $k => $v) {
+                if (!is_scalar($v)) {
+                    continue;
+                }
+                $name     = $is_list ? $key . "[$k]" : (string) $key;
+                $hidden[] = ['name' => $name, 'value' => (string) $v];
+                $param[]  = $is_list
+                    ? urlencode((string) $key) . '[' . urlencode((string) $k) . ']=' . urlencode((string) $v)
+                    : urlencode((string) $key) . '=' . urlencode((string) $v);
+            }
+        }
+
+        TemplateRenderer::getInstance()->display('@timelineticket/report_criteria.html.twig', [
+            'title'          => $title,
+            'action'         => $action,
+            'hidden'         => $hidden,
+            'output_formats' => [
+                Search::CSV_OUTPUT         => __('Current page in CSV'),
+                Search::ODS_OUTPUT         => __('Current page as Open Document format (.ods)'),
+                Search::XLSX_OUTPUT        => __('Current page as Office Open XML (.xlsx)'),
+                '-' . Search::CSV_OUTPUT  => __('All pages in CSV'),
+                '-' . Search::ODS_OUTPUT  => __('All pages as Open Document format (.ods)'),
+                '-' . Search::XLSX_OUTPUT => __('All pages as Office Open XML (.xlsx)'),
+            ],
+        ]);
+
+        return implode('&', $param);
+    }
+
+    public static function showReportEmpty(): void
+    {
+        TemplateRenderer::getInstance()->display('@timelineticket/report_empty.html.twig');
+    }
+
     public static function escapeForOutput($output_type, $value): string
     {
         if ((int) $output_type !== Search::HTML_OUTPUT) {
