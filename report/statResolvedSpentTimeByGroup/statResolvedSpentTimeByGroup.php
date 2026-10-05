@@ -41,11 +41,12 @@ use GlpiPlugin\Reports\DateIntervalCriteria;
 use GlpiPlugin\Timelineticket\AssignGroup;
 use GlpiPlugin\Timelineticket\Tool;
 use GlpiPlugin\Reports\AutoReport;
+use GlpiPlugin\Timelineticket\Display;
 
 // Authorization: this report is a direct entry point reachable by forging its URL, which bypasses
 // the reports-plugin menu gate. Require the plugin's ticket read right before running any query or
 // emitting output, consistent with the display gate enforced across the rest of the plugin.
-Session::checkRight('plugin_timelineticket_ticket', READ);
+Session::checkRight(Display::$rightname, READ);
 
 // Everything below is rendered by the classes of the reports plugin, and the menu that normally
 // reaches this file belongs to it. Called by a forged URL while that plugin is inactive, the

@@ -57,7 +57,7 @@ use function htmlescape;
 
 class AssignGroup extends CommonDBTM
 {
-    public static $rightname = 'plugin_timelineticket_ticket';
+    public static string $rightname = 'plugin_timelineticket_ticket';
 
     /**
      * Replay the visibility of the parent ticket at class level.
@@ -476,7 +476,7 @@ class AssignGroup extends CommonDBTM
         global $DB;
 
         if ($id == 0) {
-            $DB->delete($this->getTable(), [1]);
+            $DB->delete($this->getTable(), [new \Glpi\DBAL\QueryExpression('true')]);
         } else {
             $DB->delete($this->getTable(), ['tickets_id' => $id]);
         }

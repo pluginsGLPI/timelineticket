@@ -94,7 +94,7 @@ function plugin_timelineticket_item_stats($item)
 {
     // Defense in depth: never render the timeline to a user lacking the plugin right,
     // even if the hook is triggered outside the gated registration.
-    if (!Session::haveRightsOr('plugin_timelineticket_ticket', [READ, UPDATE])) {
+    if (!Session::haveRightsOr(Display::$rightname, [READ, UPDATE])) {
         return;
     }
     AssignState::showStateTimeline($item);
@@ -219,7 +219,7 @@ function plugin_timelineticket_getAddSearchOptions($itemtype)
     // search and rebuild the whole assignment history -- including the past assignments the
     // ticket form no longer shows. Returning an empty array withdraws the options from the
     // column picker and from the criteria, exactly as removing the right hides the tab.
-    if (!Session::haveRightsOr('plugin_timelineticket_ticket', [READ, UPDATE])) {
+    if (!Session::haveRightsOr(Display::$rightname, [READ, UPDATE])) {
         return $sopt;
     }
 

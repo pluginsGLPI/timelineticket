@@ -74,7 +74,7 @@ use User;
  */
 class Display extends CommonGLPI
 {
-    public static $rightname = 'plugin_timelineticket_ticket';
+    public static string $rightname = 'plugin_timelineticket_ticket';
 
     /**
      * URL of the Google Charts bootstrap injected by sportlog/google-charts.
@@ -118,7 +118,7 @@ class Display extends CommonGLPI
         // Re-check the plugin right at render time, mirroring plugin_timelineticket_item_stats.
         // The tab is only registered when the right is held (evaluated at session init), but
         // do not rely solely on that gate: enforce it again here before disclosing the timeline.
-        if (!Session::haveRightsOr('plugin_timelineticket_ticket', [READ, UPDATE])) {
+        if (!Session::haveRightsOr(Display::$rightname, [READ, UPDATE])) {
             return false;
         }
         if ($item->getType() == 'Ticket') {
@@ -211,7 +211,7 @@ class Display extends CommonGLPI
     {
         global $DB;
 
-        // Reconstruct button (Html::showSimpleForm emits its own form + CSRF token).
+        // Reconstruct button (Html::showSimpleForm emits its own form).
         // The tab opens on plugin_timelineticket_ticket READ, but rebuilding deletes and
         // re-inserts the rows of the ticket, so front/config.form.php requires UPDATE on it.
         // Offering the button to a reader only produced a refusal: ask the same question here

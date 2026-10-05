@@ -42,11 +42,12 @@ use GlpiPlugin\Timelineticket\AssignState;
 use GlpiPlugin\Timelineticket\AssignUser;
 use GlpiPlugin\Timelineticket\Config;
 use GlpiPlugin\Timelineticket\Grouplevel;
+use GlpiPlugin\Timelineticket\Display;
 
 // Refuse access explicitly before emitting any output, instead of rendering a header
 // followed by an empty body when the operator holds neither required right.
-if (!Session::haveRight("config", READ)
-    && !Session::haveRight("plugin_timelineticket_ticket", UPDATE)) {
+if (!Session::haveRight(\Config::$rightname, READ)
+    && !Session::haveRight(Display::$rightname, UPDATE)) {
     throw new AccessDeniedHttpException();
 }
 
@@ -57,15 +58,15 @@ $grplevel = new Grouplevel();
 
 if (isset($_POST["reconstructStates"])) {
     // Global, all-entity rebuild: restrict to config administrators.
-    Session::checkRight("config", UPDATE);
+    Session::checkRight(\Config::$rightname, UPDATE);
     reconstructAllTimelines(new AssignState());
     Html::back();
 } elseif (isset($_POST["reconstructGroups"])) {
-    Session::checkRight("config", UPDATE);
+    Session::checkRight(\Config::$rightname, UPDATE);
     reconstructAllTimelines(new AssignGroup());
     Html::back();
 } elseif (isset($_POST["reconstructUsers"])) {
-    Session::checkRight("config", UPDATE);
+    Session::checkRight(\Config::$rightname, UPDATE);
     reconstructAllTimelines(new AssignUser());
     Html::back();
 } elseif (isset($_POST["reconstructTicket"])) {
@@ -94,7 +95,7 @@ if (isset($_POST["reconstructStates"])) {
     Html::back();
 } elseif (isset($_POST["update"])) {
     // Global plugin config (singleton): saving requires config UPDATE.
-    Session::checkRight("config", UPDATE);
+    Session::checkRight(\Config::$rightname, UPDATE);
 
     // Hand over the keys the form actually offers rather than the whole POST: CommonDBTM
     // writes any posted key that matches a column, so passing $_POST straight through is an
@@ -110,7 +111,7 @@ if (isset($_POST["reconstructStates"])) {
     // The three buttons of that form trigger a global, all-entity rebuild, which the branches
     // above gate on config UPDATE: a plugin technician was offered buttons whose submission
     // could only end on an access denied page. Show the form to the operators who may use it.
-    if (Session::haveRight("config", UPDATE)) {
+    if (Session::haveRight(\Config::$rightname, UPDATE)) {
         $ptConfig->showReconstructForm();
     }
 
@@ -119,7 +120,7 @@ if (isset($_POST["reconstructStates"])) {
     // technician (plugin_timelineticket_ticket UPDATE) legitimately reaches this
     // page for the per-ticket rebuild form above, but must not see the global
     // plugin configuration they cannot save anyway.
-    if (Session::haveRight("config", READ)) {
+    if (Session::haveRight(\Config::$rightname, READ)) {
         $ptConfig->getFromDB(1);
         $ptConfig->showConfigForm();
     }

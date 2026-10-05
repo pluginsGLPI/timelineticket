@@ -43,7 +43,6 @@
     </div>
     <div class="card-body">
         <form method="post" action="{{ action }}" class="d-flex flex-wrap align-items-center gap-2">
-            <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}">
             {% for field in hidden %}
                 <input type="hidden" name="{{ field.name }}" value="{{ field.value }}">
             {% endfor %}

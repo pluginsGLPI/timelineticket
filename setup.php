@@ -62,8 +62,8 @@ function plugin_version_timelineticket()
         'author'       => 'Nelly Mahu-Lasson && David Durieux && Xavier Caillaud',
         'requirements' => [
             'glpi' => [
-                'min' => '11.0',
-                'max' => '12.0',
+                'min' => '11.0.99',
+                'max' => '12.0.99',
                 'dev' => false,
             ],
         ],
@@ -74,8 +74,7 @@ function plugin_init_timelineticket()
 {
     global $PLUGIN_HOOKS;
 
-    // add autoload for vendor
-    include_once(PLUGIN_TIMELINETICKET_DIR . "/vendor/autoload.php");
+    plugin_timelineticket_register_autoload();
 
     if (Plugin::isPluginActive('timelineticket')) { // check if plugin is active
         $PLUGIN_HOOKS[Hooks::CHANGE_PROFILE]['timelineticket'] = [Profile::class, 'initProfile'];
@@ -89,7 +88,7 @@ function plugin_init_timelineticket()
 
         Plugin::registerClass(Profile::class, ['addtabon' => 'Profile']);
 
-        if (Session::haveRightsOr('plugin_timelineticket_ticket', [READ, UPDATE])) {
+        if (Session::haveRightsOr(Display::$rightname, [READ, UPDATE])) {
             // Same right gate as the Display tab: don't expose the stats hook
             // to users who lack the plugin right.
             $PLUGIN_HOOKS[Hooks::SHOW_ITEM_STATS]['timelineticket'] = [
@@ -115,8 +114,8 @@ function plugin_init_timelineticket()
             'Ticket' => 'plugin_timelineticket_ticket_update',
         ];
 
-        if (Session::haveRight("config", UPDATE)
-            || Session::haveRight('plugin_timelineticket_ticket', UPDATE)) {// Config page
+        if (Session::haveRight(\Config::$rightname, UPDATE)
+            || Session::haveRight(Display::$rightname, UPDATE)) {// Config page
             $PLUGIN_HOOKS[Hooks::CONFIG_PAGE]['timelineticket'] = 'front/config.form.php';
         }
         if (Plugin::isPluginActive('mydashboard')) {
@@ -126,12 +125,40 @@ function plugin_init_timelineticket()
 }
 
 /**
+ * Register the autoloading of the plugin's only runtime dependency, sportlog/google-charts.
+ *
+ * vendor/autoload.php is deliberately not included: the vendor directory also holds the dev
+ * dependencies (glpi-project/tools for the shared translation workflows, which pulls
+ * symfony/console 6.x). Loaded on every request, they shadowed the core's own Symfony 7
+ * classes and broke bin/console (plugin:deactivate exited 255 on GLPI 12).
+ */
+function plugin_timelineticket_register_autoload(): void
+{
+    static $registered = false;
+    if ($registered) {
+        return;
+    }
+    $registered = true;
+
+    spl_autoload_register(static function (string $class): void {
+        $prefix = 'Sportlog\\GoogleCharts\\';
+        if (!str_starts_with($class, $prefix)) {
+            return;
+        }
+        $file = __DIR__ . '/vendor/sportlog/google-charts/src/'
+            . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+        if (is_file($file)) {
+            require $file;
+        }
+    });
+}
+
+/**
  * @return bool
  */
 function plugin_timelineticket_check_prerequisites()
 {
-    if (!is_readable(__DIR__ . '/vendor/autoload.php')
-        || !is_file(__DIR__ . '/vendor/autoload.php')) {
+    if (!is_dir(__DIR__ . '/vendor/sportlog/google-charts/src')) {
         echo "Run composer install --no-dev in the plugin directory<br>";
         return false;
     }

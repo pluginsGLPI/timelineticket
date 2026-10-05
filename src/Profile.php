@@ -50,7 +50,7 @@ use Session;
  */
 class Profile extends \Profile
 {
-    public static $rightname = "profile";
+    public static string $rightname = "profile";
 
     /*
      * Old profile names:
@@ -97,7 +97,7 @@ class Profile extends \Profile
         // could be written -- the controller refuses it -- yet a read-only session was shown a
         // write interface and got a brutal denial on submit. Compute the capability the way the
         // core does and let the template honour it.
-        $canedit = Session::haveRightsOr('profile', [CREATE, UPDATE, PURGE]);
+        $canedit = Session::haveRightsOr(\Profile::$rightname, [CREATE, UPDATE, PURGE]);
 
         $twig = TemplateRenderer::getInstance();
         $twig->display('@timelineticket/profile.html.twig', [

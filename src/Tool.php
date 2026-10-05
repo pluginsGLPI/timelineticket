@@ -389,8 +389,7 @@ class Tool
         $hidden = [];
         $param  = [];
         foreach ($post as $key => $val) {
-            // Internal _glpi_* fields (the CSRF token of the criteria form) have no business in
-            // a report URL: every generated form gets a fresh token
+            // Internal _glpi_* fields have no business in a report URL
             if (str_starts_with((string) $key, '_glpi_')) {
                 continue;
             }
@@ -461,7 +460,7 @@ class Tool
      */
     public static function getTicketVisibilityCriteria(): array
     {
-        if (Session::haveRight('ticket', Ticket::READALL)) {
+        if (Session::haveRight(\Ticket::$rightname, Ticket::READALL)) {
             return [];
         }
 

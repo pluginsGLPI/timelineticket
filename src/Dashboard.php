@@ -107,7 +107,7 @@ class Dashboard extends CommonGLPI
                     // Access control: this widget exposes ticket assignment
                     // statistics, so it must require the plugin READ right. Without
                     // this gate any authenticated user could render the widget.
-                    if (!Session::haveRight('plugin_timelineticket_ticket', READ)) {
+                    if (!Session::haveRight(Display::$rightname, READ)) {
                         return;
                     }
                     $name    = 'AffectionTechBarChart';
