@@ -64,6 +64,13 @@ class ConfigTest extends DbTestCase
         $this->assertSame(1, $config->getField('add_waiting'));
     }
 
+    public function testUseCalendarIsOffByDefault(): void
+    {
+        $this->login('glpi', 'glpi');
+
+        $this->assertFalse(Config::useCalendar());
+    }
+
     public function testConfigGetIconDelegatesToDisplay(): void
     {
         $icon = Config::getIcon();
