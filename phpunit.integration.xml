@@ -6,6 +6,7 @@
          <file>tests/AssignStateTest.php</file>
          <file>tests/AssignGroupTest.php</file>
          <file>tests/AssignUserTest.php</file>
+         <file>tests/ToolTest.php</file>
       </testsuite>
    </testsuites>
 </phpunit>
