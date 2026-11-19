@@ -138,6 +138,26 @@ class AssignGroupTest extends DbTestCase
         $this->assertGreaterThan(0, $row['delay']);
     }
 
+    public function testInsertGroupChangeDeleteClosesRowWithZeroDelay(): void
+    {
+        $this->login('glpi', 'glpi');
+
+        $ticket = $this->createTicket();
+        $group  = $this->createGroup();
+        $date   = date('Y-m-d H:i:s');
+
+        // Released in the same second: the row must be closed with 0, not left open (NULL).
+        $assign_group = new AssignGroup();
+        $assign_group->insertGroupChange($ticket, $date, $group->getID(), 'new');
+        $assign_group->insertGroupChange($ticket, $date, $group->getID(), 'delete');
+
+        $row = current($assign_group->find([
+            'tickets_id' => $ticket->getID(),
+            'groups_id'  => $group->getID(),
+        ]));
+        $this->assertSame(0, $row['delay']);
+    }
+
     public function testTicketPurgeRemovesRelatedAssignGroups(): void
     {
         $this->login('glpi', 'glpi');
