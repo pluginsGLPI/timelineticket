@@ -126,6 +126,25 @@ class AssignUserTest extends DbTestCase
         $this->assertGreaterThan(0, $row['delay']);
     }
 
+    public function testInsertUserChangeDeleteClosesRowWithZeroDelay(): void
+    {
+        $this->login('glpi', 'glpi');
+
+        $ticket = $this->createTicket();
+        $date   = date('Y-m-d H:i:s');
+
+        // Released in the same second: the row must be closed with 0, not left open (NULL).
+        $assign_user = new AssignUser();
+        $assign_user->insertUserChange($ticket, $date, 2, 'new');
+        $assign_user->insertUserChange($ticket, $date, 2, 'delete');
+
+        $row = current($assign_user->find([
+            'tickets_id' => $ticket->getID(),
+            'users_id'   => 2,
+        ]));
+        $this->assertSame(0, $row['delay']);
+    }
+
     public function testTicketPurgeRemovesRelatedAssignUsers(): void
     {
         $this->login('glpi', 'glpi');

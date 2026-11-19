@@ -65,10 +65,15 @@ class Config extends CommonDBTM
         Dropdown::showYesNo("use_google_charts", $this->fields["use_google_charts"] ?? 0);
         $use_google_charts_dropdown = ob_get_clean();
 
+        ob_start();
+        Dropdown::showYesNo("use_calendar", $this->fields["use_calendar"] ?? 0);
+        $use_calendar_dropdown = ob_get_clean();
+
         TemplateRenderer::getInstance()->display('@timelineticket/config.html.twig', [
             'form_url'                   => $this->getFormURL(),
             'add_waiting_dropdown'       => $add_waiting_dropdown,
             'use_google_charts_dropdown' => $use_google_charts_dropdown,
+            'use_calendar_dropdown'      => $use_calendar_dropdown,
         ]);
     }
 
@@ -96,6 +101,24 @@ class Config extends CommonDBTM
         }
 
         return (int) ($config->fields['use_google_charts'] ?? 0) === 1;
+    }
+
+
+    /**
+     * Whether times are counted in the opening hours of the ticket calendar.
+     *
+     * Off by default: since the GLPI 11 version the plugin counts wall-clock time, and an
+     * upgrade must not change the figures an instance already reports on.
+     * Reads fail closed: a missing row or a table not yet migrated answers no.
+     **/
+    public static function useCalendar(): bool
+    {
+        $config = new self();
+        if (!$config->getFromDB(1)) {
+            return false;
+        }
+
+        return (int) ($config->fields['use_calendar'] ?? 0) === 1;
     }
 
 
@@ -141,6 +164,7 @@ class Config extends CommonDBTM
                         `id` int {$default_key_sign} NOT NULL auto_increment,
                         `add_waiting` int {$default_key_sign} NOT NULL DEFAULT '1',
                         `use_google_charts` tinyint NOT NULL DEFAULT '0',
+                        `use_calendar` tinyint NOT NULL DEFAULT '0',
                         PRIMARY KEY  (`id`)
                ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
 
@@ -154,6 +178,7 @@ class Config extends CommonDBTM
         // It defaults to 0: the charts reach out to www.gstatic.com at draw time, which is the
         // operator's call to make, not a side effect of upgrading -- see useGoogleCharts().
         $migration->addField($table, 'use_google_charts', 'bool', ['value' => 0]);
+        $migration->addField($table, 'use_calendar', 'bool', ['value' => 0]);
         $migration->migrationOneTable($table);
 
         $conf = new self();
@@ -161,7 +186,8 @@ class Config extends CommonDBTM
             $conf->add([
                 'id'                => 1,
                 'add_waiting'       => 1,
-                'use_google_charts' => 0]);
+                'use_google_charts' => 0,
+                'use_calendar'      => 0]);
         }
     }
 

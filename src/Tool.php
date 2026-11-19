@@ -39,12 +39,8 @@
 namespace GlpiPlugin\Timelineticket;
 
 use Calendar;
-use CommonGLPI;
 use CommonDBTM;
-use Config;
-use DateTime;
-use DateTimeZone;
-use Entity;
+use CommonITILObject;
 use Glpi\Application\View\TemplateRenderer;
 use Glpi\DBAL\QuerySubQuery;
 use Glpi\Exception\Http\AccessDeniedHttpException;
@@ -662,54 +658,29 @@ class Tool
 
 
 
-    public static function getPeriodTime(CommonGLPI $ticket, $start, $end)
+    public static function getPeriodTime(CommonITILObject $ticket, $start, $end)
     {
-
-        //        $calendar = new Calendar();
         if ($ticket->fields['slas_id_ttr'] != 0) { // Have SLT
             $sla = new SLA();
             $sla->getFromDB($ticket->fields['slas_id_ttr']);
-            $totaltime = $sla->getActiveTimeBetween($start, $end);
-        } else {
-            //            $calendars_id = Entity::getUsedConfig(
-            //                'calendars_strategy',
-            //                $ticket->fields['entities_id'],
-            //                'calendars_id',
-            //                0
-            //            );
-            //            if ($calendars_id != 0) { // Ticket entity have calendar
-            //                $calendar->getFromDB($calendars_id);
-            //                $totaltime = $calendar->getActiveTimeBetween($start, $end);
-            //            } else { // No calendar
-            $totaltime = strtotime($end) - strtotime($start);
-            //            }
+            return $sla->getActiveTimeBetween($start, $end);
         }
-        return $totaltime;
+        return self::getActiveTime($ticket, $start, $end);
     }
-    /**
-     * @param $myDate
-     *
-     * @return false|string
-     * @throws \Exception
-     */
-    public static function convertDateToRightTimezoneForCalendarUse($myDate)
-    {
-        // We convert the both dates because $date passed in fonction are timezoned but not hours of calendars
-        $currTimezone   = new DateTime(date("Y-m-d"));
-        $configTimezone = Config::getConfigurationValues('core', ['timezone']);
-        $baseTimezone   = 'UTC';
-        $tz             = ini_get('date.timezone');
-        if (!empty($configTimezone['timezone']) && !is_null($configTimezone['timezone'])) {
-            $baseTimezone = $configTimezone['timezone'];
-        } elseif (!empty($tz)) {
-            $baseTimezone = $tz;
-        }
 
-        if ($baseTimezone > 0) {
-            $globalConfTimezone = new DateTime('2008-06-21', new DateTimeZone($baseTimezone));
-            $timeOffset         = date_offset_get($currTimezone) - date_offset_get($globalConfTimezone);
-            return date("Y-m-d H:i:s", (strtotime($myDate) - $timeOffset));
+    /**
+     * Seconds elapsed between two dates of a ticket.
+     *
+     * Counted in the opening hours of the ticket calendar when the administrator turned the
+     * option on, wall-clock time otherwise (no option, or no calendar for the ticket entity).
+     * Dates are passed as stored, the way the core feeds Calendar::getActiveTimeBetween().
+     */
+    public static function getActiveTime(CommonITILObject $ticket, $start, $end): int
+    {
+        $calendar = new Calendar();
+        if (Config::useCalendar() && $calendar->getFromDB($ticket->getCalendar())) {
+            return (int) $calendar->getActiveTimeBetween($start, $end);
         }
-        return $myDate;
+        return strtotime($end) - strtotime($start);
     }
 }

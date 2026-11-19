@@ -44,6 +44,7 @@ use GlpiPlugin\Timelineticket\Config;
 use GlpiPlugin\Timelineticket\Display;
 use GlpiPlugin\Timelineticket\Grouplevel;
 use GlpiPlugin\Timelineticket\Profile;
+use GlpiPlugin\Timelineticket\Tool;
 
 function plugin_timelineticket_install()
 {
@@ -304,7 +305,7 @@ function plugin_timelineticket_giveItem($type, $ID, $data, $num)
                     $enddate = $ticket->fields['status'] == Ticket::CLOSED
                         ? $ticket->fields['closedate']
                         : $_SESSION["glpi_currenttime"];
-                    $time = strtotime($enddate) - strtotime($row['date']);
+                    $time = Tool::getActiveTime($ticket, $row['date'], $enddate);
                 } else {
                     $time = (int) $row['delay'];
                 }
@@ -351,7 +352,7 @@ function plugin_timelineticket_giveItem($type, $ID, $data, $num)
                     $enddate = $ticket->fields['status'] == Ticket::CLOSED
                         ? $ticket->fields['closedate']
                         : $_SESSION["glpi_currenttime"];
-                    $time = strtotime($enddate) - strtotime($row['date']);
+                    $time = Tool::getActiveTime($ticket, $row['date'], $enddate);
                 } else {
                     $time = (int) $row['delay'];
                 }
