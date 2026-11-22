@@ -55,6 +55,16 @@
                 {# GLPI-generated dropdown markup, safe to output as-is #}
                 <td>{{ use_google_charts_dropdown|raw }}</td>
             </tr>
+            <tr class="tab_bg_1 top">
+                <td>
+                    {{ __('Count times in the working hours of the ticket calendar', 'timelineticket') }}
+                    <div class="text-muted">
+                        {{ __('Applies to the times recorded from now on. Use the reconstruction to recompute the history.', 'timelineticket') }}
+                    </div>
+                </td>
+                {# GLPI-generated dropdown markup, safe to output as-is #}
+                <td>{{ use_calendar_dropdown|raw }}</td>
+            </tr>
             <tr class="tab_bg_1">
                 <td colspan="2">
                     <input type="hidden" name="id" value="1">
