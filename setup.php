@@ -60,6 +60,9 @@ function plugin_version_timelineticket()
         'homepage'     => 'https://github.com/pluginsGLPI/timelineticket',
         'license'      => 'AGPLv3+',
         'author'       => 'Nelly Mahu-Lasson && David Durieux && Xavier Caillaud',
+        // No inline handler, javascript: URL nor script without nonce: the swimlane and the
+        // charts are ES modules, the ECharts library being loaded with the nonce of the page
+        'csp_compliant' => true,
         'requirements' => [
             'glpi' => [
                 'min' => '11.0.99',
@@ -74,16 +77,14 @@ function plugin_init_timelineticket()
 {
     global $PLUGIN_HOOKS;
 
-    plugin_timelineticket_register_autoload();
-
     if (Plugin::isPluginActive('timelineticket')) { // check if plugin is active
         $PLUGIN_HOOKS[Hooks::CHANGE_PROFILE]['timelineticket'] = [Profile::class, 'initProfile'];
 
-        // The Google Charts bootstrap is only needed where a chart is actually drawn:
-        // Display::showTimelineGraph() injects it next to the chart markup. Registering it
-        // here would load it on every page of the central interface instead.
-        // Swimlane arrow renderer, loaded as an ES module (no inline <script>).
+        // Swimlane arrow renderer and timeline charts, loaded as ES modules (no inline
+        // <script>). The charts module loads the ECharts library of GLPI only on the pages
+        // that hold a chart.
         $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT_MODULE]['timelineticket'][] = 'js/swimlane.js';
+        $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT_MODULE]['timelineticket'][] = 'js/timeline_chart.js';
         $PLUGIN_HOOKS[Hooks::ADD_CSS]['timelineticket'][] = 'css/timelineticket.css';
 
         Plugin::registerClass(Profile::class, ['addtabon' => 'Profile']);
@@ -125,43 +126,9 @@ function plugin_init_timelineticket()
 }
 
 /**
- * Register the autoloading of the plugin's only runtime dependency, sportlog/google-charts.
- *
- * vendor/autoload.php is deliberately not included: the vendor directory also holds the dev
- * dependencies (glpi-project/tools for the shared translation workflows, which pulls
- * symfony/console 6.x). Loaded on every request, they shadowed the core's own Symfony 7
- * classes and broke bin/console (plugin:deactivate exited 255 on GLPI 12).
- */
-function plugin_timelineticket_register_autoload(): void
-{
-    static $registered = false;
-    if ($registered) {
-        return;
-    }
-    $registered = true;
-
-    spl_autoload_register(static function (string $class): void {
-        $prefix = 'Sportlog\\GoogleCharts\\';
-        if (!str_starts_with($class, $prefix)) {
-            return;
-        }
-        $file = __DIR__ . '/vendor/sportlog/google-charts/src/'
-            . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
-        if (is_file($file)) {
-            require $file;
-        }
-    });
-}
-
-/**
  * @return bool
  */
 function plugin_timelineticket_check_prerequisites()
 {
-    if (!is_dir(__DIR__ . '/vendor/sportlog/google-charts/src')) {
-        echo "Run composer install --no-dev in the plugin directory<br>";
-        return false;
-    }
-
     return true;
 }

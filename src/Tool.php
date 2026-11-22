@@ -47,7 +47,6 @@ use Glpi\Exception\Http\AccessDeniedHttpException;
 use Glpi\Search\SearchEngine;
 use Search;
 use Session;
-use SLA;
 use Ticket;
 
 use function htmlescape;
@@ -657,13 +656,14 @@ class Tool
 
 
 
+    /**
+     * Time of the period still open, added to the recorded delays: counted the same way as
+     * them (getActiveTime()). The SLA of the ticket used to impose its own calendar here,
+     * even with the option off, so a total mixed wall-clock time and SLA working hours.
+     * Ticket::getCalendar() already resolves the calendar of the SLA when the option is on.
+     */
     public static function getPeriodTime(CommonITILObject $ticket, $start, $end)
     {
-        if ($ticket->fields['slas_id_ttr'] != 0) { // Have SLT
-            $sla = new SLA();
-            $sla->getFromDB($ticket->fields['slas_id_ttr']);
-            return $sla->getActiveTimeBetween($start, $end);
-        }
         return self::getActiveTime($ticket, $start, $end);
     }
 
@@ -676,10 +676,41 @@ class Tool
      */
     public static function getActiveTime(CommonITILObject $ticket, $start, $end): int
     {
-        $calendar = new Calendar();
-        if (Config::useCalendar() && $calendar->getFromDB($ticket->getCalendar())) {
+        $calendar = self::getCountingCalendar($ticket);
+        if ($calendar !== null) {
             return (int) $calendar->getActiveTimeBetween($start, $end);
         }
         return strtotime($end) - strtotime($start);
+    }
+
+    /**
+     * Date at which a period of a ticket ended, from its start and its recorded delay: the
+     * reverse of getActiveTime(). In the opening hours of the calendar, it is the moment the
+     * delay was reached; the period may actually have ended later, outside those hours.
+     */
+    public static function getEndDate(CommonITILObject $ticket, string $start, int $delay): string
+    {
+        $calendar = self::getCountingCalendar($ticket);
+        if ($calendar !== null && $delay > 0) {
+            $end = $calendar->computeEndDate($start, $delay);
+            if (is_string($end)) {
+                return $end;
+            }
+        }
+        return date('Y-m-d H:i:s', strtotime($start) + $delay);
+    }
+
+    /**
+     * Calendar the times of a ticket are counted in: none when the option is off or when the
+     * ticket has no calendar.
+     */
+    private static function getCountingCalendar(CommonITILObject $ticket): ?Calendar
+    {
+        if (!Config::useCalendar()) {
+            return null;
+        }
+        $calendar = new Calendar();
+
+        return $calendar->getFromDB($ticket->getCalendar()) ? $calendar : null;
     }
 }

@@ -31,7 +31,7 @@
 
 Le plugin **TimelineTicket** ajoute un onglet **Chronologie** sur chaque ticket GLPI. Il enregistre en temps réel les changements de statut, d'affectation de groupe et d'affectation de technicien, puis restitue ces données sous forme de :
 
-- **Graphiques de Gantt** (Google Charts) montrant les intervalles de temps passés dans chaque statut ou par chaque acteur
+- **Graphiques de Gantt** (ECharts, fourni avec GLPI) montrant les intervalles de temps passés dans chaque statut ou par chaque acteur
 - **Tableaux de synthèse** avec les durées par statut, par groupe et par technicien
 - Un **swimlane** visuel regroupant tous les événements du ticket (statuts, groupes, techniciens, suivis, tâches, solutions, validations) par couloir de statut
 
@@ -92,7 +92,7 @@ L'onglet affiche :
 
 Section **Résultats détaillés (Statuts)** — inclut :
 
-1. **Graphique de Gantt des statuts** (Google Charts Timeline) : chaque barre représente la durée dans un statut donné.
+1. **Graphique de Gantt des statuts** (ECharts) : chaque barre représente la durée dans un statut donné.
 2. **Tableau de détail** avec les colonnes :
    - Ancien statut / Nouveau statut
    - Date de début / Date de fin

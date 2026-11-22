@@ -41,9 +41,19 @@ namespace GlpiPlugin\Timelineticket\Tests;
 use Glpi\Tests\DbTestCase;
 use GlpiPlugin\Timelineticket\Config;
 use GlpiPlugin\Timelineticket\Grouplevel;
+use ReflectionProperty;
 
 class ConfigTest extends DbTestCase
 {
+    public function tearDown(): void
+    {
+        // Config::useCalendar() keeps the option for the request: the rollback of the test
+        // transaction does not reach it
+        (new ReflectionProperty(Config::class, 'use_calendar'))->setValue(null, null);
+
+        parent::tearDown();
+    }
+
     public function testConfigRecordExistsAfterInstall(): void
     {
         $this->login('glpi', 'glpi');
@@ -68,6 +78,17 @@ class ConfigTest extends DbTestCase
     {
         $this->login('glpi', 'glpi');
 
+        $this->assertFalse(Config::useCalendar());
+    }
+
+    public function testUseCalendarIsReadAgainOnceTheConfigurationChanges(): void
+    {
+        $this->login('glpi', 'glpi');
+
+        $this->assertFalse(Config::useCalendar());
+        $this->updateItem(Config::class, 1, ['use_calendar' => 1]);
+        $this->assertTrue(Config::useCalendar());
+        $this->updateItem(Config::class, 1, ['use_calendar' => 0]);
         $this->assertFalse(Config::useCalendar());
     }
 
