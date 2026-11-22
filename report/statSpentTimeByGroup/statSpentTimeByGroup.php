@@ -68,13 +68,13 @@ $DBCONNECTION_REQUIRED = 1;
 $report = new AutoReport(__("statSpentTimeByGroup_report_title", "timelineticket"));
 //Report's search criterias
 $dateYear = date("Y-m-d", mktime(0, 0, 0, date("m"), 1, date("Y") - 1));
-$lastday  = cal_days_in_month(CAL_GREGORIAN, date("m"), date("Y"));
+$lastday  = (int) date('t');
 
 if (date("d") == $lastday) {
     $dateMonthend   = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d"), date("Y")));
     $dateMonthbegin = date("Y-m-d", mktime(0, 0, 0, date("m"), 1, date("Y")));
 } else {
-    $lastday        = cal_days_in_month(CAL_GREGORIAN, date("m") - 1, date("Y"));
+    $lastday        = (int) date('t', mktime(0, 0, 0, date('m') - 1, 1, date('Y')));
     $dateMonthend   = date("Y-m-d", mktime(0, 0, 0, date("m") - 1, $lastday, date("Y")));
     $dateMonthbegin = date("Y-m-d", mktime(0, 0, 0, date("m") - 1, 1, date("Y")));
 }
