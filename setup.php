@@ -60,6 +60,9 @@ function plugin_version_timelineticket()
         'homepage'     => 'https://github.com/pluginsGLPI/timelineticket',
         'license'      => 'AGPLv3+',
         'author'       => 'Nelly Mahu-Lasson && David Durieux && Xavier Caillaud',
+        // No inline handler, javascript: URL nor script without nonce: the swimlane and the
+        // charts are ES modules, the ECharts library being loaded with the nonce of the page
+        'csp_compliant' => true,
         'requirements' => [
             'glpi' => [
                 'min' => '11.0',
@@ -74,17 +77,14 @@ function plugin_init_timelineticket()
 {
     global $PLUGIN_HOOKS;
 
-    // add autoload for vendor
-    include_once(PLUGIN_TIMELINETICKET_DIR . "/vendor/autoload.php");
-
     if (Plugin::isPluginActive('timelineticket')) { // check if plugin is active
         $PLUGIN_HOOKS[Hooks::CHANGE_PROFILE]['timelineticket'] = [Profile::class, 'initProfile'];
 
-        // The Google Charts bootstrap is only needed where a chart is actually drawn:
-        // Display::showTimelineGraph() injects it next to the chart markup. Registering it
-        // here would load it on every page of the central interface instead.
-        // Swimlane arrow renderer, loaded as an ES module (no inline <script>).
+        // Swimlane arrow renderer and timeline charts, loaded as ES modules (no inline
+        // <script>). The charts module loads the ECharts library of GLPI only on the pages
+        // that hold a chart.
         $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT_MODULE]['timelineticket'][] = 'js/swimlane.js';
+        $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT_MODULE]['timelineticket'][] = 'js/timeline_chart.js';
         $PLUGIN_HOOKS[Hooks::ADD_CSS]['timelineticket'][] = 'css/timelineticket.css';
 
         Plugin::registerClass(Profile::class, ['addtabon' => 'Profile']);
@@ -130,11 +130,5 @@ function plugin_init_timelineticket()
  */
 function plugin_timelineticket_check_prerequisites()
 {
-    if (!is_readable(__DIR__ . '/vendor/autoload.php')
-        || !is_file(__DIR__ . '/vendor/autoload.php')) {
-        echo "Run composer install --no-dev in the plugin directory<br>";
-        return false;
-    }
-
     return true;
 }

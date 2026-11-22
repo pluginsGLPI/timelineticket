@@ -44,10 +44,22 @@ use Entity;
 use Glpi\Tests\DbTestCase;
 use GlpiPlugin\Timelineticket\Config;
 use GlpiPlugin\Timelineticket\Tool;
+use ReflectionProperty;
+use SLA;
+use SLM;
 use Ticket;
 
 class ToolTest extends DbTestCase
 {
+    public function tearDown(): void
+    {
+        // Config::useCalendar() keeps the option for the request: the rollback of the test
+        // transaction does not reach it
+        (new ReflectionProperty(Config::class, 'use_calendar'))->setValue(null, null);
+
+        parent::tearDown();
+    }
+
     /**
      * Ticket of the root entity, whose calendar only opens on Monday from 08:00 to 12:00.
      */
@@ -94,5 +106,51 @@ class ToolTest extends DbTestCase
         $this->assertSame(2 * HOUR_TIMESTAMP, Tool::getActiveTime($ticket, '2026-11-16 06:00:00', '2026-11-16 10:00:00'));
         // Assigned and released outside the opening hours: nothing is counted (issue #47).
         $this->assertSame(0, Tool::getActiveTime($ticket, '2026-11-16 18:00:00', '2026-11-16 20:00:00'));
+    }
+
+    public function testPeriodTimeIsCountedAsTheRecordedDelays(): void
+    {
+        $this->login('glpi', 'glpi');
+        $ticket = $this->createTicketWithMorningCalendar();
+
+        // A resolution SLA with its own calendar, the morning one
+        $calendars_id = $ticket->getCalendar();
+        $slm = $this->createItem(SLM::class, [
+            'name'         => 'SLM',
+            'entities_id'  => 0,
+            'calendars_id' => $calendars_id,
+        ]);
+        $sla = $this->createItem(SLA::class, [
+            'name'                => 'Resolution',
+            'entities_id'         => 0,
+            'slms_id'             => $slm->getID(),
+            'type'                => SLM::TTR,
+            'number_time'         => 4,
+            'definition_time'     => 'hour',
+            'calendars_id'        => $calendars_id,
+            'use_ticket_calendar' => 0,
+        ], ['calendars_id', 'use_ticket_calendar']);
+        $ticket->fields['slas_id_ttr'] = $sla->getID();
+
+        // Option off: wall-clock time, as the recorded delays, whatever the SLA
+        $this->assertSame(4 * HOUR_TIMESTAMP, Tool::getPeriodTime($ticket, '2026-11-16 06:00:00', '2026-11-16 10:00:00'));
+
+        // Option on: the opening hours of the calendar of the SLA
+        $this->updateItem(Config::class, 1, ['use_calendar' => 1]);
+        $this->assertSame(2 * HOUR_TIMESTAMP, Tool::getPeriodTime($ticket, '2026-11-16 06:00:00', '2026-11-16 10:00:00'));
+    }
+
+    public function testEndDateIsTheReverseOfActiveTime(): void
+    {
+        $this->login('glpi', 'glpi');
+        $ticket = $this->createTicketWithMorningCalendar();
+
+        $this->assertSame('2026-11-16 08:00:00', Tool::getEndDate($ticket, '2026-11-16 06:00:00', 2 * HOUR_TIMESTAMP));
+
+        $this->updateItem(Config::class, 1, ['use_calendar' => 1]);
+        // Two working hours from 06:00: the calendar opens at 08:00, so they end at 10:00
+        $this->assertSame('2026-11-16 10:00:00', Tool::getEndDate($ticket, '2026-11-16 06:00:00', 2 * HOUR_TIMESTAMP));
+        // No working time (released outside the opening hours): the period ends where it starts
+        $this->assertSame('2026-11-16 18:00:00', Tool::getEndDate($ticket, '2026-11-16 18:00:00', 0));
     }
 }

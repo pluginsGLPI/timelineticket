@@ -41,21 +41,13 @@ namespace GlpiPlugin\Timelineticket;
 use Calendar;
 use CommonGLPI;
 use CommonITILObject;
-use DateTime;
 use DbUtils;
 use Dropdown;
 use Entity;
 use Glpi\Application\View\TemplateRenderer;
-use Glpi\UI\ThemeManager;
+use Glpi\Toolbox\FrontEnd;
 use Html;
 use Session;
-use Sportlog\GoogleCharts\Charts\Base\Column;
-use Sportlog\GoogleCharts\Charts\Base\ColumnType;
-use Sportlog\GoogleCharts\Charts\Base\DataTable;
-use Sportlog\GoogleCharts\Charts\Options\Common\ChartBackgroundColor;
-use Sportlog\GoogleCharts\Charts\Options\Common\ChartLabelStyle;
-use Sportlog\GoogleCharts\Charts\Options\TimelineChart\TimelineOptions;
-use Sportlog\GoogleCharts\ChartService;
 use ITILFollowup;
 use Ticket;
 use TicketTask;
@@ -75,22 +67,6 @@ use User;
 class Display extends CommonGLPI
 {
     public static $rightname = 'plugin_timelineticket_ticket';
-
-    /**
-     * URL of the Google Charts bootstrap injected by sportlog/google-charts.
-     * A local copy of that file is shipped in public/js/google-charts/.
-     * Only that bootstrap is served locally: the rendering modules it fetches at draw time
-     * (corechart, timeline) cannot be shipped with the plugin, the Google Charts terms of
-     * service requiring the library to be loaded from Google's own servers and allowing
-     * neither its redistribution nor its self-hosting. The outbound dependency and the
-     * content security policy entry it needs are documented in the README, which scopes that
-     * entry to https://www.gstatic.com/charts/ rather than to the whole domain, and the tab
-     * shows an explicit notice, rather than an empty frame, when the modules cannot be reached.
-     */
-    private const GOOGLE_CHARTS_REMOTE_LOADER = 'https://www.gstatic.com/charts/loader.js';
-
-    /** Opening of the script the charts library builds around the serialised data table. */
-    private const CHART_PAYLOAD_PREFIX = 'GoogleCharts.loadCharts(';
 
     public static function getTypeName($nb = 0)
     {
@@ -784,58 +760,6 @@ class Display extends CommonGLPI
     }
 
     /**
-     * Neutralise the script breakout vector of the serialised chart payload.
-     *
-     * The charts library serialises the data table with json_encode() and no flag, then
-     * interpolates the result in "GoogleCharts.loadCharts(%s, true);" inside an inline
-     * <script> block that this plugin prints through a |raw filter. Angle brackets therefore
-     * reach the page verbatim, and a row label holding "</script>" closes the block early --
-     * the labels are group names, user names and service level names, all editable from the
-     * interface by a user holding the corresponding right.
-     *
-     * The escaping is done here, at the serialisation boundary where the output context is
-     * known, rather than by stripping characters from the labels upstream: inside a JSON
-     * string "<" is a valid escape that decodes back to "<", so the label keeps its
-     * original text on the chart instead of being silently mangled. JSON carries no angle
-     * bracket outside of its strings, so nothing else in the payload is affected.
-     *
-     * Only the payload script is rewritten, and only between its tags: the template script
-     * shipped by the library is plain JavaScript, where angle brackets are comparison
-     * operators and must stay untouched.
-     *
-     * The marker is searched anywhere in the body rather than immediately after the opening
-     * tag, and the whole body is rewritten rather than only the tail after it. The previous
-     * form reproduced the exact layout of ChartLoader's private CHART_LOAD_SCRIPT constant, so
-     * an indentation, an IIFE or a DOMContentLoaded wrapper added by any 1.x release of the
-     * library -- composer.json allows them all -- silently disarmed the escaping and the tag
-     * was returned verbatim. Rewriting the whole body costs nothing here: the wrapper emitted
-     * around the serialised data carries no angle bracket of its own, and should a future
-     * release introduce one, the chart breaks visibly instead of shipping an unescaped label.
-     *
-     * @param string $tag One script tag as returned by ChartLoader::load()
-     *
-     * @return string|null The hardened tag, or null when this tag carries no payload
-     **/
-    private static function hardenChartPayload(string $tag): ?string
-    {
-        $opening_end = strpos($tag, '>');
-        $closing     = strrpos($tag, '</script>');
-        if ($opening_end === false || $closing === false || $closing <= $opening_end) {
-            return null;
-        }
-
-        $start   = $opening_end + 1;
-        $payload = substr($tag, $start, $closing - $start);
-        if (!str_contains($payload, self::CHART_PAYLOAD_PREFIX)) {
-            return null;
-        }
-
-        return substr($tag, 0, $start)
-               . str_replace(['<', '>'], ['\u003C', '\u003E'], $payload)
-               . substr($tag, $closing);
-    }
-
-    /**
      * Wrap a colour so that it stays exactly as written under a light palette and
      * shifts towards the theme surface under a dark one.
      *
@@ -864,264 +788,127 @@ class Display extends CommonGLPI
     }
 
     /**
-     * Harden the payload script of a rendered chart markup.
+     * Periods of the timeline chart of a ticket, one row per status, group or technician
+     * ($item), drawn by public/js/timeline_chart.js.
      *
-     * ChartService::render() returns the bootstrap tags and the chart container concatenated
-     * into a single string, whereas hardenChartPayload() works on one tag at a time -- and has
-     * to: the template script the library ships is plain JavaScript, whose angle brackets are
-     * comparison operators, so rewriting the whole string at once would break it. Split the
-     * markup back into script tags and hand each one over; every tag but the payload comes
-     * back untouched.
+     * The chart is drawn on wall-clock dates, while the delays may be counted in the opening
+     * hours of the ticket calendar (Config::useCalendar()): the dates are never derived from
+     * the delays by plain addition.
      *
-     * Fail closed: the markup is only handed back when exactly one payload script was found
-     * and hardened. Finding none means the library no longer emits what this class knows how
-     * to escape, and returning the markup unchanged in that case would publish raw labels
-     * inside an inline script -- the very thing the escaping exists to prevent. The caller
-     * renders the fallback notice instead, so the failure is visible rather than silent.
+     * @param AssignState|AssignGroup|AssignUser $item
      *
-     * @param string $markup Markup as returned by ChartService::render()
-     *
-     * @return string|null The hardened markup, or null when no single payload could be found
-     **/
-    private static function hardenChartMarkup(string $markup): ?string
-    {
-        $payloads = 0;
-        $hardened = preg_replace_callback(
-            '#<script\b[^>]*>.*?</script>#s',
-            static function (array $matches) use (&$payloads): string {
-                $payload = self::hardenChartPayload($matches[0]);
-                if ($payload === null) {
-                    return $matches[0];
-                }
-                $payloads++;
-
-                return $payload;
-            },
-            $markup,
-        );
-
-        if ($hardened === null || $payloads !== 1) {
-            trigger_error(
-                sprintf(
-                    'timelineticket: expected exactly one Google Charts payload script, found %d.'
-                    . ' The chart was not rendered; check the sportlog/google-charts version.',
-                    $payloads,
-                ),
-                E_USER_WARNING,
-            );
-
-            return null;
-        }
-
-        return $hardened;
-    }
-
-    public static function showTimelineGraph(Ticket $ticket, $item)
+     * @return array{rows: list<string>, periods: list<array{row: int, begin: string, end: string, duration: string}>}
+     */
+    public static function getChartData(Ticket $ticket, $item): array
     {
         global $DB;
 
-        // The chart is what pulls https://www.gstatic.com/charts/ into an authenticated page:
-        // the bootstrap is served locally, but it resolves its rendering modules from Google at
-        // draw time. Leave that egress to the operator rather than making it a side effect of
-        // installing the plugin -- see Config::useGoogleCharts(), which is off by default. Both
-        // callers buffer this output and hand it to their template as the "chart" variable, so
-        // emitting nothing leaves the detail table -- the whole content of the tab -- in place.
-        if (!Config::useGoogleCharts()) {
-            return;
-        }
-
-        $req = $DB->request([
-            'FROM' => $item->getTable(),
-            'WHERE' => ['tickets_id' => $ticket->getID()],
-            'ORDER' => ['id ASC'],
-        ]);
-        $a_gantt = [];
-
+        $mylevels = [];
         if ($item instanceof AssignGroup) {
-            $mylevels = [];
             $dbu = new DbUtils();
             $restrict = $dbu->getEntitiesRestrictCriteria("glpi_plugin_timelineticket_grouplevels", '', '', true) +
                 ["ORDER" => 'rank'];
-            $levels = $dbu->getAllDataFromTable("glpi_plugin_timelineticket_grouplevels", $restrict);
-            if (!empty($levels)) {
-                foreach ($levels as $level) {
-                    if (!empty($level["groups"])) {
-                        $groups = json_decode($level["groups"], true);
-                        $mylevels[$level["name"]] = $groups;
-                    }
+            foreach ($dbu->getAllDataFromTable("glpi_plugin_timelineticket_grouplevels", $restrict) as $level) {
+                if (!empty($level["groups"])) {
+                    $mylevels[$level["name"]] = json_decode($level["groups"], true);
                 }
             }
-            $ticketlevels = [];
         }
 
-        foreach ($req as $datareq) {
-            if ($item instanceof AssignUser) {
-                $a_gantt[$datareq['id']]['users_id'] = $datareq['users_id'];
-            } elseif ($item instanceof AssignGroup) {
-
-                $a_gantt[$datareq['id']]['groups_id'] = $datareq['groups_id'];
-            } else {
-                $a_gantt[$datareq['id']]['old_status'] = $datareq['old_status'];
-                $a_gantt[$datareq['id']]['new_status'] = $datareq['new_status'];
+        $rows    = [];
+        $periods = [];
+        // Bars sharing a label share a row, in the order the labels first appear
+        $add = static function (string $name, string $begin, string $end, int $seconds) use (&$rows, &$periods): void {
+            $row = array_search($name, $rows, true);
+            if ($row === false) {
+                $rows[] = $name;
+                $row    = count($rows) - 1;
             }
+            $periods[] = [
+                'row'      => $row,
+                'begin'    => $begin,
+                'end'      => $end,
+                'duration' => Html::timestampToString($seconds, true),
+            ];
+        };
 
+        $now           = $_SESSION["glpi_currenttime"];
+        $previous_date = null;
+        $last_state    = null;
+        foreach (
+            $DB->request([
+                'FROM'  => $item->getTable(),
+                'WHERE' => ['tickets_id' => $ticket->getID()],
+                'ORDER' => ['id ASC'],
+            ]) as $data
+        ) {
             if ($item instanceof AssignState) {
-                $end_date = $datareq['date'];
-                $str_end_date = strtotime($end_date) - $datareq['delay'];
-                $a_gantt[$datareq['id']]['begin_date'] = date('Y-m-d H:i:s', $str_end_date);
+                $name = $data['old_status'] == 0 ? __('New ticket') : Ticket::getStatus($data['old_status']);
+                // A status starts where the previous one ended, the first one at the creation
+                // of the ticket
+                $add($name, $previous_date ?? $ticket->fields['date'], $data['date'], (int) $data['delay']);
+                $previous_date = $data['date'];
+                $last_state    = $data;
+                continue;
+            }
 
-                $a_gantt[$datareq['id']]['end_date'] = $datareq['date'];
-                $a_gantt[$datareq['id']]['delay'] = $datareq['delay'];
+            if ($item instanceof AssignUser) {
+                $name = getUserName($data['users_id']);
             } else {
-                $a_gantt[$datareq['id']]['begin_date'] = $datareq['date'];
-                $a_gantt[$datareq['id']]['delay'] = $datareq['delay'];
-
-                if ($datareq['delay'] == 0) {
-                    $end_date = $_SESSION["glpi_currenttime"];
-                    $a_gantt[$datareq['id']]['end_date'] = $end_date;
-                } else {
-                    $str_end_date = strtotime($datareq['date']) + $datareq['delay'];
-                    $end_date = date('Y-m-d H:i:s', $str_end_date);
-                    $a_gantt[$datareq['id']]['end_date'] = $end_date;
+                // The level holding the group, its own name otherwise. The stored column is a
+                // JSON blob: a malformed row decodes to null, on which in_array() would raise
+                // a TypeError.
+                $name = Dropdown::getDropdownName("glpi_groups", $data['groups_id']);
+                foreach ($mylevels as $levelname => $groups) {
+                    if (is_array($groups) && in_array($data['groups_id'], $groups)) {
+                        $name = $levelname;
+                        break;
+                    }
                 }
+            }
+
+            // Only a NULL delay is still open: a row closed with a zero delay (released in the
+            // same second, or outside the opening hours) ends where it starts
+            if ($data['delay'] === null) {
+                $add($name, $data['date'], $now, Tool::getActiveTime($ticket, $data['date'], $now));
+            } else {
+                $delay = (int) $data['delay'];
+                $add($name, $data['date'], Tool::getEndDate($ticket, $data['date'], $delay), $delay);
             }
         }
 
-        if (count($a_gantt) > 0) {
-
-            $chartService = new ChartService();
-            //            $calendar = new Calendar();
-            $data = new DataTable();
-
-            $data->addColumn(new Column(ColumnType::String, id: 'Task ID'));
-            $data->addColumn(new Column(ColumnType::Date, id: 'Start'));
-            $data->addColumn(new Column(ColumnType::Date, id: 'End'));
-
-            $date = function ($input): DateTime {
-                $year = date('Y', strtotime($input));
-                $month = date('m', strtotime($input));
-                $day = date('d', strtotime($input));
-                $hour = date('H', strtotime($input));
-                $minute = date('i', strtotime($input));
-                $second = date('s', strtotime($input));
-
-                $result = new DateTime();
-                $result->setTimestamp(mktime($hour, $minute, $second, $month, $day, $year));
-                return $result;
-            };
-
-            $height = 50;
-            $i = [];
-            $j = [];
-            $k = [];
-            $first = 0;
-            foreach ($a_gantt as $key => $v) {
-                if ($item instanceof AssignUser) {
-                    $name = getUserName($v['users_id']);
-
-                    if (!in_array($v['users_id'], $i)) {
-                        $height += 50;
-                    }
-                    $i[] = $v['users_id'];
-                } elseif ($item instanceof AssignGroup) {
-
-                    // The loop used to assign $name on every iteration, with no break and no
-                    // memory of the match: the value finally kept was always the one computed
-                    // for the last configured level, so a group belonging to the first level
-                    // was labelled with its own name instead. Start from the fallback and stop
-                    // on the first level that actually holds the group. The stored column is a
-                    // JSON blob, so a malformed row decodes to null, on which in_array() would
-                    // raise a TypeError.
-                    $name = Dropdown::getDropdownName("glpi_groups", $v['groups_id']);
-                    foreach ($mylevels as $levelname => $groups) {
-                        if (is_array($groups) && in_array($v['groups_id'], $groups)) {
-                            $name = $levelname;
-                            break;
-                        }
-                    }
-
-
-
-
-                    if (!in_array($v['groups_id'], $j)) {
-                        $height += 50;
-                    }
-                    $j[] = $v['groups_id'];
-                } else {
-                    if ($v['old_status'] == 0) {
-                        $name = __('New ticket');
-                    } else {
-                        $name = Ticket::getStatus($v['old_status']);
-                    }
-
-                    if (!in_array($v['old_status'], $k)) {
-                        $height += 50;
-                    }
-                    $k[] = $v['old_status'];
-                }
-                $data->addRows([
-                    [$name, $date($v['begin_date']), $date($v['end_date'])],
-                ]);
-                $first++;
-                if ($first == count($a_gantt) && $item instanceof AssignState) {
-                    if ($v['new_status'] != Ticket::CLOSED) {
-                        $name = Ticket::getStatus($v['new_status']);
-                        $data->addRows([
-                            [$name, $date($v['end_date']), $date(date('Y-m-d H:i:s'))],
-                        ]);
-                        $height += 50;
-                    }
-                }
-            }
-
-            $chart = $chartService->createTimelineChart('ticket' . get_class($item), $data);
-            $chart->options->avoidOverlappingGridLines = false;
-            $chart->options->height = $height;
-            //        if ($item instanceof AssignState) {
-            //            $chart->options->colors = ['#49bf4d', '#49bf4d', 'orange', '#1b2f62'];
-            //        }
-            // Google Charts has no dark theme, and a Timeline chart exposes nothing for
-            // its time axis or its grid lines -- hAxis is not supported there. Only the
-            // canvas and the row labels can be reached from here, which left the axis
-            // labels black whatever we did. The stylesheet inverts the whole drawing
-            // under a dark palette instead; everything below is therefore still authored
-            // for a light canvas, and comes out light-on-dark after inversion.
-            // The canvas itself is dropped so the card shows through rather than being
-            // inverted into a flat black slab of its own.
-            if (ThemeManager::getInstance()->getCurrentTheme()->isDarkTheme()) {
-                $chart->options->backgroundColor = new ChartBackgroundColor(fill: 'transparent');
-            }
-            $chart->options->timeline = new TimelineOptions(
-                rowLabelStyle: new ChartLabelStyle(
-                    color: '#333',
-                    fontName: 'inter, -apple-system, blinkmacsystemfont, san francisco, segoe ui, roboto, helvetica neue, sans-serif',
-                    fontSize: '12px',
-                ),
+        // The status the ticket is in, up to now, unless it is closed
+        if ($last_state !== null && $last_state['new_status'] != Ticket::CLOSED) {
+            $add(
+                Ticket::getStatus($last_state['new_status']),
+                $last_state['date'],
+                $now,
+                Tool::getActiveTime($ticket, $last_state['date'], $now),
             );
-
-            // The library emits a script tag of its own, pointing at the Google Charts
-            // bootstrap hosted on gstatic.com. The very same loader is shipped with the
-            // plugin, so serve the local copy instead: the bootstrap that runs in an
-            // authenticated GLPI page is then versioned and auditable. The loader still
-            // resolves the chart modules from gstatic.com at draw time, which is
-            // documented in the README.
-            // render() emits that bootstrap itself on its first call, and ChartService::load()
-            // never sets the flag render() tests -- only render() does. Calling load() first
-            // therefore left the flag down and render() emitted the whole bootstrap a second
-            // time, that copy being neither hardened nor pointed at the local loader. Render
-            // once, and harden what render() returns.
-            $markup = str_replace(
-                self::GOOGLE_CHARTS_REMOTE_LOADER,
-                PLUGIN_TIMELINETICKET_WEBDIR . '/js/google-charts/loader.js',
-                $chartService->render('ticket' . get_class($item)),
-            );
-
-            // Draw all charts. A null here means the escaping could not be applied, so the
-            // template gets no markup at all and shows its fallback notice: better a missing
-            // chart than one carrying unescaped labels into an inline script.
-            TemplateRenderer::getInstance()->display('@timelineticket/chart.html.twig', [
-                'chart' => self::hardenChartMarkup($markup) ?? '',
-            ]);
         }
+
+        return ['rows' => $rows, 'periods' => $periods];
+    }
+
+    /**
+     * Timeline chart of a ticket, drawn in the browser with the ECharts library of GLPI
+     * (public/lib/echarts.js, the one of the dashboards): no request leaves the instance.
+     * public/js/timeline_chart.js loads the library on the pages that hold a chart only.
+     *
+     * @param AssignState|AssignGroup|AssignUser $item
+     */
+    public static function showTimelineGraph(Ticket $ticket, $item)
+    {
+        $chart = self::getChartData($ticket, $item);
+        if ($chart['periods'] === []) {
+            return;
+        }
+
+        TemplateRenderer::getInstance()->display('@timelineticket/chart.html.twig', [
+            'chart'       => $chart,
+            // Same URL as Html::script() would print, cache key included
+            'echarts_src' => Html::getPrefixedUrl('lib/echarts.js')
+                . '?v=' . FrontEnd::getVersionCacheKey(GLPI_VERSION),
+        ]);
     }
 }

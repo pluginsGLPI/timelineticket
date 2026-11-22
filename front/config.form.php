@@ -98,12 +98,12 @@ if (isset($_POST["reconstructStates"])) {
 
     // Hand over the keys the form actually offers rather than the whole POST: CommonDBTM
     // writes any posted key that matches a column, so passing $_POST straight through is an
-    // implicit mass assignment. It is harmless on today's table -- id, add_waiting,
-    // use_google_charts and use_calendar are all it holds -- but it would silently expose
-    // whatever column a later version adds.
+    // implicit mass assignment. It is harmless on today's table -- id, add_waiting and
+    // use_calendar are all it holds -- but it would silently expose whatever column a later
+    // version adds.
     $ptConfig->update(array_intersect_key(
         $_POST,
-        array_flip(['id', 'add_waiting', 'use_google_charts', 'use_calendar']),
+        array_flip(['id', 'add_waiting', 'use_calendar']),
     ));
     Html::back();
 } else {

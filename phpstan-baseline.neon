@@ -1,18 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Access to an undefined property CommonGLPI\:\:\$fields\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/AssignState.php
-
-		-
-			message: '#^Call to an undefined method CommonGLPI\:\:getField\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/AssignState.php
-
-		-
 			message: '#^Access to property \$fields on an unknown class GlpiPlugin\\Mydashboard\\Preference\.$#'
 			identifier: class.notFound
 			count: 1
@@ -133,49 +121,13 @@ parameters:
 			path: src/Display.php
 
 		-
-			message: '#^Parameter \#1 \$hour of function mktime expects int, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Display.php
-
-		-
 			message: '#^Parameter \#1 \$ticket of static method GlpiPlugin\\Timelineticket\\Display\:\:showForTicket\(\) expects Ticket, CommonGLPI given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Display.php
 
 		-
-			message: '#^Parameter \#2 \$minute of function mktime expects int\|null, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Display.php
-
-		-
-			message: '#^Parameter \#3 \$second of function mktime expects int\|null, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Display.php
-
-		-
 			message: '#^Parameter \#3 \$withblank of static method GlpiPlugin\\Timelineticket\\Tool\:\:getDetails\(\) expects int, false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Display.php
-
-		-
-			message: '#^Parameter \#4 \$month of function mktime expects int\|null, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Display.php
-
-		-
-			message: '#^Parameter \#5 \$day of function mktime expects int\|null, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Display.php
-
-		-
-			message: '#^Parameter \#6 \$year of function mktime expects int\|null, string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Display.php
@@ -197,10 +149,4 @@ parameters:
 			identifier: return.missing
 			count: 1
 			path: src/Profile.php
-
-		-
-			message: '#^Access to an undefined property CommonGLPI\:\:\$fields\.$#'
-			identifier: property.notFound
-			count: 2
-			path: src/Tool.php
 

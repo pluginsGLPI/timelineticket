@@ -31,7 +31,7 @@
 
 The **TimelineTicket** plugin adds a **Timeline** tab to every GLPI ticket. It records status changes, group assignments, and technician assignments in real time, then displays this data as:
 
-- **Gantt charts** (Google Charts) showing the time spent in each status or by each actor
+- **Gantt charts** (ECharts, bundled with GLPI) showing the time spent in each status or by each actor
 - **Summary tables** with durations per status, per group, and per technician
 - A visual **swimlane** grouping all ticket events (statuses, groups, technicians, followups, tasks, solutions, validations) by status lane
 
@@ -92,7 +92,7 @@ The tab displays:
 
 Section **Result details (Statuses)** — includes:
 
-1. **Status Gantt chart** (Google Charts Timeline): each bar represents the time spent in a given status.
+1. **Status Gantt chart** (ECharts): each bar represents the time spent in a given status.
 2. **Detail table** with columns:
    - Old status / New status
    - Start date / End date

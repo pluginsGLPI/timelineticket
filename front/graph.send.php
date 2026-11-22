@@ -71,7 +71,7 @@ if (($uid = Session::getLoginUserID(false))
 // Reject explicitly instead, so all refusals look alike.
 //
 // This endpoint is in fact dead code: nothing in the plugin writes to GLPI_GRAPH_DIR any more
-// -- the charts are drawn in the browser by Google Charts -- and no caller references this
+// -- the charts are drawn in the browser by ECharts -- and no caller references this
 // file. It should be deleted outright rather than kept alive without a consumer; a guard no
 // feature exercises is a guard nobody will maintain correctly.
 throw new BadRequestHttpException('Unauthorized access to this file');

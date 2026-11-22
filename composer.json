@@ -1,6 +1,5 @@
 {
     "require": {
-        "sportlog/google-charts": "^1.0",
         "php": ">=8.2"
     },
     "require-dev": {
