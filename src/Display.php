@@ -347,7 +347,9 @@ class Display extends CommonGLPI
             'reconstruct_button' => $reconstruct_button,
             'calendar_link'      => $calendar_link,
             'late'               => $late,
-            'info_message'       => __('This view displays time spent by status, group, technician. The display does not use working hours', 'timelineticket'),
+            'info_message'       => Config::useCalendar()
+                ? __('This view displays time spent by status, group, technician. The display uses the working hours of the calendar', 'timelineticket')
+                : __('This view displays time spent by status, group, technician. The display does not use working hours', 'timelineticket'),
             'history'            => $history,
             'total'              => Html::timestampToString($total, true),
             'detail_group'       => $detail_group,
@@ -962,14 +964,6 @@ class Display extends CommonGLPI
                 $a_gantt[$datareq['id']]['old_status'] = $datareq['old_status'];
                 $a_gantt[$datareq['id']]['new_status'] = $datareq['new_status'];
             }
-
-
-            //            $calendars_id = Entity::getUsedConfig(
-            //                'calendars_strategy',
-            //                $ticket->fields['entities_id'],
-            //                'calendars_id',
-            //                0
-            //            );
 
             if ($item instanceof AssignState) {
                 $end_date = $datareq['date'];

@@ -39,7 +39,6 @@
 namespace GlpiPlugin\Timelineticket;
 
 use CommonDBTM;
-use CommonGLPI;
 use DBConnection;
 use Glpi\Application\View\TemplateRenderer;
 use Html;
@@ -133,13 +132,8 @@ class AssignState extends CommonDBTM
 
         if (!$datedebut) {
             $delay = 0;
-            // Utilisation calendrier
-            //                    } elseif ($calendars_id > 0
-            // && $calendar->getFromDB($calendars_id)) {
-            //                        $delay = $calendar->getActiveTimeBetween($datedebut, $_SESSION["glpi_currenttime"]);
         } else {
-            // cas 24/24 - 7/7
-            $delay = strtotime($_SESSION["glpi_currenttime"]) - strtotime($datedebut);
+            $delay = Tool::getActiveTime($ticket, $datedebut, $_SESSION["glpi_currenttime"]);
         }
         //Test for plugin_timelineticket_ticket_add (already added)
         if ($ticket->fields['date_mod'] != $ticket->fields['date_creation']) {
@@ -154,7 +148,7 @@ class AssignState extends CommonDBTM
     }
 
 
-    public static function getTotaltimeEnddate(CommonGLPI $ticket)
+    public static function getTotaltimeEnddate(Ticket $ticket)
     {
 
         $totaltime = 0;
@@ -218,9 +212,10 @@ class AssignState extends CommonDBTM
 
             $states[$now . '_old_status'] = [
                 'timestamp' => time(),
-                'label'     => Ticket::getStatus($new) . " (" . Html::timestampToString((date(
-                    'U',
-                ) - strtotime($data['date'])), true) . ")",
+                'label'     => Ticket::getStatus($new) . " (" . Html::timestampToString(
+                    Tool::getActiveTime($ticket, $data['date'], date('Y-m-d H:i:s')),
+                    true,
+                ) . ")",
                 'class'     => 'now',
             ];
 
@@ -288,14 +283,15 @@ class AssignState extends CommonDBTM
             $first++;
 
             if ($first == $count && $data['new_status'] != Ticket::CLOSED) {
-                $rows[] = [
+                $current = Tool::getActiveTime($ticket, $data['date'], date('Y-m-d H:i:s'));
+                $rows[]  = [
                     'old_status' => Ticket::getStatus($data['new_status']),
                     'new_status' => '',
                     'begin_date' => Html::convDateTime($data['date']),
                     'end_date'   => '',
-                    'delay'      => Html::timestampToString((date('U') - strtotime($data['date'])), true),
+                    'delay'      => Html::timestampToString($current, true),
                 ];
-                $total += (date('U') - strtotime($data['date']));
+                $total += $current;
             }
         }
 
@@ -360,6 +356,7 @@ class AssignState extends CommonDBTM
         $iterator = $DB->request($criteria);
 
         foreach ($iterator as $data) {
+            $ticket->getFromResultSet($data);
             $queryl = [
                 'SELECT' => '*',
                 'FROM' => 'glpi_logs',
@@ -381,7 +378,7 @@ class AssignState extends CommonDBTM
                     $date_mod[$first] = $datal['date_mod'];
 
                     if (count($resultl) == 1) {
-                        $delay = strtotime($datal['date_mod']) - strtotime($data['date']);
+                        $delay = Tool::getActiveTime($ticket, $data['date'], $datal['date_mod']);
                     } else {
 
                         if (!isset($date_mod[$first - 1])) {
@@ -389,7 +386,7 @@ class AssignState extends CommonDBTM
                         } else {
                             $olddate = $date_mod[$first - 1];
                         }
-                        $delay = strtotime($datal['date_mod']) - strtotime($olddate);
+                        $delay = Tool::getActiveTime($ticket, $olddate, $datal['date_mod']);
                     }
 
                     $this->add(['tickets_id' => $data['id'],
