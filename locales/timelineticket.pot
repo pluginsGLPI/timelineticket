@@ -8,25 +8,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-16 13:09+0000\n"
+"POT-Creation-Date: 2026-11-23 04:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: templates/chart.html.twig
-msgid ""
-"The chart could not be drawn: the Google Charts modules could not be loaded "
-"from www.gstatic.com. Check the outbound access and the content security "
-"policy of this instance."
-msgstr ""
-
-#: templates/ticket_timeline.html.twig setup.php:58 hook.php:230 hook.php:245
-#: src/Profile.php:70 src/Display.php:95
+#: templates/ticket_timeline.html.twig templates/chart.html.twig hook.php:231
+#: hook.php:246 setup.php:58 src/Display.php:73 src/Profile.php:70
 msgid "Timeline of ticket"
 msgid_plural "Timeline of tickets"
 msgstr[0] ""
@@ -42,6 +35,24 @@ msgstr ""
 
 #: templates/ticket_timeline.html.twig templates/history.html.twig
 msgid "Delay"
+msgstr ""
+
+#: templates/config.html.twig
+msgid "Flags"
+msgstr ""
+
+#: templates/config.html.twig
+msgid "Input time on groups / users when ticket is waiting"
+msgstr ""
+
+#: templates/config.html.twig
+msgid "Count times in the working hours of the ticket calendar"
+msgstr ""
+
+#: templates/config.html.twig
+msgid ""
+"Applies to the times recorded from now on. Use the reconstruction to "
+"recompute the history."
 msgstr ""
 
 #: templates/config_reconstruct.html.twig
@@ -82,116 +93,36 @@ msgstr ""
 msgid "New status"
 msgstr ""
 
-#: templates/config.html.twig
-msgid "Flags"
-msgstr ""
-
-#: templates/config.html.twig
-msgid "Input time on groups / users when ticket is waiting"
-msgstr ""
-
-#: templates/config.html.twig
-msgid "Draw the timeline as a chart (Google Charts)"
-msgstr ""
-
-#: templates/config.html.twig
-msgid ""
-"The chart modules are fetched from www.gstatic.com when the tab is opened, "
-"which requires outbound access and a content security policy entry. The "
-"detail table is displayed either way."
-msgstr ""
-
-#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:73
-msgid "statSpentTimeProcessingByGroup_report_title"
-msgstr ""
-
-#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:338
-msgid "Duration by \"in progress\""
-msgstr ""
-
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:68
-msgid "statSpentTimeByGroup_report_title"
-msgstr ""
-
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:337
-msgid "Tasks number by"
-msgstr ""
-
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:338
-msgid "Tasks duration by"
-msgstr ""
-
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:339
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:338
-msgid "Duration by"
-msgstr ""
-
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:342
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:341
-msgid "Total waiting duration of ticket"
-msgstr ""
-
-#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:343
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:342
-msgid "Total duration of ticket"
-msgstr ""
-
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:67
-msgid "statResolvedSpentTimeByGroup_report_title"
-msgstr ""
-
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:326
-msgid "Solved by"
-msgstr ""
-
-#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:327
-msgid "Solved by (Group)"
-msgstr ""
-
-#: front/config.form.php:144
-msgid "Timeline rebuilt"
-msgstr ""
-
-#: front/config.form.php:149
-msgid "The timeline rebuild failed, no change has been applied"
-msgstr ""
-
-#: src/AssignGroup.php:426
-msgid "Ticket assign group history"
-msgstr ""
-
-#: src/AssignUser.php:460
-msgid "Ticket assign technician history"
-msgstr ""
-
-#: src/AssignState.php:227
-msgid "Ticket states history"
-msgstr ""
-
 #: src/Dashboard.php:115
 msgid "Number of assignments per technician to a ticket"
 msgstr ""
 
-#: src/Display.php:159
+#: src/Display.php:137
 msgid "Groups in charge of the ticket"
 msgstr ""
 
-#: src/Display.php:161
+#: src/Display.php:139
 msgid "Technicians in charge of the ticket"
 msgstr ""
 
-#: src/Display.php:223
+#: src/Display.php:201
 msgctxt "button"
 msgid "Reconstruct history for this ticket"
 msgstr ""
 
-#: src/Display.php:348
+#: src/Display.php:327
+msgid ""
+"This view displays time spent by status, group, technician. The display uses "
+"the working hours of the calendar"
+msgstr ""
+
+#: src/Display.php:328
 msgid ""
 "This view displays time spent by status, group, technician. The display does "
 "not use working hours"
 msgstr ""
 
-#: src/Display.php:663
+#: src/Display.php:644
 msgid "Technician"
 msgid_plural "Technicians"
 msgstr[0] ""
@@ -205,4 +136,71 @@ msgstr[1] ""
 
 #: src/Grouplevel.php:87 src/Grouplevel.php:150
 msgid "List of associated groups"
+msgstr ""
+
+#: src/AssignGroup.php:344
+msgid "Ticket assign group history"
+msgstr ""
+
+#: src/AssignUser.php:360
+msgid "Ticket assign technician history"
+msgstr ""
+
+#: src/AssignState.php:222
+msgid "Ticket states history"
+msgstr ""
+
+#: front/config.form.php:145
+msgid "Timeline rebuilt"
+msgstr ""
+
+#: front/config.form.php:150
+msgid "The timeline rebuild failed, no change has been applied"
+msgstr ""
+
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:68
+msgid "statResolvedSpentTimeByGroup_report_title"
+msgstr ""
+
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:276
+msgid "Solved by"
+msgstr ""
+
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:277
+msgid "Solved by (Group)"
+msgstr ""
+
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:288
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:289
+msgid "Duration by"
+msgstr ""
+
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:291
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:292
+msgid "Total waiting duration of ticket"
+msgstr ""
+
+#: report/statResolvedSpentTimeByGroup/statResolvedSpentTimeByGroup.php:292
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:293
+msgid "Total duration of ticket"
+msgstr ""
+
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:73
+msgid "statSpentTimeProcessingByGroup_report_title"
+msgstr ""
+
+#: report/statSpentTimeProcessingByGroup/statSpentTimeProcessingByGroup.php:287
+msgid "Duration by \"in progress\""
+msgstr ""
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:69
+msgid "statSpentTimeByGroup_report_title"
+msgstr ""
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:287
+msgid "Tasks number by"
+msgstr ""
+
+#: report/statSpentTimeByGroup/statSpentTimeByGroup.php:288
+msgid "Tasks duration by"
 msgstr ""
